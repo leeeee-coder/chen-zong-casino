@@ -200,6 +200,7 @@
         <input type="text" id="nickInput" placeholder="輸入暱稱入座" maxlength="12">
       </div>
       <div class="msg" id="deviceMsg" style="color:var(--cream-dim);"></div>
+      <div id="nickGateArea"></div>
       <div class="chip-badge">
         <div class="chip-icon"></div>
         <div>
@@ -212,7 +213,7 @@
         <button id="checkinBtn" style="width:100%;" class="ghost">每日簽到 +1,000 大妃幣</button>
       </div>
       <div class="msg" id="checkinMsg"></div>
-      <div class="rules">新玩家起始 10 萬大妃幣。下注需輸入本金並選槓桿（1~5x）：猜中拿回本金＋本金×槓桿的獲利，猜錯本金歸零（不會因槓桿高就虧更多）；完全命中獲利再 ×1.5；每筆單送出後不能修改，同一天限下一次單。連續三天猜中加碼 +3,000；每週五結算，當週全中再加碼 +6,000。收盤後可以搶先預測明天，命中獲利再 ×1.5。</div>
+      <div class="rules">新玩家起始 10 萬大妃幣。下注需輸入本金並選槓桿（1~5x）：猜中拿回本金＋本金×槓桿的獲利，猜錯本金歸零（不會因槓桿高就虧更多）；完全命中獲利再 ×1.5；每筆單送出後不能修改，同一天限下一次單。連續三天猜中加碼 +3,000；每週五結算，當週全中再加碼 +6,000。今日報到猜測 9:00 截止下單；盤後預測明日自中午 12:00 開放至隔天 8:59，命中獲利再 ×1.5。暱稱可以自己設密碼保護，避免被別人冒用。</div>
     </div>
   </div>
 
@@ -220,27 +221,30 @@
     <div class="two-col">
       <div class="panel" id="todayBetPanel">
         <h2>今日下單</h2>
-        <div class="field-row" style="gap:6px;">
-          <button type="button" class="tab-btn active" id="modeTimeBtn" style="flex:1;">猜時間</button>
-          <button type="button" class="tab-btn" id="modeNoShowBtn" style="flex:1;">大妃不會來</button>
+        <div id="todayBetForm">
+          <div class="field-row" style="gap:6px;">
+            <button type="button" class="tab-btn active" id="modeTimeBtn" style="flex:1;">猜時間</button>
+            <button type="button" class="tab-btn" id="modeNoShowBtn" style="flex:1;">大妃不會來</button>
+          </div>
+          <div class="field-row">
+            <input type="time" id="timeInput" value="09:00" style="flex:1;">
+          </div>
+          <div class="field-row">
+            <input type="number" id="wagerInput" placeholder="本金（大妃幣）" min="1" step="1000">
+          </div>
+          <div class="field-row" style="gap:6px;">
+            <button type="button" class="lev-btn active" data-lev="1">1x</button>
+            <button type="button" class="lev-btn" data-lev="2">2x</button>
+            <button type="button" class="lev-btn" data-lev="3">3x</button>
+            <button type="button" class="lev-btn" data-lev="4">4x</button>
+            <button type="button" class="lev-btn" data-lev="5">5x</button>
+          </div>
+          <div class="field-row">
+            <button id="betBtn" class="bet" style="width:100%;">送出下單</button>
+          </div>
+          <div class="msg" id="betMsg"></div>
         </div>
-        <div class="field-row">
-          <input type="time" id="timeInput" value="09:00" style="flex:1;">
-        </div>
-        <div class="field-row">
-          <input type="number" id="wagerInput" placeholder="本金（大妃幣）" min="1" step="1000">
-        </div>
-        <div class="field-row" style="gap:6px;">
-          <button type="button" class="lev-btn active" data-lev="1">1x</button>
-          <button type="button" class="lev-btn" data-lev="2">2x</button>
-          <button type="button" class="lev-btn" data-lev="3">3x</button>
-          <button type="button" class="lev-btn" data-lev="4">4x</button>
-          <button type="button" class="lev-btn" data-lev="5">5x</button>
-        </div>
-        <div class="field-row">
-          <button id="betBtn" class="bet" style="width:100%;">送出下單</button>
-        </div>
-        <div class="msg" id="betMsg"></div>
+        <div class="msg" id="todayCutoffMsg" style="display:none;color:var(--cream-dim);"></div>
 
         <div class="tickets" id="ticketList"></div>
 
@@ -386,11 +390,24 @@ const STARTING_BALANCE=100000;
 const DAILY_DIVIDEND=1000;
 const STREAK_BONUS=3000;
 const FULL_WEEK_BONUS=6000;
-const CUTOFF_HOUR=12;
-const CUTOFF_MINUTE=30;
+const MORNING_CUTOFF_MIN=9*60;
+const AFTERHOURS_OPEN_MIN=12*60;
+const EARLYLEAVE_CUTOFF_HOUR=12;
+const EARLYLEAVE_CUTOFF_MINUTE=30;
+function nowMinutes(){
+  const n=new Date();
+  return n.getHours()*60+n.getMinutes();
+}
+function isMorningBettingOpen(){
+  return nowMinutes()<MORNING_CUTOFF_MIN;
+}
+function isAfterHoursTomorrowOpen(){
+  const t=nowMinutes();
+  return t>=AFTERHOURS_OPEN_MIN||t<MORNING_CUTOFF_MIN;
+}
 function isAfterCutoff(){
   const n=new Date();
-  return n.getHours()>CUTOFF_HOUR||(n.getHours()===CUTOFF_HOUR&&n.getMinutes()>=CUTOFF_MINUTE);
+  return n.getHours()>EARLYLEAVE_CUTOFF_HOUR||(n.getHours()===EARLYLEAVE_CUTOFF_HOUR&&n.getMinutes()>=EARLYLEAVE_CUTOFF_MINUTE);
 }
 
 const now=new Date();
@@ -424,6 +441,7 @@ const storage={
 let weekData={days:{},fullWeekBonus:{}};
 let players={};
 let unlocked=false;
+let verifiedNick=null;
 let suppressPollUntil=0;
 function markLocalWrite(){suppressPollUntil=Date.now()+15000;}
 let activeTab='accuracy';
@@ -587,6 +605,9 @@ function getDeviceNick(){
 function setDeviceNick(nick){
   try{localStorage.setItem(deviceKey(),nick);}catch(e){}
 }
+function clearDeviceNick(){
+  try{localStorage.removeItem(deviceKey());}catch(e){}
+}
 function renderDeviceLock(){
   const locked=getDeviceNick();
   const nickInput=document.getElementById('nickInput');
@@ -594,7 +615,23 @@ function renderDeviceLock(){
   if(locked){
     nickInput.value=locked;
     nickInput.readOnly=true;
-    msg.textContent='此裝置今天已鎖定暱稱「'+locked+'」，明天會自動重置。';
+    msg.innerHTML='';
+    const span=document.createElement('span');
+    span.textContent='此裝置今天已鎖定暱稱「'+locked+'」，明天會自動重置。';
+    const resetLink=document.createElement('a');
+    resetLink.href='javascript:void(0)';
+    resetLink.textContent='不是我的暱稱？點此重新輸入';
+    resetLink.style.color='var(--gold)';
+    resetLink.style.marginLeft='6px';
+    resetLink.style.textDecoration='underline';
+    resetLink.onclick=()=>{
+      clearDeviceNick();
+      verifiedNick=null;
+      nickInput.value='';
+      renderAll();
+    };
+    msg.appendChild(span);
+    msg.appendChild(resetLink);
   }else{
     nickInput.readOnly=false;
     msg.textContent='同一台裝置每天限用一個暱稱，送出第一筆單後會鎖定。';
@@ -611,12 +648,117 @@ function renderPlayerBadge(){
   if(!nick){
     btn.disabled=true;
     btn.textContent='先輸入暱稱';
+  }else if(nick!==verifiedNick){
+    btn.disabled=true;
+    btn.textContent='請先完成暱稱驗證';
   }else if(day.checkins[nick]){
     btn.disabled=true;
     btn.textContent='今天已簽到';
   }else{
     btn.disabled=false;
     btn.textContent='每日簽到 +1,000 大妃幣';
+  }
+}
+
+function isNickVerified(nick){
+  return !!nick&&nick===verifiedNick;
+}
+
+function renderNickGate(){
+  const nick=currentNick();
+  const area=document.getElementById('nickGateArea');
+  if(!area) return;
+  if(!nick||nick===verifiedNick){
+    area.innerHTML='';
+    return;
+  }
+  area.innerHTML='';
+  const p=players[nick];
+  if(p&&p.pin){
+    const hint=document.createElement('div');
+    hint.className='msg';
+    hint.style.color='var(--cream-dim)';
+    hint.textContent='這個暱稱已經設過密碼保護，輸入正確密碼才能操作。';
+    area.appendChild(hint);
+
+    const row=document.createElement('div');
+    row.className='field-row';
+    row.style.marginTop='4px';
+    const pinInput=document.createElement('input');
+    pinInput.type='text';
+    pinInput.inputMode='numeric';
+    pinInput.placeholder='這個暱稱的密碼';
+    pinInput.id='nickPinInput';
+    pinInput.style.flex='1';
+    const btn=document.createElement('button');
+    btn.className='ghost';
+    btn.textContent='解鎖';
+    const err=document.createElement('div');
+    err.className='msg err';
+    err.id='nickPinMsg';
+    const tryUnlock=()=>{
+      const val=document.getElementById('nickPinInput').value.trim();
+      if(val===p.pin){
+        verifiedNick=nick;
+        renderAll();
+      }else{
+        document.getElementById('nickPinMsg').textContent='密碼錯誤，這應該不是你的暱稱。';
+      }
+    };
+    btn.onclick=tryUnlock;
+    pinInput.addEventListener('keydown',(e)=>{if(e.key==='Enter') tryUnlock();});
+    row.appendChild(pinInput);
+    row.appendChild(btn);
+    area.appendChild(row);
+    area.appendChild(err);
+  }else{
+    const hint=document.createElement('div');
+    hint.className='msg';
+    hint.style.color='var(--cream-dim)';
+    hint.textContent='第一次用這個暱稱嗎？可以設 4 碼密碼保護，避免別人打你的名字亂用你的大妃幣（可略過）。';
+    area.appendChild(hint);
+
+    const row=document.createElement('div');
+    row.className='field-row';
+    row.style.marginTop='4px';
+    const pinInput=document.createElement('input');
+    pinInput.type='text';
+    pinInput.inputMode='numeric';
+    pinInput.placeholder='設 4 碼密碼（選填）';
+    pinInput.id='nickPinSetup';
+    pinInput.maxLength=6;
+    pinInput.style.flex='1';
+    const setBtn=document.createElement('button');
+    setBtn.className='ghost';
+    setBtn.textContent='設定密碼';
+    setBtn.onclick=async ()=>{
+      const val=document.getElementById('nickPinSetup').value.trim();
+      if(!val) return;
+      const pl=getPlayer(nick);
+      pl.pin=val;
+      setBtn.disabled=true;
+      await savePlayers();
+      setBtn.disabled=false;
+      verifiedNick=nick;
+      renderAll();
+    };
+    row.appendChild(pinInput);
+    row.appendChild(setBtn);
+    area.appendChild(row);
+
+    const skipRow=document.createElement('div');
+    skipRow.className='field-row';
+    skipRow.style.marginTop='0';
+    const skipBtn=document.createElement('button');
+    skipBtn.className='ghost';
+    skipBtn.style.width='100%';
+    skipBtn.textContent='略過，不設密碼';
+    skipBtn.onclick=()=>{
+      verifiedNick=nick;
+      renderAll();
+    };
+    skipRow.appendChild(skipBtn);
+    area.appendChild(skipRow);
   }
 }
 
@@ -684,6 +826,24 @@ function renderEarlyLeaveTickets(){
   const el=day.earlyLeave;
   const actualInfo={isNoShow:el.noShow,actualTime:el.noShow?null:el.actual};
   renderGuessTickets('elTicketList',el.guesses,el.settled,actualInfo);
+}
+
+function renderTodayCutoff(){
+  const betForm=document.getElementById('todayBetForm');
+  const msg=document.getElementById('todayCutoffMsg');
+  const day=getDay();
+  if(day.settled){
+    if(betForm) betForm.style.display='none';
+    if(msg) msg.style.display='none';
+    return;
+  }
+  if(!isMorningBettingOpen()){
+    if(betForm) betForm.style.display='none';
+    if(msg){msg.style.display='block';msg.textContent='已過早上 9:00 下單截止時間，等開獎結果公布。';}
+  }else{
+    if(betForm) betForm.style.display='';
+    if(msg) msg.style.display='none';
+  }
 }
 
 function renderActual(){
@@ -971,6 +1131,7 @@ async function doCheckin(){
   const msg=document.getElementById('checkinMsg');
   msg.textContent='';msg.className='msg';
   if(!nick){msg.textContent='先輸入暱稱。';msg.className='msg err';return;}
+  if(!isNickVerified(nick)){msg.textContent='請先在上面完成暱稱驗證。';msg.className='msg err';return;}
   const deviceNick=getDeviceNick();
   if(deviceNick&&deviceNick!==nick){
     msg.textContent='這台裝置今天已經用「'+deviceNick+'」簽到過了，同裝置一天限用一個暱稱。';
@@ -1007,6 +1168,7 @@ async function placeOrder(opts){
   const nick=currentNick();
   msgEl.textContent='';msgEl.className='msg';
   if(!nick){msgEl.textContent='先在上面輸入暱稱。';msgEl.className='msg err';return false;}
+  if(!isNickVerified(nick)){msgEl.textContent='請先在上面完成暱稱驗證。';msgEl.className='msg err';return false;}
   const deviceNick=getDeviceNick();
   if(deviceNick&&deviceNick!==nick){
     msgEl.textContent='這台裝置今天已經用「'+deviceNick+'」下過單了，同裝置一天限用一個暱稱。';
@@ -1021,7 +1183,11 @@ async function placeOrder(opts){
     if(!timeVal){msgEl.textContent='選一個時間吧，或切換成「大妃不會來」。';msgEl.className='msg err';return false;}
     value=timeVal;
   }
-  if(afterHours&&isAfterCutoff()){msgEl.textContent='已過中午 12:30 下單截止時間。';msgEl.className='msg err';return false;}
+  if(afterHours){
+    if(!isAfterHoursTomorrowOpen()){msgEl.textContent='盤後預測明日的下單時間是中午12:00到隔天早上8:59，現在不在開放時段。';msgEl.className='msg err';return false;}
+  }else{
+    if(!isMorningBettingOpen()){msgEl.textContent='今日報到猜測已過早上 9:00 截止時間。';msgEl.className='msg err';return false;}
+  }
   const wager=Math.floor(Number(wagerVal));
   if(!wager||wager<=0){msgEl.textContent='輸入你想壓的本金金額。';msgEl.className='msg err';return false;}
 
@@ -1087,6 +1253,7 @@ async function placeEarlyLeaveOrder(mode,timeVal,wagerVal,leverage,msgEl){
   const nick=currentNick();
   msgEl.textContent='';msgEl.className='msg';
   if(!nick){msgEl.textContent='先在上面輸入暱稱。';msgEl.className='msg err';return false;}
+  if(!isNickVerified(nick)){msgEl.textContent='請先在上面完成暱稱驗證。';msgEl.className='msg err';return false;}
   const deviceNick=getDeviceNick();
   if(deviceNick&&deviceNick!==nick){
     msgEl.textContent='這台裝置今天已經用「'+deviceNick+'」下過單了，同裝置一天限用一個暱稱。';
@@ -1580,11 +1747,11 @@ function renderAfterHoursPanel(){
     panel.style.display='block';
     const betForm=document.getElementById('ahBetForm');
     const cutoffMsg=document.getElementById('ahCutoffMsg');
-    if(isAfterCutoff()){
+    if(!isAfterHoursTomorrowOpen()){
       if(betForm) betForm.style.display='none';
       if(cutoffMsg){
         cutoffMsg.style.display='block';
-        cutoffMsg.textContent='已過中午 12:30 下單截止時間，明天請早點來卡位。';
+        cutoffMsg.textContent='盤後預測明日的下單時間是中午 12:00 到隔天早上 8:59，現在不在開放時段。';
       }
     }else{
       if(betForm) betForm.style.display='';
@@ -1602,7 +1769,9 @@ function safeRender(fn){
 function renderAll(){
   document.getElementById('todayLabel').textContent=TODAY;
   safeRender(renderDeviceLock);
+  safeRender(renderNickGate);
   safeRender(renderPlayerBadge);
+  safeRender(renderTodayCutoff);
   safeRender(()=>renderTicketList('ticketList',TODAY));
   safeRender(renderActual);
   safeRender(renderAfterHoursPanel);
@@ -1620,7 +1789,7 @@ function renderAll(){
   renderAll();
   safeRender(renderChat);
 
-  document.getElementById('nickInput').addEventListener('input',()=>{renderPlayerBadge();});
+  document.getElementById('nickInput').addEventListener('input',()=>{renderPlayerBadge();renderNickGate();});
   document.getElementById('checkinBtn').addEventListener('click',doCheckin);
 
   document.getElementById('betBtn').addEventListener('click',doBetToday);
@@ -1727,10 +1896,13 @@ function renderAll(){
     const focused=document.activeElement&&document.activeElement.id;
     const skipActual=focused==='pinInput'||focused==='actualInput';
     const skipEarlyLeave=focused==='elPinInput'||focused==='elActualInput';
+    const skipNickGate=focused==='nickPinInput'||focused==='nickPinSetup';
     await loadAll();
     document.getElementById('todayLabel').textContent=TODAY;
     safeRender(renderDeviceLock);
+    if(!skipNickGate) safeRender(renderNickGate);
     safeRender(renderPlayerBadge);
+    safeRender(renderTodayCutoff);
     safeRender(()=>renderTicketList('ticketList',TODAY));
     if(!skipActual) safeRender(renderActual);
     safeRender(renderAfterHoursPanel);
