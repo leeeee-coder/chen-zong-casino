@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大妃天天樂 · 報到簽注站</title>
+<style>
+  :root{
+    --felt:#0B3D2E;
+    --felt-2:#0E4A38;
+    --felt-deep:#062A20;
+    --gold:#D4AF37;
+    --gold-dim:#8f7423;
+    --cream:#F4EDE0;
+    --cream-dim:#c9c0aa;
+    --red:#B3122E;
+    --red-dim:#7a0d20;
+    --line:#2f6b53;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--felt-deep);
+    color:var(--cream);
+    font-family:'Helvetica Neue',Arial,'PingFang TC','Microsoft JhengHei',sans-serif;
+    padding:0 0 48px;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:26px 16px 0;}
+  .mono{font-family:'Courier New',ui-monospace,monospace;}
+
+  header{
+    text-align:center;
+    margin-bottom:18px;
+    border:1px solid var(--gold-dim);
+    border-radius:8px;
+    padding:16px 12px;
+    background:linear-gradient(var(--felt),var(--felt-2));
+  }
+  header .suits{color:var(--gold-dim);font-size:13px;letter-spacing:8px;margin-bottom:6px;}
+  header h1{
+    font-size:21px;
+    letter-spacing:1.5px;
+    margin:0 0 6px;
+    font-weight:700;
+    color:var(--gold);
+  }
+  header p{margin:0;font-size:12.5px;color:var(--cream-dim);}
+
+  .panel{
+    background:var(--felt);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:18px 16px;
+    margin-bottom:16px;
+  }
+  .panel h2{
+    font-size:14.5px;
+    margin:0 0 12px;
+    color:var(--gold);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-weight:700;
+  }
+  .panel h2 .date{font-size:11.5px;color:var(--cream-dim);font-weight:400;}
+
+  .field-row{display:flex;gap:8px;margin-bottom:10px;}
+  input[type=text], input[type=time], input[type=number]{
+    flex:1;
+    background:var(--felt-deep);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:9px 10px;
+    font-size:15px;
+    color:var(--cream);
+  }
+  input::placeholder{color:var(--cream-dim);}
+  input[type=text]{flex:1.3;}
+  button{
+    border:none;
+    border-radius:4px;
+    padding:9px 16px;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+    background:var(--gold);
+    color:#2b2109;
+  }
+  button:active{transform:scale(0.98);}
+  button:disabled{opacity:0.45;cursor:not-allowed;}
+  button.ghost{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--cream-dim);
+    font-weight:400;
+  }
+  button.bet{background:var(--red);color:var(--cream);}
+  button.tab-btn{flex:1;background:var(--felt-deep);border:1px solid var(--line);color:var(--cream-dim);}
+  button.tab-btn.active{background:var(--gold);color:#2b2109;border-color:var(--gold);}
+  button.lev-btn{flex:1;background:var(--felt-deep);border:1px solid var(--line);color:var(--cream-dim);font-size:12.5px;padding:7px 4px;}
+  button.lev-btn.active{background:var(--red);color:var(--cream);border-color:var(--red);}
+
+  .chip-badge{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--felt-deep);
+    border:1px solid var(--gold-dim);
+    border-radius:6px;
+    padding:10px 12px;
+    margin-bottom:12px;
+  }
+  .chip-icon{
+    width:34px;height:34px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #e8c862, var(--gold) 60%, var(--gold-dim) 100%);
+    border:2px dashed #4a3c12;
+    flex-shrink:0;
+  }
+  .chip-badge .num{font-size:19px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;}
+  .chip-badge .lbl{font-size:11.5px;color:var(--cream-dim);}
+  .chip-badge .streak{margin-left:auto;font-size:12px;color:var(--cream-dim);text-align:right;}
+  .chip-badge .streak b{color:var(--gold);}
+
+  .msg{font-size:12.5px;margin-top:4px;min-height:16px;}
+  .msg.err{color:#ff9d9d;}
+  .msg.ok{color:#9be3b0;}
+
+  .tickets{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .ticket{
+    background:var(--felt-deep);
+    border-left:3px solid var(--line);
+    border-radius:2px;
+    padding:8px 10px;
+  }
+  .ticket .row-top{display:flex;justify-content:space-between;align-items:center;}
+  .ticket .name{font-weight:700;font-size:13.5px;}
+  .ticket .sub{font-size:12px;color:var(--cream-dim);margin-top:2px;}
+  .ticket .payout{font-size:12.5px;color:var(--gold);font-weight:700;}
+  .ticket.win{border-left-color:var(--gold);background:#0d3a2c;}
+  .badge-ah{font-size:10px;color:var(--gold-dim);border:1px solid var(--gold-dim);border-radius:3px;padding:1px 4px;margin-left:4px;}
+  .empty{font-size:13px;color:var(--cream-dim);padding:6px 0;}
+
+  .actual-row{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;}
+  .actual-row .label{font-size:12px;color:var(--cream-dim);margin-bottom:6px;}
+  .actual-set{display:flex;align-items:center;gap:8px;}
+  .actual-set .val{font-weight:700;font-size:18px;color:var(--gold);font-variant-numeric:tabular-nums;}
+  .actual-set .tag{font-size:12px;color:var(--cream-dim);}
+
+  .rank-row{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 4px;border-bottom:1px solid var(--line);
+  }
+  .rank-row:last-child{border-bottom:none;}
+  .rank-no{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--felt-deep);color:var(--gold);
+    font-size:12px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    border:1px solid var(--gold-dim);
+  }
+  .rank-row:nth-child(1) .rank-no{background:var(--gold);color:#2b2109;border-color:var(--gold);}
+  .rank-row:nth-child(2) .rank-no{background:#B8B2A0;color:#2b2109;border-color:#B8B2A0;}
+  .rank-row:nth-child(3) .rank-no{background:#a97a54;color:#fff;border-color:#a97a54;}
+  .rank-name{flex:1;font-size:14px;font-weight:700;}
+  .rank-stat{font-size:12px;color:var(--cream-dim);}
+  .rank-avg{font-size:14.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold);}
+
+  .chat-msg{background:var(--felt-deep);border-radius:4px;padding:6px 10px;font-size:13px;}
+  .chat-msg .who{font-weight:700;color:var(--gold);margin-right:6px;}
+  .chat-msg .time{font-size:10.5px;color:var(--cream-dim);float:right;}
+  .chat-msg .text{margin-top:2px;word-break:break-word;}
+
+  .note{font-size:11.5px;color:var(--cream-dim);text-align:center;margin-top:14px;line-height:1.7;}
+  .loading{text-align:center;padding:30px 0;color:var(--cream-dim);font-size:13px;}
+  .rules{font-size:11.5px;color:var(--cream-dim);line-height:1.8;margin-top:2px;}
+  .wrap.wide{max-width:900px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;}
+  .two-col .panel{display:flex;flex-direction:column;}
+  .chat-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:10px;min-height:160px;}
+  @media (max-width:760px){.two-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="suits">♠ ♥ ♦ ♣</div>
+    <h1>大妃天天樂</h1>
+    <p>大妃幣交易所 · 猜對時間、開槓桿、賺獲利</p>
+  </header>
+
+  <div id="loading" class="loading">開盤準備中...</div>
+</div>
+
+<div id="app" style="display:none;">
+
+  <div class="wrap">
+    <div class="panel">
+      <h2>玩家 <span class="date" id="todayLabel"></span></h2>
+      <div class="field-row">
+        <input type="text" id="nickInput" placeholder="輸入暱稱入座" maxlength="12">
+      </div>
+      <div class="msg" id="deviceMsg" style="color:var(--cream-dim);"></div>
+      <div class="chip-badge">
+        <div class="chip-icon"></div>
+        <div>
+          <div class="num" id="balanceNum">0</div>
+          <div class="lbl">大妃幣</div>
+        </div>
+        <div class="streak" id="streakArea">連勝 <b>0</b> 天</div>
+      </div>
+      <div class="field-row">
+        <button id="checkinBtn" style="width:100%;" class="ghost">每日簽到 +1,000 大妃幣</button>
+      </div>
+      <div class="msg" id="checkinMsg"></div>
+      <div class="rules">新玩家起始 10 萬大妃幣。下注需輸入本金並選槓桿（1~5x）：猜中拿回本金＋本金×槓桿的獲利，猜錯本金歸零（不會因槓桿高就虧更多）；完全命中獲利再 ×1.5；每筆單送出後不能修改，同一天限下一次單。連續三天猜中加碼 +3,000；每週五結算，當週全中再加碼 +6,000。收盤後可以搶先預測明天，命中獲利再 ×1.5。</div>
+    </div>
+  </div>
+
+  <div class="wrap wide">
+    <div class="two-col">
+      <div class="panel" id="todayBetPanel">
+        <h2>今日下單</h2>
+        <div class="field-row" style="gap:6px;">
+          <button type="button" class="tab-btn active" id="modeTimeBtn" style="flex:1;">猜時間</button>
+          <button type="button" class="tab-btn" id="modeNoShowBtn" style="flex:1;">大妃不會來</button>
+        </div>
+        <div class="field-row">
+          <input type="time" id="timeInput" value="09:00" style="flex:1;">
+        </div>
+        <div class="field-row">
+          <input type="number" id="wagerInput" placeholder="本金（大妃幣）" min="1" step="1000">
+        </div>
+        <div class="field-row" style="gap:6px;">
+          <button type="button" class="lev-btn active" data-lev="1">1x</button>
+          <button type="button" class="lev-btn" data-lev="2">2x</button>
+          <button type="button" class="lev-btn" data-lev="3">3x</button>
+          <button type="button" class="lev-btn" data-lev="4">4x</button>
+          <button type="button" class="lev-btn" data-lev="5">5x</button>
+        </div>
+        <div class="field-row">
+          <button id="betBtn" class="bet" style="width:100%;">送出下單</button>
+        </div>
+        <div class="msg" id="betMsg"></div>
+
+        <div class="tickets" id="ticketList"></div>
+
+        <div class="actual-row">
+          <div class="label">陳總實際到達時間（需管理密碼）</div>
+          <div id="actualArea"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>聊天室</h2>
+        <div id="chatList" class="chat-list"></div>
+        <div class="field-row" style="margin-bottom:0;">
+          <input type="text" id="chatInput" placeholder="說點什麼..." maxlength="200">
+          <button id="chatSendBtn">送出</button>
+        </div>
+        <div class="msg" id="chatMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="panel" id="afterHoursPanel" style="display:none;">
+      <h2>盤後預測（明日） <span class="date">命中獲利 ×1.5</span></h2>
+      <div id="ahBetForm">
+        <div class="field-row" style="gap:6px;">
+          <button type="button" class="tab-btn active" id="ahModeTimeBtn" style="flex:1;">猜時間</button>
+          <button type="button" class="tab-btn" id="ahModeNoShowBtn" style="flex:1;">大妃不會來</button>
+        </div>
+        <div class="field-row">
+          <input type="time" id="ahTimeInput" value="09:00" style="flex:1;">
+        </div>
+        <div class="field-row">
+          <input type="number" id="ahWagerInput" placeholder="本金（大妃幣）" min="1" step="1000">
+        </div>
+        <div class="field-row" style="gap:6px;">
+          <button type="button" class="lev-btn active" data-lev="1">1x</button>
+          <button type="button" class="lev-btn" data-lev="2">2x</button>
+          <button type="button" class="lev-btn" data-lev="3">3x</button>
+          <button type="button" class="lev-btn" data-lev="4">4x</button>
+          <button type="button" class="lev-btn" data-lev="5">5x</button>
+        </div>
+        <div class="field-row">
+          <button id="ahBetBtn" class="bet" style="width:100%;">送出盤後預測</button>
+        </div>
+        <div class="msg" id="ahBetMsg"></div>
+      </div>
+      <div class="msg" id="ahCutoffMsg" style="display:none;color:var(--cream-dim);"></div>
+
+      <div class="tickets" id="ahTicketList"></div>
+    </div>
+
+    <div class="panel" id="earlyLeavePanel" style="display:none;">
+      <h2>今日早退預測 <span class="date">盤後開放 · 命中獲利 ×1.5</span></h2>
+      <div id="elBetForm">
+        <div class="field-row" style="gap:6px;">
+          <button type="button" class="tab-btn active" id="elModeTimeBtn" style="flex:1;">猜時間</button>
+          <button type="button" class="tab-btn" id="elModeNoShowBtn" style="flex:1;">不會早退</button>
+        </div>
+        <div class="field-row">
+          <input type="time" id="elTimeInput" value="18:00" style="flex:1;">
+        </div>
+        <div class="field-row">
+          <input type="number" id="elWagerInput" placeholder="本金（大妃幣）" min="1" step="1000">
+        </div>
+        <div class="field-row" style="gap:6px;">
+          <button type="button" class="lev-btn active" data-lev="1">1x</button>
+          <button type="button" class="lev-btn" data-lev="2">2x</button>
+          <button type="button" class="lev-btn" data-lev="3">3x</button>
+          <button type="button" class="lev-btn" data-lev="4">4x</button>
+          <button type="button" class="lev-btn" data-lev="5">5x</button>
+        </div>
+        <div class="field-row">
+          <button id="elBetBtn" class="bet" style="width:100%;">送出早退預測</button>
+        </div>
+        <div class="msg" id="elBetMsg"></div>
+      </div>
+      <div class="msg" id="elCutoffMsg" style="display:none;color:var(--cream-dim);"></div>
+
+      <div class="tickets" id="elTicketList"></div>
+
+      <div class="actual-row">
+        <div class="label">陳總實際早退時間（需管理密碼）</div>
+        <div id="elActualArea"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="field-row" style="gap:6px;margin-bottom:12px;">
+        <button class="tab-btn active" id="tabAccuracy" style="flex:1;">本週準度榜</button>
+        <button class="tab-btn" id="tabChips" style="flex:1;">大妃幣排行榜</button>
+      </div>
+      <div id="leaderList"></div>
+    </div>
+
+    <div class="panel" id="adminPanel">
+      <h2>管理者工具</h2>
+      <div id="adminLockArea"></div>
+      <div id="adminToolsContent" style="display:none;">
+        <div class="field-row">
+          <button id="resetAllBtn" class="ghost" style="width:100%;border-color:var(--red);color:#ff9d9d;">重置所有玩家為 10 萬大妃幣（清空今日下單）</button>
+        </div>
+        <div class="msg" id="resetAllMsg"></div>
+
+        <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px;">
+          <div class="label" style="font-size:12px;color:var(--cream-dim);margin-bottom:8px;">補登過去未結算的報到時間</div>
+          <div class="msg" id="makeupResultMsg"></div>
+          <div id="makeupSettleList"></div>
+        </div>
+
+        <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px;">
+          <div id="adminPlayerList"></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">此頁面資料為共用資料，所有使用此小工具的人都會看到彼此的暱稱、下單與大妃幣。</p>
+  </div>
+</div>
+
+<script>
+function pad(n){return String(n).padStart(2,'0');}
+function todayKey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function weekKey(d){
+  const t=new Date(d);
+  t.setHours(0,0,0,0);
+  t.setDate(t.getDate()+3-((t.getDay()+6)%7));
+  const week1=new Date(t.getFullYear(),0,4);
+  const wk=1+Math.round(((t-week1)/86400000-3+((week1.getDay()+6)%7))/7);
+  return t.getFullYear()+'-W'+pad(wk);
+}
+function toMinutes(hhmm){const [h,m]=hhmm.split(':').map(Number);return h*60+m;}
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function fmtSigned(n){const r=Math.round(n);return (r>=0?'+':'')+r.toLocaleString();}
+function dateKeyToDate(key){
+  const [y,m,d]=key.split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+
+const CORRECT_WINDOW=10;
+const ADMIN_PIN='55688';
+const STARTING_BALANCE=100000;
+const DAILY_DIVIDEND=1000;
+const STREAK_BONUS=3000;
+const FULL_WEEK_BONUS=6000;
+const CUTOFF_HOUR=12;
+const CUTOFF_MINUTE=30;
+function isAfterCutoff(){
+  const n=new Date();
+  return n.getHours()>CUTOFF_HOUR||(n.getHours()===CUTOFF_HOUR&&n.getMinutes()>=CUTOFF_MINUTE);
+}
+
+const now=new Date();
+const TODAY=todayKey(now);
+const WEEK=weekKey(now);
+const tomorrowDate=new Date(now);
+tomorrowDate.setDate(tomorrowDate.getDate()+1);
+const TOMORROW=todayKey(tomorrowDate);
+const sameWeekTomorrow=weekKey(tomorrowDate)===WEEK;
+
+const WORKER_URL='https://chen-zong-bet.perry1831.workers.dev';
+const storage={
+  async get(key){
+    const res=await fetch(WORKER_URL+'?key='+encodeURIComponent(key));
+    if(!res.ok) throw new Error('storage get http '+res.status);
+    const data=await res.json();
+    if(data.value===null||data.value===undefined) return null;
+    return {key,value:data.value};
+  },
+  async set(key,value){
+    const res=await fetch(WORKER_URL+'?key='+encodeURIComponent(key),{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:value
+    });
+    if(!res.ok) throw new Error('storage set http '+res.status);
+    return {key,value};
+  }
+};
+
+let weekData={days:{},fullWeekBonus:{}};
+let players={};
+let unlocked=false;
+let suppressPollUntil=0;
+function markLocalWrite(){suppressPollUntil=Date.now()+15000;}
+let activeTab='accuracy';
+let betMode='time';
+let betLeverage=1;
+let ahMode='time';
+let ahLeverage=1;
+let elMode='time';
+let elLeverage=1;
+
+function getOrCreateDay(key){
+  if(!weekData.days[key]) weekData.days[key]={actual:null,guesses:{},checkins:{},settled:false,winners:[],noShow:false,earlyLeave:{actual:null,settled:false,noShow:false,guesses:{},winners:[]}};
+  const day=weekData.days[key];
+  if(!day.earlyLeave||typeof day.earlyLeave!=='object'){
+    day.earlyLeave={actual:null,settled:false,noShow:false,guesses:{},winners:[]};
+  }
+  return day;
+}
+function getDay(){return getOrCreateDay(TODAY);}
+function getPlayer(nick){
+  if(!players[nick]) players[nick]={balance:STARTING_BALANCE,streak:0};
+  return players[nick];
+}
+function getPlayerReadOnly(nick){
+  return players[nick]||{balance:STARTING_BALANCE,streak:0};
+}
+
+async function saveWithRetry(key,value){
+  for(let attempt=0;attempt<2;attempt++){
+    try{
+      await window_storage_set(key,value);
+      return true;
+    }catch(e){
+      console.error('storage set failed for',key,e);
+      if(attempt===0) await new Promise(r=>setTimeout(r,400));
+    }
+  }
+  return false;
+}
+async function window_storage_set(key,value){
+  await storage.set(key,value);
+}
+async function saveWeek(){
+  return saveWithRetry('week:'+WEEK,JSON.stringify(weekData));
+}
+async function savePlayers(){
+  return saveWithRetry('players',JSON.stringify(players));
+}
+async function saveChat(){
+  return saveWithRetry('chat',JSON.stringify(chatMessages));
+}
+
+let chatMessages=[];
+async function loadChat(){
+  try{
+    const c=await storage.get('chat');
+    if(c&&c.value) chatMessages=JSON.parse(c.value);
+  }catch(e){console.error('load chat failed',e);}
+  if(!Array.isArray(chatMessages)) chatMessages=[];
+}
+function renderChat(){
+  const list=document.getElementById('chatList');
+  if(chatMessages.length===0){
+    list.innerHTML='<div class="empty">還沒有人說話，來聊聊吧。</div>';
+    return;
+  }
+  const wasAtBottom=list.scrollTop+list.clientHeight>=list.scrollHeight-10;
+  list.innerHTML='';
+  chatMessages.forEach(m=>{
+    const div=document.createElement('div');
+    div.className='chat-msg';
+    div.innerHTML='<span class="who">'+escapeHtml(m.nick)+'</span><span class="time">'+escapeHtml(m.time)+'</span><div class="text">'+escapeHtml(m.text)+'</div>';
+    list.appendChild(div);
+  });
+  if(wasAtBottom) list.scrollTop=list.scrollHeight;
+}
+async function sendChat(){
+  const nick=currentNick();
+  const input=document.getElementById('chatInput');
+  const msg=document.getElementById('chatMsg');
+  const btn=document.getElementById('chatSendBtn');
+  msg.textContent='';msg.className='msg';
+  if(!nick){msg.textContent='先在上面輸入暱稱。';msg.className='msg err';return;}
+  const text=input.value.trim();
+  if(!text) return;
+  btn.disabled=true;
+  await loadChat();
+  chatMessages.push({
+    nick,
+    text,
+    time:new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
+  });
+  if(chatMessages.length>50) chatMessages=chatMessages.slice(-50);
+  const ok=await saveChat();
+  btn.disabled=false;
+  if(!ok){
+    msg.textContent='送出失敗，請再試一次。';
+    msg.className='msg err';
+    return;
+  }
+  input.value='';
+  renderChat();
+}
+
+function sanitizeWeekData(){
+  Object.keys(weekData.days).forEach(dk=>{
+    const day=weekData.days[dk];
+    if(!day.guesses||typeof day.guesses!=='object') day.guesses={};
+    if(!day.checkins||typeof day.checkins!=='object') day.checkins={};
+    if(!Array.isArray(day.winners)) day.winners=[];
+    Object.keys(day.guesses).forEach(n=>{
+      const g=day.guesses[n];
+      if(typeof g!=='object'||g===null||typeof g.value==='undefined'||typeof g.wager!=='number'||typeof g.leverage!=='number'){
+        delete day.guesses[n];
+      }
+    });
+    if(!day.earlyLeave||typeof day.earlyLeave!=='object'){
+      day.earlyLeave={actual:null,settled:false,noShow:false,guesses:{},winners:[]};
+    }
+    const el=day.earlyLeave;
+    if(!el.guesses||typeof el.guesses!=='object') el.guesses={};
+    if(!Array.isArray(el.winners)) el.winners=[];
+    Object.keys(el.guesses).forEach(n=>{
+      const g=el.guesses[n];
+      if(typeof g!=='object'||g===null||typeof g.value==='undefined'||typeof g.wager!=='number'||typeof g.leverage!=='number'){
+        delete el.guesses[n];
+      }
+    });
+  });
+}
+
+async function loadAll(){
+  try{
+    const w=await storage.get('week:'+WEEK);
+    if(w&&w.value) weekData=JSON.parse(w.value);
+  }catch(e){console.error('load week failed',e);weekData={days:{},fullWeekBonus:{}};}
+  if(!weekData.days) weekData.days={};
+  if(!weekData.fullWeekBonus) weekData.fullWeekBonus={};
+  getDay();
+  sanitizeWeekData();
+
+  try{
+    const p=await storage.get('players');
+    if(p&&p.value) players=JSON.parse(p.value);
+  }catch(e){console.error('load players failed',e);players={};}
+  Object.keys(players).forEach(n=>{
+    if(typeof players[n]!=='object'||players[n]===null||typeof players[n].balance!=='number'){
+      players[n]={balance:STARTING_BALANCE,streak:0};
+    }
+    if(typeof players[n].streak!=='number') players[n].streak=0;
+  });
+}
+
+function currentNick(){
+  return document.getElementById('nickInput').value.trim();
+}
+function deviceKey(){return 'cz_device_nick_'+TODAY;}
+function getDeviceNick(){
+  try{return localStorage.getItem(deviceKey());}catch(e){return null;}
+}
+function setDeviceNick(nick){
+  try{localStorage.setItem(deviceKey(),nick);}catch(e){}
+}
+function renderDeviceLock(){
+  const locked=getDeviceNick();
+  const nickInput=document.getElementById('nickInput');
+  const msg=document.getElementById('deviceMsg');
+  if(locked){
+    nickInput.value=locked;
+    nickInput.readOnly=true;
+    msg.textContent='此裝置今天已鎖定暱稱「'+locked+'」，明天會自動重置。';
+  }else{
+    nickInput.readOnly=false;
+    msg.textContent='同一台裝置每天限用一個暱稱，送出第一筆單後會鎖定。';
+  }
+}
+
+function renderPlayerBadge(){
+  const nick=currentNick();
+  const p=nick?getPlayerReadOnly(nick):{balance:STARTING_BALANCE,streak:0};
+  document.getElementById('balanceNum').textContent=Math.round(p.balance).toLocaleString();
+  document.getElementById('streakArea').innerHTML='連勝 <b>'+p.streak+'</b> 天';
+  const day=getDay();
+  const btn=document.getElementById('checkinBtn');
+  if(!nick){
+    btn.disabled=true;
+    btn.textContent='先輸入暱稱';
+  }else if(day.checkins[nick]){
+    btn.disabled=true;
+    btn.textContent='今天已簽到';
+  }else{
+    btn.disabled=false;
+    btn.textContent='每日簽到 +1,000 大妃幣';
+  }
+}
+
+function guessSortValue(v){return v==='NOSHOW'?100000:toMinutes(v);}
+function formatGuessValue(v){return v==='NOSHOW'?'不會來':v;}
+
+function computePayout(guess,actualInfo){
+  let isWinner=false, isExact=false;
+  if(guess.value==='NOSHOW'){
+    isWinner=actualInfo.isNoShow;
+  }else if(!actualInfo.isNoShow&&actualInfo.actualTime){
+    const diff=Math.abs(toMinutes(guess.value)-toMinutes(actualInfo.actualTime));
+    isWinner=diff<=CORRECT_WINDOW;
+    isExact=diff===0;
+  }
+  if(!isWinner) return {isWinner:false,payout:0,isExact:false};
+  let profit=guess.wager*guess.leverage;
+  if(isExact) profit*=1.5;
+  if(guess.afterHours) profit*=1.5;
+  const payout=guess.wager+profit;
+  return {isWinner:true,payout,isExact};
+}
+
+function renderGuessTickets(listElId,guesses,settled,actualInfo){
+  const list=document.getElementById(listElId);
+  const names=Object.keys(guesses);
+  if(names.length===0){
+    list.innerHTML='<div class="empty">還沒有人下單，搶頭香吧。</div>';
+    return;
+  }
+  const sorted=names.slice().sort((a,b)=>guessSortValue(guesses[a].value)-guessSortValue(guesses[b].value));
+  list.innerHTML='';
+  sorted.forEach(n=>{
+    const g=guesses[n];
+    const row=document.createElement('div');
+    row.className='ticket';
+    let payoutHtml='';
+    if(settled){
+      const result=computePayout(g,actualInfo);
+      if(result.isWinner){
+        row.classList.add('win');
+        payoutHtml='<span class="payout">'+fmtSigned(result.payout-g.wager)+(result.isExact?'　完全命中':'')+'</span>';
+      }else{
+        payoutHtml='<span class="payout" style="color:#ff9d9d;">'+fmtSigned(-g.wager)+'</span>';
+      }
+    }
+    const badge=g.afterHours?'<span class="badge-ah">盤後</span>':'';
+    row.innerHTML=
+      '<div class="row-top"><span class="name">'+escapeHtml(n)+badge+'</span>'+payoutHtml+'</div>'+
+      '<div class="sub mono">'+formatGuessValue(g.value)+' · 本金 '+g.wager.toLocaleString()+' · '+g.leverage+'x</div>';
+    list.appendChild(row);
+  });
+}
+function renderTicketList(listElId,dateKey){
+  const day=weekData.days[dateKey];
+  if(!day){
+    document.getElementById(listElId).innerHTML='<div class="empty">還沒有人下單，搶頭香吧。</div>';
+    return;
+  }
+  const actualInfo={isNoShow:day.noShow,actualTime:day.noShow?null:day.actual};
+  renderGuessTickets(listElId,day.guesses,day.settled,actualInfo);
+}
+function renderEarlyLeaveTickets(){
+  const day=getDay();
+  const el=day.earlyLeave;
+  const actualInfo={isNoShow:el.noShow,actualTime:el.noShow?null:el.actual};
+  renderGuessTickets('elTicketList',el.guesses,el.settled,actualInfo);
+}
+
+function renderActual(){
+  const day=getDay();
+  const area=document.getElementById('actualArea');
+  if(day.settled){
+    if(day.noShow){
+      area.innerHTML='<div class="actual-set"><span class="tag">今日大妃沒有出現，猜中的人依約定倍數獲利</span></div>';
+    }else{
+      area.innerHTML='<div class="actual-set"><span class="val mono">'+day.actual+'</span><span class="tag">今日已結算 · 贏家 '+(day.winners.length?day.winners.map(escapeHtml).join('、'):'無')+'</span></div>';
+    }
+    return;
+  }
+  if(!unlocked){
+    area.innerHTML='';
+    const row=document.createElement('div');
+    row.className='field-row';
+    row.style.marginBottom='0';
+    const pinInput=document.createElement('input');
+    pinInput.type='text';
+    pinInput.inputMode='numeric';
+    pinInput.placeholder='管理密碼';
+    pinInput.id='pinInput';
+    pinInput.style.flex='1';
+    const btn=document.createElement('button');
+    btn.className='ghost';
+    btn.textContent='解鎖';
+    const err=document.createElement('div');
+    err.className='msg err';
+    err.id='pinMsg';
+    const tryUnlock=()=>{
+      const val=document.getElementById('pinInput').value.trim();
+      if(val===ADMIN_PIN){
+        unlocked=true;
+        renderAll();
+      }else{
+        document.getElementById('pinMsg').textContent='密碼錯誤。';
+      }
+    };
+    btn.onclick=tryUnlock;
+    pinInput.addEventListener('keydown',(e)=>{if(e.key==='Enter') tryUnlock();});
+    row.appendChild(pinInput);
+    row.appendChild(btn);
+    area.appendChild(row);
+    area.appendChild(err);
+    return;
+  }
+  area.innerHTML='';
+  const row=document.createElement('div');
+  row.className='field-row';
+  row.style.marginBottom='0';
+  const input=document.createElement('input');
+  input.type='time';
+  input.value='09:00';
+  input.id='actualInput';
+  const btn=document.createElement('button');
+  btn.className='ghost';
+  btn.textContent='登錄並收盤';
+  btn.onclick=async ()=>{
+    const val=document.getElementById('actualInput').value;
+    if(!val) return;
+    btn.disabled=true;
+    await settleDay(val);
+    btn.disabled=false;
+  };
+  row.appendChild(input);
+  row.appendChild(btn);
+  area.appendChild(row);
+
+  const noShowRow=document.createElement('div');
+  noShowRow.className='field-row';
+  noShowRow.style.marginTop='8px';
+  const noShowBtn=document.createElement('button');
+  noShowBtn.className='ghost';
+  noShowBtn.style.width='100%';
+  noShowBtn.style.borderColor='var(--red)';
+  noShowBtn.style.color='#ff9d9d';
+  noShowBtn.textContent='大妃今天不會來';
+  noShowBtn.onclick=async ()=>{
+    if(!confirm('確定大妃今天完全不會出現嗎？')) return;
+    noShowBtn.disabled=true;
+    await settleNoShow();
+    noShowBtn.disabled=false;
+  };
+  noShowRow.appendChild(noShowBtn);
+  area.appendChild(noShowRow);
+}
+
+function renderEarlyLeaveArea(){
+  const day=getDay();
+  const el=day.earlyLeave;
+  const area=document.getElementById('elActualArea');
+  if(!area) return;
+  if(el.settled){
+    if(el.noShow){
+      area.innerHTML='<div class="actual-set"><span class="tag">今天沒有早退，猜中的人依約定倍數獲利</span></div>';
+    }else{
+      area.innerHTML='<div class="actual-set"><span class="val mono">'+el.actual+'</span><span class="tag">早退已結算 · 贏家 '+(el.winners.length?el.winners.map(escapeHtml).join('、'):'無')+'</span></div>';
+    }
+    return;
+  }
+  if(!unlocked){
+    area.innerHTML='';
+    const row=document.createElement('div');
+    row.className='field-row';
+    row.style.marginBottom='0';
+    const pinInput=document.createElement('input');
+    pinInput.type='text';
+    pinInput.inputMode='numeric';
+    pinInput.placeholder='管理密碼';
+    pinInput.id='elPinInput';
+    pinInput.style.flex='1';
+    const btn=document.createElement('button');
+    btn.className='ghost';
+    btn.textContent='解鎖';
+    const err=document.createElement('div');
+    err.className='msg err';
+    err.id='elPinMsg';
+    const tryUnlock=()=>{
+      const val=document.getElementById('elPinInput').value.trim();
+      if(val===ADMIN_PIN){
+        unlocked=true;
+        renderAll();
+      }else{
+        document.getElementById('elPinMsg').textContent='密碼錯誤。';
+      }
+    };
+    btn.onclick=tryUnlock;
+    pinInput.addEventListener('keydown',(e)=>{if(e.key==='Enter') tryUnlock();});
+    row.appendChild(pinInput);
+    row.appendChild(btn);
+    area.appendChild(row);
+    area.appendChild(err);
+    return;
+  }
+  area.innerHTML='';
+  const row=document.createElement('div');
+  row.className='field-row';
+  row.style.marginBottom='0';
+  const input=document.createElement('input');
+  input.type='time';
+  input.value='18:00';
+  input.id='elActualInput';
+  const btn=document.createElement('button');
+  btn.className='ghost';
+  btn.textContent='登錄並結算';
+  btn.onclick=async ()=>{
+    const val=document.getElementById('elActualInput').value;
+    if(!val) return;
+    btn.disabled=true;
+    await settleEarlyLeaveDay(val);
+    btn.disabled=false;
+  };
+  row.appendChild(input);
+  row.appendChild(btn);
+  area.appendChild(row);
+
+  const noShowRow=document.createElement('div');
+  noShowRow.className='field-row';
+  noShowRow.style.marginTop='8px';
+  const noShowBtn=document.createElement('button');
+  noShowBtn.className='ghost';
+  noShowBtn.style.width='100%';
+  noShowBtn.style.borderColor='var(--red)';
+  noShowBtn.style.color='#ff9d9d';
+  noShowBtn.textContent='今天沒有早退';
+  noShowBtn.onclick=async ()=>{
+    if(!confirm('確定今天完全沒有早退嗎？')) return;
+    noShowBtn.disabled=true;
+    await settleEarlyLeaveNoShow();
+    noShowBtn.disabled=false;
+  };
+  noShowRow.appendChild(noShowBtn);
+  area.appendChild(noShowRow);
+}
+
+function renderEarlyLeavePanel(){
+  const panel=document.getElementById('earlyLeavePanel');
+  const day=getDay();
+  panel.style.display='block';
+  const betForm=document.getElementById('elBetForm');
+  const cutoffMsg=document.getElementById('elCutoffMsg');
+  if(day.earlyLeave.settled){
+    if(betForm) betForm.style.display='none';
+    if(cutoffMsg) cutoffMsg.style.display='none';
+  }else if(isAfterCutoff()){
+    if(betForm) betForm.style.display='none';
+    if(cutoffMsg){
+      cutoffMsg.style.display='block';
+      cutoffMsg.textContent='已過中午 12:30 下單截止時間，明天請早點來卡位。';
+    }
+  }else{
+    if(betForm) betForm.style.display='';
+    if(cutoffMsg) cutoffMsg.style.display='none';
+  }
+  renderEarlyLeaveTickets();
+  renderEarlyLeaveArea();
+}
+
+async function applyFullWeekBonus(dateKey,winners){
+  const isFriday=dateKeyToDate(dateKey).getDay()===5;
+  const settledDates=Object.keys(weekData.days).filter(dk=>weekData.days[dk].settled);
+  if(isFriday&&settledDates.length>=5){
+    winners.forEach(n=>{
+      if(weekData.fullWeekBonus[n]) return;
+      const wonAll=settledDates.every(dk=>{
+        const d=weekData.days[dk];
+        return d.guesses[n]&&d.winners.includes(n);
+      });
+      if(wonAll){
+        getPlayer(n).balance+=FULL_WEEK_BONUS;
+        weekData.fullWeekBonus[n]=true;
+      }
+    });
+  }
+}
+
+async function settleMarketForDay(dateKey,actualTime,isNoShow){
+  await loadAll();
+  const day=getOrCreateDay(dateKey);
+  const names=Object.keys(day.guesses);
+  const actualInfo={isNoShow,actualTime:isNoShow?null:actualTime};
+  const winners=[];
+  names.forEach(n=>{
+    const g=day.guesses[n];
+    const result=computePayout(g,actualInfo);
+    const p=getPlayer(n);
+    if(result.isWinner){
+      winners.push(n);
+      p.balance+=result.payout;
+      p.streak+=1;
+      if(p.streak%3===0){
+        p.balance+=STREAK_BONUS;
+      }
+    }else{
+      p.streak=0;
+    }
+  });
+
+  day.actual=isNoShow?null:actualTime;
+  day.settled=true;
+  day.noShow=isNoShow;
+  day.winners=winners;
+
+  await applyFullWeekBonus(dateKey,winners);
+
+  await saveWeek();
+  await savePlayers();
+  markLocalWrite();
+  renderAll();
+}
+async function settleDay(actualTime){await settleMarketForDay(TODAY,actualTime,false);}
+async function settleNoShow(){await settleMarketForDay(TODAY,null,true);}
+
+async function settleEarlyLeaveMarket(actualTime,isNoShow){
+  await loadAll();
+  const day=getDay();
+  const el=day.earlyLeave;
+  const names=Object.keys(el.guesses);
+  const actualInfo={isNoShow,actualTime:isNoShow?null:actualTime};
+  const winners=[];
+  names.forEach(n=>{
+    const g=el.guesses[n];
+    const result=computePayout(g,actualInfo);
+    if(result.isWinner){
+      winners.push(n);
+      getPlayer(n).balance+=result.payout;
+    }
+  });
+  el.actual=isNoShow?null:actualTime;
+  el.settled=true;
+  el.noShow=isNoShow;
+  el.winners=winners;
+
+  await saveWeek();
+  await savePlayers();
+  markLocalWrite();
+  renderAll();
+}
+async function settleEarlyLeaveDay(actualTime){await settleEarlyLeaveMarket(actualTime,false);}
+async function settleEarlyLeaveNoShow(){await settleEarlyLeaveMarket(null,true);}
+
+async function doCheckin(){
+  const nick=currentNick();
+  const msg=document.getElementById('checkinMsg');
+  msg.textContent='';msg.className='msg';
+  if(!nick){msg.textContent='先輸入暱稱。';msg.className='msg err';return;}
+  const deviceNick=getDeviceNick();
+  if(deviceNick&&deviceNick!==nick){
+    msg.textContent='這台裝置今天已經用「'+deviceNick+'」簽到過了，同裝置一天限用一個暱稱。';
+    msg.className='msg err';
+    return;
+  }
+  await loadAll();
+  const day=getDay();
+  if(day.checkins[nick]){renderAll();return;}
+  day.checkins[nick]=true;
+  const p=getPlayer(nick);
+  p.balance+=DAILY_DIVIDEND;
+  const btn=document.getElementById('checkinBtn');
+  btn.disabled=true;
+  const ok1=await saveWeek();
+  const ok2=await savePlayers();
+  if(!ok1||!ok2){
+    msg.textContent='簽到失敗，請再試一次。';
+    msg.className='msg err';
+    day.checkins[nick]=false;
+    p.balance-=DAILY_DIVIDEND;
+    btn.disabled=false;
+    return;
+  }
+  if(!deviceNick) setDeviceNick(nick);
+  markLocalWrite();
+  msg.textContent='簽到成功，+1,000 大妃幣。';
+  msg.className='msg ok';
+  renderAll();
+}
+
+async function placeOrder(opts){
+  const {dateKey,mode,timeVal,wagerVal,leverage,afterHours,msgEl}=opts;
+  const nick=currentNick();
+  msgEl.textContent='';msgEl.className='msg';
+  if(!nick){msgEl.textContent='先在上面輸入暱稱。';msgEl.className='msg err';return false;}
+  const deviceNick=getDeviceNick();
+  if(deviceNick&&deviceNick!==nick){
+    msgEl.textContent='這台裝置今天已經用「'+deviceNick+'」下過單了，同裝置一天限用一個暱稱。';
+    msgEl.className='msg err';
+    return false;
+  }
+
+  let value;
+  if(mode==='noshow'){
+    value='NOSHOW';
+  }else{
+    if(!timeVal){msgEl.textContent='選一個時間吧，或切換成「大妃不會來」。';msgEl.className='msg err';return false;}
+    value=timeVal;
+  }
+  if(afterHours&&isAfterCutoff()){msgEl.textContent='已過中午 12:30 下單截止時間。';msgEl.className='msg err';return false;}
+  const wager=Math.floor(Number(wagerVal));
+  if(!wager||wager<=0){msgEl.textContent='輸入你想壓的本金金額。';msgEl.className='msg err';return false;}
+
+  await loadAll();
+  const day=getOrCreateDay(dateKey);
+  if(day.settled){msgEl.textContent='這個交易日已經收盤結算了。';msgEl.className='msg err';return false;}
+  if(day.guesses[nick]){msgEl.textContent='你已經在這天下過單了，不能重複下注。';msgEl.className='msg err';return false;}
+  const p=getPlayer(nick);
+  if(wager>p.balance){msgEl.textContent='本金超過你的餘額了。';msgEl.className='msg err';return false;}
+
+  p.balance-=wager;
+  day.guesses[nick]={value,wager,leverage,afterHours};
+
+  const ok1=await saveWeek();
+  const ok2=await savePlayers();
+  if(!ok1||!ok2){
+    p.balance+=wager;
+    delete day.guesses[nick];
+    msgEl.textContent='下單失敗，請再試一次。';
+    msgEl.className='msg err';
+    return false;
+  }
+  if(!deviceNick) setDeviceNick(nick);
+  markLocalWrite();
+  msgEl.textContent='下單成功，本金 '+wager.toLocaleString()+' 已扣款，槓桿 '+leverage+'x。';
+  msgEl.className='msg ok';
+  return true;
+}
+
+async function doBetToday(){
+  const btn=document.getElementById('betBtn');
+  btn.disabled=true;
+  const ok=await placeOrder({
+    dateKey:TODAY,
+    mode:betMode,
+    timeVal:document.getElementById('timeInput').value,
+    wagerVal:document.getElementById('wagerInput').value,
+    leverage:betLeverage,
+    afterHours:false,
+    msgEl:document.getElementById('betMsg')
+  });
+  btn.disabled=false;
+  if(ok) renderAll();
+}
+
+async function doBetAfterHours(){
+  const btn=document.getElementById('ahBetBtn');
+  btn.disabled=true;
+  const ok=await placeOrder({
+    dateKey:TOMORROW,
+    mode:ahMode,
+    timeVal:document.getElementById('ahTimeInput').value,
+    wagerVal:document.getElementById('ahWagerInput').value,
+    leverage:ahLeverage,
+    afterHours:true,
+    msgEl:document.getElementById('ahBetMsg')
+  });
+  btn.disabled=false;
+  if(ok) renderAll();
+}
+
+async function placeEarlyLeaveOrder(mode,timeVal,wagerVal,leverage,msgEl){
+  const nick=currentNick();
+  msgEl.textContent='';msgEl.className='msg';
+  if(!nick){msgEl.textContent='先在上面輸入暱稱。';msgEl.className='msg err';return false;}
+  const deviceNick=getDeviceNick();
+  if(deviceNick&&deviceNick!==nick){
+    msgEl.textContent='這台裝置今天已經用「'+deviceNick+'」下過單了，同裝置一天限用一個暱稱。';
+    msgEl.className='msg err';
+    return false;
+  }
+
+  let value;
+  if(mode==='noshow'){
+    value='NOSHOW';
+  }else{
+    if(!timeVal){msgEl.textContent='選一個時間吧，或切換成「不會早退」。';msgEl.className='msg err';return false;}
+    value=timeVal;
+  }
+  const wager=Math.floor(Number(wagerVal));
+  if(!wager||wager<=0){msgEl.textContent='輸入你想壓的本金金額。';msgEl.className='msg err';return false;}
+
+  await loadAll();
+  const day=getDay();
+  if(isAfterCutoff()){msgEl.textContent='已過中午 12:30 下單截止時間。';msgEl.className='msg err';return false;}
+  const el=day.earlyLeave;
+  if(el.settled){msgEl.textContent='今天的早退預測已經結算了。';msgEl.className='msg err';return false;}
+  if(el.guesses[nick]){msgEl.textContent='你已經猜過今天的早退時間了，不能重複下注。';msgEl.className='msg err';return false;}
+  const p=getPlayer(nick);
+  if(wager>p.balance){msgEl.textContent='本金超過你的餘額了。';msgEl.className='msg err';return false;}
+
+  p.balance-=wager;
+  el.guesses[nick]={value,wager,leverage,afterHours:true};
+
+  const ok1=await saveWeek();
+  const ok2=await savePlayers();
+  if(!ok1||!ok2){
+    p.balance+=wager;
+    delete el.guesses[nick];
+    msgEl.textContent='下單失敗，請再試一次。';
+    msgEl.className='msg err';
+    return false;
+  }
+  if(!deviceNick) setDeviceNick(nick);
+  markLocalWrite();
+  msgEl.textContent='下單成功，本金 '+wager.toLocaleString()+' 已扣款，槓桿 '+leverage+'x。';
+  msgEl.className='msg ok';
+  return true;
+}
+
+async function doBetEarlyLeave(){
+  const btn=document.getElementById('elBetBtn');
+  btn.disabled=true;
+  const ok=await placeEarlyLeaveOrder(
+    elMode,
+    document.getElementById('elTimeInput').value,
+    document.getElementById('elWagerInput').value,
+    elLeverage,
+    document.getElementById('elBetMsg')
+  );
+  btn.disabled=false;
+  if(ok) renderAll();
+}
+
+function computeAccuracyBoard(){
+  const stats={};
+  Object.keys(weekData.days).forEach(dateKey=>{
+    const day=weekData.days[dateKey];
+    if(!day.actual) return;
+    Object.keys(day.guesses).forEach(name=>{
+      const g=day.guesses[name];
+      if(g.value==='NOSHOW') return;
+      const diff=Math.abs(toMinutes(g.value)-toMinutes(day.actual));
+      if(!stats[name]) stats[name]={total:0,count:0,best:Infinity};
+      stats[name].total+=diff;
+      stats[name].count+=1;
+      if(diff<stats[name].best) stats[name].best=diff;
+    });
+  });
+  return Object.keys(stats).map(name=>({
+    name,avg:stats[name].total/stats[name].count,count:stats[name].count,best:stats[name].best
+  })).sort((a,b)=>a.avg-b.avg);
+}
+
+function renderLeaderboard(){
+  const list=document.getElementById('leaderList');
+  if(activeTab==='accuracy'){
+    const rows=computeAccuracyBoard();
+    if(rows.length===0){
+      list.innerHTML='<div class="empty">本週還沒有任何一天開獎，排行榜開獎中。</div>';
+      return;
+    }
+    list.innerHTML='';
+    rows.forEach((r,i)=>{
+      const row=document.createElement('div');
+      row.className='rank-row';
+      row.innerHTML=
+        '<div class="rank-no">'+(i+1)+'</div>'+
+        '<div class="rank-name">'+escapeHtml(r.name)+'</div>'+
+        '<div style="text-align:right;">'+
+          '<div class="rank-avg">平均差 '+r.avg.toFixed(1)+' 分</div>'+
+          '<div class="rank-stat">'+r.count+' 天 · 最佳 '+r.best+' 分</div>'+
+        '</div>';
+      list.appendChild(row);
+    });
+  }else{
+    const rows=Object.keys(players).map(n=>({name:n,balance:players[n].balance,streak:players[n].streak}))
+      .sort((a,b)=>b.balance-a.balance);
+    if(rows.length===0){
+      list.innerHTML='<div class="empty">還沒有人加入交易所。</div>';
+      return;
+    }
+    list.innerHTML='';
+    rows.forEach((r,i)=>{
+      const row=document.createElement('div');
+      row.className='rank-row';
+      row.innerHTML=
+        '<div class="rank-no">'+(i+1)+'</div>'+
+        '<div class="rank-name">'+escapeHtml(r.name)+'</div>'+
+        '<div style="text-align:right;">'+
+          '<div class="rank-avg">'+Math.round(r.balance).toLocaleString()+' 大妃幣</div>'+
+          '<div class="rank-stat">連勝 '+r.streak+' 天</div>'+
+        '</div>';
+      list.appendChild(row);
+    });
+  }
+}
+
+async function resetAllPlayers(){
+  await loadAll();
+  Object.keys(players).forEach(n=>{
+    players[n].balance=STARTING_BALANCE;
+    players[n].streak=0;
+  });
+  const day=getDay();
+  day.guesses={};
+  day.checkins={};
+  day.settled=false;
+  day.winners=[];
+  day.noShow=false;
+  day.actual=null;
+  day.earlyLeave={actual:null,settled:false,noShow:false,guesses:{},winners:[]};
+  await savePlayers();
+  await saveWeek();
+  markLocalWrite();
+  renderAll();
+}
+
+async function deletePlayer(nick){
+  await loadAll();
+  delete players[nick];
+  Object.keys(weekData.days).forEach(dk=>{
+    const d=weekData.days[dk];
+    delete d.guesses[nick];
+    delete d.checkins[nick];
+    if(d.winners) d.winners=d.winners.filter(w=>w!==nick);
+    if(d.earlyLeave){
+      delete d.earlyLeave.guesses[nick];
+      if(d.earlyLeave.winners) d.earlyLeave.winners=d.earlyLeave.winners.filter(w=>w!==nick);
+    }
+  });
+  if(weekData.fullWeekBonus) delete weekData.fullWeekBonus[nick];
+  await savePlayers();
+  await saveWeek();
+  markLocalWrite();
+  renderAll();
+}
+
+function renderAdminPanel(){
+  const lockArea=document.getElementById('adminLockArea');
+  const content=document.getElementById('adminToolsContent');
+  const list=document.getElementById('adminPlayerList');
+  if(!unlocked){
+    content.style.display='none';
+    lockArea.innerHTML='';
+    const row=document.createElement('div');
+    row.className='field-row';
+    row.style.marginBottom='0';
+    const pinInput=document.createElement('input');
+    pinInput.type='text';
+    pinInput.inputMode='numeric';
+    pinInput.placeholder='管理密碼';
+    pinInput.id='adminPinInput';
+    pinInput.style.flex='1';
+    const btn=document.createElement('button');
+    btn.className='ghost';
+    btn.textContent='解鎖';
+    const err=document.createElement('div');
+    err.className='msg err';
+    err.id='adminPinMsg';
+    const tryUnlock=()=>{
+      const val=document.getElementById('adminPinInput').value.trim();
+      if(val===ADMIN_PIN){
+        unlocked=true;
+        renderAll();
+      }else{
+        document.getElementById('adminPinMsg').textContent='密碼錯誤。';
+      }
+    };
+    btn.onclick=tryUnlock;
+    pinInput.addEventListener('keydown',(e)=>{if(e.key==='Enter') tryUnlock();});
+    row.appendChild(pinInput);
+    row.appendChild(btn);
+    lockArea.appendChild(row);
+    lockArea.appendChild(err);
+    return;
+  }
+  lockArea.innerHTML='';
+  content.style.display='block';
+  const names=Object.keys(players).sort();
+  if(names.length===0){
+    list.innerHTML='<div class="empty">還沒有任何玩家。</div>';
+    return;
+  }
+  list.innerHTML='';
+  names.forEach(n=>{
+    const wrap=document.createElement('div');
+    wrap.style.borderBottom='1px solid var(--line)';
+    wrap.style.padding='9px 4px';
+
+    const row=document.createElement('div');
+    row.className='rank-row';
+    row.style.border='none';
+    row.style.padding='0';
+    const info=document.createElement('div');
+    info.className='rank-name';
+    info.textContent=n;
+    const stat=document.createElement('div');
+    stat.style.marginLeft='auto';
+    stat.style.fontSize='12px';
+    stat.style.color='var(--cream-dim)';
+    stat.style.marginRight='10px';
+    stat.textContent=Math.round(players[n].balance).toLocaleString()+' 大妃幣';
+    const btn=document.createElement('button');
+    btn.className='ghost';
+    btn.style.borderColor='var(--red)';
+    btn.style.color='#ff9d9d';
+    btn.textContent='刪除';
+    btn.onclick=async ()=>{
+      if(!confirm('確定要刪除「'+n+'」嗎？這會清除他的大妃幣、連勝與本週下單紀錄，無法復原。')) return;
+      btn.disabled=true;
+      await deletePlayer(n);
+    };
+    row.appendChild(info);
+    row.appendChild(stat);
+    row.appendChild(btn);
+    wrap.appendChild(row);
+
+    const adjRow=document.createElement('div');
+    adjRow.style.display='flex';
+    adjRow.style.gap='6px';
+    adjRow.style.marginTop='6px';
+    const adjInput=document.createElement('input');
+    adjInput.type='number';
+    adjInput.placeholder='調整金額（可負數）';
+    adjInput.style.flex='1';
+    adjInput.style.fontSize='12.5px';
+    adjInput.style.padding='6px 8px';
+    const adjBtn=document.createElement('button');
+    adjBtn.className='ghost';
+    adjBtn.textContent='套用調整';
+    const adjMsg=document.createElement('span');
+    adjMsg.style.fontSize='11.5px';
+    adjMsg.style.color='#9be3b0';
+    adjMsg.style.alignSelf='center';
+    adjBtn.onclick=async ()=>{
+      const amt=Math.round(Number(adjInput.value));
+      if(!amt){return;}
+      adjBtn.disabled=true;
+      await adjustPlayerBalance(n,amt);
+      adjBtn.disabled=false;
+      adjMsg.textContent='已調整 '+fmtSigned(amt);
+      adjInput.value='';
+    };
+    adjRow.appendChild(adjInput);
+    adjRow.appendChild(adjBtn);
+    adjRow.appendChild(adjMsg);
+    wrap.appendChild(adjRow);
+
+    list.appendChild(wrap);
+  });
+}
+
+async function adjustPlayerBalance(nick,amount){
+  await loadAll();
+  const p=getPlayer(nick);
+  p.balance+=amount;
+  await savePlayers();
+  markLocalWrite();
+  renderAll();
+}
+
+function showMakeupResult(dk){
+  const msg=document.getElementById('makeupResultMsg');
+  if(!msg) return;
+  const day=weekData.days[dk];
+  if(!day||!day.settled){
+    msg.textContent=dk+' 結算失敗，請再試一次或檢查主控台錯誤訊息。';
+    msg.className='msg err';
+    return;
+  }
+  if(day.noShow){
+    msg.textContent=dk+' 已補登結算：那天大妃沒有出現，猜「大妃不會來」的人已依約定倍數獲利。';
+    msg.className='msg ok';
+    return;
+  }
+  if(day.winners.length===0){
+    msg.textContent=dk+' 已補登結算為 '+day.actual+'，沒有人猜中，本金均已沒收。';
+    msg.className='msg ok';
+    return;
+  }
+  msg.textContent=dk+' 已補登結算為 '+day.actual+'，贏家：'+day.winners.join('、')+'，獲利已發放到帳。';
+  msg.className='msg ok';
+}
+
+async function reverseSettlement(dateKey){
+  await loadAll();
+  const day=getOrCreateDay(dateKey);
+  if(!day.settled) return;
+  const actualInfo={isNoShow:day.noShow,actualTime:day.noShow?null:day.actual};
+  Object.keys(day.guesses).forEach(n=>{
+    const g=day.guesses[n];
+    const result=computePayout(g,actualInfo);
+    if(result.isWinner){
+      getPlayer(n).balance-=result.payout;
+    }
+  });
+  day.settled=false;
+  day.actual=null;
+  day.noShow=false;
+  day.winners=[];
+  await saveWeek();
+  await savePlayers();
+  markLocalWrite();
+  renderAll();
+}
+
+function renderMakeupSettle(){
+  const container=document.getElementById('makeupSettleList');
+  if(!container) return;
+  if(!unlocked){container.innerHTML='';return;}
+  const pastDates=Object.keys(weekData.days).filter(dk=>{
+    return dk<TODAY && !weekData.days[dk].settled && Object.keys(weekData.days[dk].guesses).length>0;
+  }).sort();
+  const settledPastDates=Object.keys(weekData.days).filter(dk=>{
+    return dk<TODAY && weekData.days[dk].settled && Object.keys(weekData.days[dk].guesses).length>0;
+  }).sort();
+
+  container.innerHTML='';
+
+  if(pastDates.length===0&&settledPastDates.length===0){
+    container.innerHTML='<div class="empty">沒有需要補登的日期。</div>';
+    return;
+  }
+
+  pastDates.forEach(dk=>{
+    const wrap=document.createElement('div');
+    wrap.style.marginBottom='12px';
+    const label=document.createElement('div');
+    label.style.fontSize='12.5px';
+    label.style.color='var(--cream-dim)';
+    label.style.marginBottom='6px';
+    label.textContent=dk+'（'+Object.keys(weekData.days[dk].guesses).length+' 筆下單未結算）';
+    wrap.appendChild(label);
+
+    const row=document.createElement('div');
+    row.className='field-row';
+    row.style.marginBottom='6px';
+    const input=document.createElement('input');
+    input.type='time';
+    input.value='09:00';
+    const btn=document.createElement('button');
+    btn.className='ghost';
+    btn.textContent='補登並結算';
+    btn.onclick=async ()=>{
+      if(!input.value) return;
+      btn.disabled=true;
+      await settleMarketForDay(dk,input.value,false);
+      btn.disabled=false;
+      showMakeupResult(dk);
+    };
+    row.appendChild(input);
+    row.appendChild(btn);
+    wrap.appendChild(row);
+
+    const noShowBtn=document.createElement('button');
+    noShowBtn.className='ghost';
+    noShowBtn.style.width='100%';
+    noShowBtn.style.borderColor='var(--red)';
+    noShowBtn.style.color='#ff9d9d';
+    noShowBtn.textContent='那天大妃沒有出現';
+    noShowBtn.onclick=async ()=>{
+      if(!confirm('確定 '+dk+' 那天大妃完全沒有出現嗎？')) return;
+      noShowBtn.disabled=true;
+      await settleMarketForDay(dk,null,true);
+      noShowBtn.disabled=false;
+      showMakeupResult(dk);
+    };
+    wrap.appendChild(noShowBtn);
+
+    const detailBtn=document.createElement('button');
+    detailBtn.className='ghost';
+    detailBtn.style.width='100%';
+    detailBtn.style.marginTop='6px';
+    detailBtn.textContent='查看明細';
+    const detailBox=document.createElement('div');
+    detailBox.style.display='none';
+    detailBox.style.marginTop='6px';
+    detailBtn.onclick=()=>{
+      const showing=detailBox.style.display==='block';
+      if(showing){
+        detailBox.style.display='none';
+        detailBtn.textContent='查看明細';
+      }else{
+        const id='detail_'+dk.replace(/-/g,'_');
+        detailBox.innerHTML='<div class="tickets" id="'+id+'"></div>';
+        detailBox.style.display='block';
+        detailBtn.textContent='收合明細';
+        renderGuessTickets(id,weekData.days[dk].guesses,false,{isNoShow:false,actualTime:null});
+      }
+    };
+    wrap.appendChild(detailBtn);
+    wrap.appendChild(detailBox);
+
+    container.appendChild(wrap);
+  });
+
+  if(settledPastDates.length>0){
+    const divider=document.createElement('div');
+    divider.style.borderTop='1px dashed var(--line)';
+    divider.style.margin='10px 0';
+    divider.style.paddingTop='10px';
+    divider.style.fontSize='11.5px';
+    divider.style.color='var(--cream-dim)';
+    divider.textContent='已結算日期（如果結算時間有誤，可以撤銷重來）';
+    container.appendChild(divider);
+
+    settledPastDates.forEach(dk=>{
+      const day=weekData.days[dk];
+      const wrap=document.createElement('div');
+      wrap.style.marginBottom='10px';
+      const label=document.createElement('div');
+      label.style.fontSize='12.5px';
+      label.style.color='var(--cream-dim)';
+      label.style.marginBottom='6px';
+      label.textContent=dk+'：'+(day.noShow?'大妃沒有出現':day.actual)+'（贏家 '+(day.winners.length?day.winners.join('、'):'無')+'）';
+      wrap.appendChild(label);
+
+      const undoBtn=document.createElement('button');
+      undoBtn.className='ghost';
+      undoBtn.style.width='100%';
+      undoBtn.style.borderColor='var(--red)';
+      undoBtn.style.color='#ff9d9d';
+      undoBtn.textContent='撤銷這天的結算';
+      undoBtn.onclick=async ()=>{
+        if(!confirm(dk+' 這天已經發過的獎勵會被收回，之後可以重新結算。連勝與整週全中獎勵可能無法完全對齊，請確認後再繼續。要撤銷嗎？')) return;
+        undoBtn.disabled=true;
+        await reverseSettlement(dk);
+        undoBtn.disabled=false;
+      };
+      wrap.appendChild(undoBtn);
+
+      const detailBtn=document.createElement('button');
+      detailBtn.className='ghost';
+      detailBtn.style.width='100%';
+      detailBtn.style.marginTop='6px';
+      detailBtn.textContent='查看明細';
+      const detailBox=document.createElement('div');
+      detailBox.style.display='none';
+      detailBox.style.marginTop='6px';
+      detailBtn.onclick=()=>{
+        const showing=detailBox.style.display==='block';
+        if(showing){
+          detailBox.style.display='none';
+          detailBtn.textContent='查看明細';
+        }else{
+          const id='detailSettled_'+dk.replace(/-/g,'_');
+          detailBox.innerHTML='<div class="tickets" id="'+id+'"></div>';
+          detailBox.style.display='block';
+          detailBtn.textContent='收合明細';
+          const actualInfo={isNoShow:day.noShow,actualTime:day.noShow?null:day.actual};
+          renderGuessTickets(id,day.guesses,true,actualInfo);
+        }
+      };
+      wrap.appendChild(detailBtn);
+      wrap.appendChild(detailBox);
+
+      container.appendChild(wrap);
+    });
+  }
+}
+
+function renderAfterHoursPanel(){
+  const panel=document.getElementById('afterHoursPanel');
+  if(sameWeekTomorrow){
+    panel.style.display='block';
+    const betForm=document.getElementById('ahBetForm');
+    const cutoffMsg=document.getElementById('ahCutoffMsg');
+    if(isAfterCutoff()){
+      if(betForm) betForm.style.display='none';
+      if(cutoffMsg){
+        cutoffMsg.style.display='block';
+        cutoffMsg.textContent='已過中午 12:30 下單截止時間，明天請早點來卡位。';
+      }
+    }else{
+      if(betForm) betForm.style.display='';
+      if(cutoffMsg) cutoffMsg.style.display='none';
+    }
+    renderTicketList('ahTicketList',TOMORROW);
+  }else{
+    panel.style.display='none';
+  }
+}
+
+function safeRender(fn){
+  try{fn();}catch(e){console.error('render error in',fn.name,e);}
+}
+function renderAll(){
+  document.getElementById('todayLabel').textContent=TODAY;
+  safeRender(renderDeviceLock);
+  safeRender(renderPlayerBadge);
+  safeRender(()=>renderTicketList('ticketList',TODAY));
+  safeRender(renderActual);
+  safeRender(renderAfterHoursPanel);
+  safeRender(renderEarlyLeavePanel);
+  safeRender(renderLeaderboard);
+  safeRender(renderAdminPanel);
+  safeRender(renderMakeupSettle);
+}
+
+(async function init(){
+  await loadAll();
+  await loadChat();
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='block';
+  renderAll();
+  safeRender(renderChat);
+
+  document.getElementById('nickInput').addEventListener('input',()=>{renderPlayerBadge();});
+  document.getElementById('checkinBtn').addEventListener('click',doCheckin);
+
+  document.getElementById('betBtn').addEventListener('click',doBetToday);
+  document.getElementById('modeTimeBtn').addEventListener('click',()=>{
+    betMode='time';
+    document.getElementById('modeTimeBtn').classList.add('active');
+    document.getElementById('modeNoShowBtn').classList.remove('active');
+    document.getElementById('timeInput').style.display='';
+  });
+  document.getElementById('modeNoShowBtn').addEventListener('click',()=>{
+    betMode='noshow';
+    document.getElementById('modeNoShowBtn').classList.add('active');
+    document.getElementById('modeTimeBtn').classList.remove('active');
+    document.getElementById('timeInput').style.display='none';
+  });
+  document.querySelectorAll('#todayBetPanel .lev-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      betLeverage=Number(btn.dataset.lev);
+      document.querySelectorAll('#todayBetPanel .lev-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.getElementById('ahBetBtn').addEventListener('click',doBetAfterHours);
+  document.getElementById('ahModeTimeBtn').addEventListener('click',()=>{
+    ahMode='time';
+    document.getElementById('ahModeTimeBtn').classList.add('active');
+    document.getElementById('ahModeNoShowBtn').classList.remove('active');
+    document.getElementById('ahTimeInput').style.display='';
+  });
+  document.getElementById('ahModeNoShowBtn').addEventListener('click',()=>{
+    ahMode='noshow';
+    document.getElementById('ahModeNoShowBtn').classList.add('active');
+    document.getElementById('ahModeTimeBtn').classList.remove('active');
+    document.getElementById('ahTimeInput').style.display='none';
+  });
+  document.querySelectorAll('#afterHoursPanel .lev-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      ahLeverage=Number(btn.dataset.lev);
+      document.querySelectorAll('#afterHoursPanel .lev-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.getElementById('elBetBtn').addEventListener('click',doBetEarlyLeave);
+  document.getElementById('elModeTimeBtn').addEventListener('click',()=>{
+    elMode='time';
+    document.getElementById('elModeTimeBtn').classList.add('active');
+    document.getElementById('elModeNoShowBtn').classList.remove('active');
+    document.getElementById('elTimeInput').style.display='';
+  });
+  document.getElementById('elModeNoShowBtn').addEventListener('click',()=>{
+    elMode='noshow';
+    document.getElementById('elModeNoShowBtn').classList.add('active');
+    document.getElementById('elModeTimeBtn').classList.remove('active');
+    document.getElementById('elTimeInput').style.display='none';
+  });
+  document.querySelectorAll('#earlyLeavePanel .lev-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      elLeverage=Number(btn.dataset.lev);
+      document.querySelectorAll('#earlyLeavePanel .lev-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.getElementById('tabAccuracy').addEventListener('click',()=>{
+    activeTab='accuracy';
+    document.getElementById('tabAccuracy').classList.add('active');
+    document.getElementById('tabChips').classList.remove('active');
+    renderLeaderboard();
+  });
+  document.getElementById('tabChips').addEventListener('click',()=>{
+    activeTab='chips';
+    document.getElementById('tabChips').classList.add('active');
+    document.getElementById('tabAccuracy').classList.remove('active');
+    renderLeaderboard();
+  });
+
+  document.getElementById('resetAllBtn').addEventListener('click',async ()=>{
+    if(!confirm('確定要把所有玩家重置為 10 萬大妃幣，並清空今天的下單紀錄嗎？此動作無法復原。')) return;
+    const btn=document.getElementById('resetAllBtn');
+    const msg=document.getElementById('resetAllMsg');
+    btn.disabled=true;
+    await resetAllPlayers();
+    btn.disabled=false;
+    msg.textContent='已重置完成，所有玩家目前都是 10 萬大妃幣。';
+    msg.className='msg ok';
+  });
+
+  document.getElementById('chatSendBtn').addEventListener('click',sendChat);
+  document.getElementById('chatInput').addEventListener('keydown',(e)=>{
+    if(e.key==='Enter') sendChat();
+  });
+
+  setInterval(async ()=>{
+    if(document.hidden) return;
+    await loadChat();
+    safeRender(renderChat);
+  },4000);
+
+  setInterval(async ()=>{
+    if(document.hidden) return;
+    if(Date.now()<suppressPollUntil) return;
+    const focused=document.activeElement&&document.activeElement.id;
+    const skipActual=focused==='pinInput'||focused==='actualInput';
+    const skipEarlyLeave=focused==='elPinInput'||focused==='elActualInput';
+    await loadAll();
+    document.getElementById('todayLabel').textContent=TODAY;
+    safeRender(renderDeviceLock);
+    safeRender(renderPlayerBadge);
+    safeRender(()=>renderTicketList('ticketList',TODAY));
+    if(!skipActual) safeRender(renderActual);
+    safeRender(renderAfterHoursPanel);
+    if(!skipEarlyLeave) safeRender(renderEarlyLeavePanel);
+    safeRender(renderLeaderboard);
+    // 管理者工具（重置／刪除／補登結算）不參與自動輪詢，
+    // 避免正在填寫的表單被背景刷新蓋掉；操作完成後會自行 renderAll 更新。
+  },8000);
+})();
+</script>
+</body>
+</html>
