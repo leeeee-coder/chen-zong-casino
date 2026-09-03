@@ -176,7 +176,7 @@
   .wrap.wide{max-width:900px;}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;}
   .two-col .panel{display:flex;flex-direction:column;}
-  .chat-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:10px;min-height:160px;}
+  .chat-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:10px;min-height:160px;max-height:440px;}
   @media (max-width:760px){.two-col{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -228,6 +228,11 @@
         <div class="actual-row">
           <div class="label">陳總今天實際到達時間 — 結算昨天「明日下單」的猜測（需管理密碼）</div>
           <div id="actualArea"></div>
+        </div>
+
+        <div class="actual-row">
+          <div class="label">明日下單進度（今天大家已經猜了什麼）</div>
+          <div class="tickets" id="todayPreviewTickets"></div>
         </div>
       </div>
 
@@ -838,6 +843,9 @@ function renderAhTickets(){
   const day=getTomorrowDay();
   const actualInfo={isNoShow:day.noShow,actualTime:day.noShow?null:day.actual};
   renderGuessTickets('ahTicketList',day.guesses,day.settled,actualInfo);
+  if(document.getElementById('todayPreviewTickets')){
+    renderGuessTickets('todayPreviewTickets',day.guesses,day.settled,actualInfo);
+  }
 }
 function renderEarlyLeaveTickets(){
   const day=getDay();
