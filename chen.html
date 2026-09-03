@@ -213,7 +213,7 @@
         <button id="checkinBtn" style="width:100%;" class="ghost">每日簽到 +1,000 大妃幣</button>
       </div>
       <div class="msg" id="checkinMsg"></div>
-      <div class="rules">新玩家起始 10 萬大妃幣。只能猜隔天，不能猜今天：每天中午 12:00 到隔天早上 8:59 是「明日下單」時段，下注需輸入本金並選槓桿（1~5x）：猜中拿回本金＋本金×槓桿的獲利，猜錯本金歸零（不會因槓桿高就虧更多）；完全命中獲利再 ×1.5；每筆單送出後不能修改，同一天限下一次單。連續三天猜中加碼 +3,000；每週五結算，當週全中再加碼 +6,000。暱稱可以自己設密碼保護，避免被別人冒用。</div>
+      <div class="rules">新玩家起始 10 萬大妃幣。只能猜隔天，不能猜今天：每天早上 9:00 到下午 18:30 是「明日下單」時段，下注需輸入本金並選槓桿（1~5x）：猜中拿回本金＋本金×槓桿的獲利，猜錯本金歸零（不會因槓桿高就虧更多）；完全命中獲利再 ×1.5；每筆單送出後不能修改，同一天限下一次單。連續三天猜中加碼 +3,000；每週五結算，當週全中再加碼 +6,000。暱稱可以自己設密碼保護，避免被別人冒用。</div>
     </div>
   </div>
 
@@ -265,7 +265,7 @@
           <button type="button" class="lev-btn" data-lev="5">5x</button>
         </div>
         <div class="field-row">
-          <button id="ahBetBtn" class="bet" style="width:100%;">送出盤後預測</button>
+          <button id="ahBetBtn" class="bet" style="width:100%;">送出明日下單</button>
         </div>
         <div class="msg" id="ahBetMsg"></div>
       </div>
@@ -367,20 +367,17 @@ const STARTING_BALANCE=100000;
 const DAILY_DIVIDEND=1000;
 const STREAK_BONUS=3000;
 const FULL_WEEK_BONUS=6000;
-const MORNING_CUTOFF_MIN=9*60;
-const AFTERHOURS_OPEN_MIN=12*60;
+const AFTERHOURS_OPEN_MIN=9*60;
+const AFTERHOURS_CLOSE_MIN=18*60+30;
 const EARLYLEAVE_CUTOFF_HOUR=12;
 const EARLYLEAVE_CUTOFF_MINUTE=30;
 function nowMinutes(){
   const n=new Date();
   return n.getHours()*60+n.getMinutes();
 }
-function isMorningBettingOpen(){
-  return nowMinutes()<MORNING_CUTOFF_MIN;
-}
 function isAfterHoursTomorrowOpen(){
   const t=nowMinutes();
-  return t>=AFTERHOURS_OPEN_MIN||t<MORNING_CUTOFF_MIN;
+  return t>=AFTERHOURS_OPEN_MIN&&t<AFTERHOURS_CLOSE_MIN;
 }
 function isAfterCutoff(){
   const n=new Date();
@@ -393,7 +390,8 @@ const WEEK=weekKey(now);
 const tomorrowDate=new Date(now);
 tomorrowDate.setDate(tomorrowDate.getDate()+1);
 const TOMORROW=todayKey(tomorrowDate);
-const sameWeekTomorrow=weekKey(tomorrowDate)===WEEK;
+const TOMORROW_WEEK=weekKey(tomorrowDate);
+const sameWeekTomorrow=TOMORROW_WEEK===WEEK;
 
 const WORKER_URL='https://chen-zong-bet.perry1831.workers.dev';
 const storage={
@@ -426,6 +424,7 @@ let ahMode='time';
 let ahLeverage=1;
 let elMode='time';
 let elLeverage=1;
+let nextWeekData=null;
 
 function getOrCreateDay(key){
   if(!weekData.days[key]) weekData.days[key]={actual:null,guesses:{},checkins:{},settled:false,winners:[],noShow:false,earlyLeave:{actual:null,settled:false,noShow:false,guesses:{},winners:[]}};
@@ -436,6 +435,34 @@ function getOrCreateDay(key){
   return day;
 }
 function getDay(){return getOrCreateDay(TODAY);}
+
+function ensureNextWeekData(){
+  if(!nextWeekData) nextWeekData={days:{},fullWeekBonus:{}};
+  return nextWeekData;
+}
+function getTomorrowDay(){
+  if(sameWeekTomorrow) return getOrCreateDay(TOMORROW);
+  const doc=ensureNextWeekData();
+  if(!doc.days[TOMORROW]) doc.days[TOMORROW]={actual:null,guesses:{},checkins:{},settled:false,winners:[],noShow:false,earlyLeave:{actual:null,settled:false,noShow:false,guesses:{},winners:[]}};
+  return doc.days[TOMORROW];
+}
+async function saveTomorrowDoc(){
+  if(sameWeekTomorrow) return saveWeek();
+  const doc=ensureNextWeekData();
+  return saveWithRetry('week:'+TOMORROW_WEEK,JSON.stringify(doc));
+}
+async function loadNextWeekIfNeeded(){
+  if(sameWeekTomorrow) return;
+  try{
+    const w=await storage.get('week:'+TOMORROW_WEEK);
+    if(w&&w.value) nextWeekData=JSON.parse(w.value);
+    else nextWeekData={days:{},fullWeekBonus:{}};
+  }catch(e){
+    console.error('load next week failed',e);
+    if(!nextWeekData) nextWeekData={days:{},fullWeekBonus:{}};
+  }
+}
+
 function getPlayer(nick){
   if(!players[nick]) players[nick]={balance:STARTING_BALANCE,streak:0};
   return players[nick];
@@ -568,6 +595,8 @@ async function loadAll(){
     }
     if(typeof players[n].streak!=='number') players[n].streak=0;
   });
+
+  await loadNextWeekIfNeeded();
 }
 
 function currentNick(){
@@ -795,6 +824,11 @@ function renderTicketList(listElId,dateKey){
   }
   const actualInfo={isNoShow:day.noShow,actualTime:day.noShow?null:day.actual};
   renderGuessTickets(listElId,day.guesses,day.settled,actualInfo);
+}
+function renderAhTickets(){
+  const day=getTomorrowDay();
+  const actualInfo={isNoShow:day.noShow,actualTime:day.noShow?null:day.actual};
+  renderGuessTickets('ahTicketList',day.guesses,day.settled,actualInfo);
 }
 function renderEarlyLeaveTickets(){
   const day=getDay();
@@ -1141,15 +1175,13 @@ async function placeOrder(opts){
     value=timeVal;
   }
   if(afterHours){
-    if(!isAfterHoursTomorrowOpen()){msgEl.textContent='盤後預測明日的下單時間是中午12:00到隔天早上8:59，現在不在開放時段。';msgEl.className='msg err';return false;}
-  }else{
-    if(!isMorningBettingOpen()){msgEl.textContent='今日報到猜測已過早上 9:00 截止時間。';msgEl.className='msg err';return false;}
+    if(!isAfterHoursTomorrowOpen()){msgEl.textContent='明日下單的開放時間是今天早上 9:00 到下午 18:30，現在不在開放時段。';msgEl.className='msg err';return false;}
   }
   const wager=Math.floor(Number(wagerVal));
   if(!wager||wager<=0){msgEl.textContent='輸入你想壓的本金金額。';msgEl.className='msg err';return false;}
 
   await loadAll();
-  const day=getOrCreateDay(dateKey);
+  const day=afterHours?getTomorrowDay():getOrCreateDay(dateKey);
   if(day.settled){msgEl.textContent='這個交易日已經收盤結算了。';msgEl.className='msg err';return false;}
   if(day.guesses[nick]){msgEl.textContent='你已經在這天下過單了，不能重複下注。';msgEl.className='msg err';return false;}
   const p=getPlayer(nick);
@@ -1158,7 +1190,7 @@ async function placeOrder(opts){
   p.balance-=wager;
   day.guesses[nick]={value,wager,leverage,afterHours};
 
-  const ok1=await saveWeek();
+  const ok1=afterHours?await saveTomorrowDoc():await saveWeek();
   const ok2=await savePlayers();
   if(!ok1||!ok2){
     p.balance+=wager;
@@ -1684,24 +1716,20 @@ function renderMakeupSettle(){
 
 function renderAfterHoursPanel(){
   const panel=document.getElementById('afterHoursPanel');
-  if(sameWeekTomorrow){
-    panel.style.display='block';
-    const betForm=document.getElementById('ahBetForm');
-    const cutoffMsg=document.getElementById('ahCutoffMsg');
-    if(!isAfterHoursTomorrowOpen()){
-      if(betForm) betForm.style.display='none';
-      if(cutoffMsg){
-        cutoffMsg.style.display='block';
-        cutoffMsg.textContent='盤後預測明日的下單時間是中午 12:00 到隔天早上 8:59，現在不在開放時段。';
-      }
-    }else{
-      if(betForm) betForm.style.display='';
-      if(cutoffMsg) cutoffMsg.style.display='none';
+  panel.style.display='block';
+  const betForm=document.getElementById('ahBetForm');
+  const cutoffMsg=document.getElementById('ahCutoffMsg');
+  if(!isAfterHoursTomorrowOpen()){
+    if(betForm) betForm.style.display='none';
+    if(cutoffMsg){
+      cutoffMsg.style.display='block';
+      cutoffMsg.textContent='明日下單的開放時間是今天早上 9:00 到下午 18:30，現在不在開放時段。';
     }
-    renderTicketList('ahTicketList',TOMORROW);
   }else{
-    panel.style.display='none';
+    if(betForm) betForm.style.display='';
+    if(cutoffMsg) cutoffMsg.style.display='none';
   }
+  renderAhTickets();
 }
 
 function safeRender(fn){
