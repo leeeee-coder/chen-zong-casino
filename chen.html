@@ -226,7 +226,7 @@
         <div class="tickets" id="ticketList"></div>
 
         <div class="actual-row">
-          <div class="label">陳總實際到達時間（需管理密碼）</div>
+          <div class="label">陳總今天實際到達時間 — 結算昨天「明日下單」的猜測（需管理密碼）</div>
           <div id="actualArea"></div>
         </div>
       </div>
@@ -325,6 +325,15 @@
           <button id="resetAllBtn" class="ghost" style="width:100%;border-color:var(--red);color:#ff9d9d;">重置所有玩家為 10 萬大妃幣（清空今日下單）</button>
         </div>
         <div class="msg" id="resetAllMsg"></div>
+
+        <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px;">
+          <div class="label" style="font-size:12px;color:var(--cream-dim);margin-bottom:8px;">系統維護補償（發給所有現有玩家）</div>
+          <div class="field-row">
+            <input type="number" id="compAmountInput" placeholder="每人補償金額" min="1" step="1000" style="flex:1;">
+            <button id="compAllBtn" class="ghost">發放給所有玩家</button>
+          </div>
+          <div class="msg" id="compMsg"></div>
+        </div>
 
         <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:14px;">
           <div class="label" style="font-size:12px;color:var(--cream-dim);margin-bottom:8px;">補登過去未結算的報到時間</div>
@@ -1350,6 +1359,18 @@ function renderLeaderboard(){
   }
 }
 
+async function compensateAllPlayers(amount){
+  await loadAll();
+  const names=Object.keys(players);
+  names.forEach(n=>{
+    getPlayer(n).balance+=amount;
+  });
+  await savePlayers();
+  markLocalWrite();
+  renderAll();
+  return names.length;
+}
+
 async function resetAllPlayers(){
   await loadAll();
   Object.keys(players).forEach(n=>{
@@ -1823,6 +1844,22 @@ function renderAll(){
     await resetAllPlayers();
     btn.disabled=false;
     msg.textContent='已重置完成，所有玩家目前都是 10 萬大妃幣。';
+    msg.className='msg ok';
+  });
+
+  document.getElementById('compAllBtn').addEventListener('click',async ()=>{
+    const amountInput=document.getElementById('compAmountInput');
+    const msg=document.getElementById('compMsg');
+    const amount=Math.floor(Number(amountInput.value));
+    msg.textContent='';msg.className='msg';
+    if(!amount||amount===0){msg.textContent='輸入要補償的金額。';msg.className='msg err';return;}
+    if(!confirm('確定要發放 '+amount.toLocaleString()+' 大妃幣給所有現有玩家嗎？')) return;
+    const btn=document.getElementById('compAllBtn');
+    btn.disabled=true;
+    const count=await compensateAllPlayers(amount);
+    btn.disabled=false;
+    amountInput.value='';
+    msg.textContent='已發放 '+amount.toLocaleString()+' 大妃幣給 '+count+' 位玩家。';
     msg.className='msg ok';
   });
 
