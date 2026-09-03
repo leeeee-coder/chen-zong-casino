@@ -213,38 +213,15 @@
         <button id="checkinBtn" style="width:100%;" class="ghost">每日簽到 +1,000 大妃幣</button>
       </div>
       <div class="msg" id="checkinMsg"></div>
-      <div class="rules">新玩家起始 10 萬大妃幣。下注需輸入本金並選槓桿（1~5x）：猜中拿回本金＋本金×槓桿的獲利，猜錯本金歸零（不會因槓桿高就虧更多）；完全命中獲利再 ×1.5；每筆單送出後不能修改，同一天限下一次單。連續三天猜中加碼 +3,000；每週五結算，當週全中再加碼 +6,000。今日報到猜測 9:00 截止下單；盤後預測明日自中午 12:00 開放至隔天 8:59，命中獲利再 ×1.5。暱稱可以自己設密碼保護，避免被別人冒用。</div>
+      <div class="rules">新玩家起始 10 萬大妃幣。只能猜隔天，不能猜今天：每天中午 12:00 到隔天早上 8:59 是「明日下單」時段，下注需輸入本金並選槓桿（1~5x）：猜中拿回本金＋本金×槓桿的獲利，猜錯本金歸零（不會因槓桿高就虧更多）；完全命中獲利再 ×1.5；每筆單送出後不能修改，同一天限下一次單。連續三天猜中加碼 +3,000；每週五結算，當週全中再加碼 +6,000。暱稱可以自己設密碼保護，避免被別人冒用。</div>
     </div>
   </div>
 
   <div class="wrap wide">
     <div class="two-col">
       <div class="panel" id="todayBetPanel">
-        <h2>今日下單</h2>
-        <div id="todayBetForm">
-          <div class="field-row" style="gap:6px;">
-            <button type="button" class="tab-btn active" id="modeTimeBtn" style="flex:1;">猜時間</button>
-            <button type="button" class="tab-btn" id="modeNoShowBtn" style="flex:1;">大妃不會來</button>
-          </div>
-          <div class="field-row">
-            <input type="time" id="timeInput" value="09:00" style="flex:1;">
-          </div>
-          <div class="field-row">
-            <input type="number" id="wagerInput" placeholder="本金（大妃幣）" min="1" step="1000">
-          </div>
-          <div class="field-row" style="gap:6px;">
-            <button type="button" class="lev-btn active" data-lev="1">1x</button>
-            <button type="button" class="lev-btn" data-lev="2">2x</button>
-            <button type="button" class="lev-btn" data-lev="3">3x</button>
-            <button type="button" class="lev-btn" data-lev="4">4x</button>
-            <button type="button" class="lev-btn" data-lev="5">5x</button>
-          </div>
-          <div class="field-row">
-            <button id="betBtn" class="bet" style="width:100%;">送出下單</button>
-          </div>
-          <div class="msg" id="betMsg"></div>
-        </div>
-        <div class="msg" id="todayCutoffMsg" style="display:none;color:var(--cream-dim);"></div>
+        <h2>今日開獎</h2>
+        <div class="rules" style="margin-bottom:10px;">今天已經不能現場下注了，這裡顯示的是昨天「明日下單」時段大家猜的結果。</div>
 
         <div class="tickets" id="ticketList"></div>
 
@@ -268,7 +245,7 @@
 
   <div class="wrap">
     <div class="panel" id="afterHoursPanel" style="display:none;">
-      <h2>盤後預測（明日） <span class="date">命中獲利 ×1.5</span></h2>
+      <h2>明日下單 <span class="date">命中獲利 ×1.5</span></h2>
       <div id="ahBetForm">
         <div class="field-row" style="gap:6px;">
           <button type="button" class="tab-btn active" id="ahModeTimeBtn" style="flex:1;">猜時間</button>
@@ -445,8 +422,6 @@ let verifiedNick=null;
 let suppressPollUntil=0;
 function markLocalWrite(){suppressPollUntil=Date.now()+15000;}
 let activeTab='accuracy';
-let betMode='time';
-let betLeverage=1;
 let ahMode='time';
 let ahLeverage=1;
 let elMode='time';
@@ -828,24 +803,6 @@ function renderEarlyLeaveTickets(){
   renderGuessTickets('elTicketList',el.guesses,el.settled,actualInfo);
 }
 
-function renderTodayCutoff(){
-  const betForm=document.getElementById('todayBetForm');
-  const msg=document.getElementById('todayCutoffMsg');
-  const day=getDay();
-  if(day.settled){
-    if(betForm) betForm.style.display='none';
-    if(msg) msg.style.display='none';
-    return;
-  }
-  if(!isMorningBettingOpen()){
-    if(betForm) betForm.style.display='none';
-    if(msg){msg.style.display='block';msg.textContent='已過早上 9:00 下單截止時間，等開獎結果公布。';}
-  }else{
-    if(betForm) betForm.style.display='';
-    if(msg) msg.style.display='none';
-  }
-}
-
 function renderActual(){
   const day=getDay();
   const area=document.getElementById('actualArea');
@@ -1215,22 +1172,6 @@ async function placeOrder(opts){
   msgEl.textContent='下單成功，本金 '+wager.toLocaleString()+' 已扣款，槓桿 '+leverage+'x。';
   msgEl.className='msg ok';
   return true;
-}
-
-async function doBetToday(){
-  const btn=document.getElementById('betBtn');
-  btn.disabled=true;
-  const ok=await placeOrder({
-    dateKey:TODAY,
-    mode:betMode,
-    timeVal:document.getElementById('timeInput').value,
-    wagerVal:document.getElementById('wagerInput').value,
-    leverage:betLeverage,
-    afterHours:false,
-    msgEl:document.getElementById('betMsg')
-  });
-  btn.disabled=false;
-  if(ok) renderAll();
 }
 
 async function doBetAfterHours(){
@@ -1771,7 +1712,6 @@ function renderAll(){
   safeRender(renderDeviceLock);
   safeRender(renderNickGate);
   safeRender(renderPlayerBadge);
-  safeRender(renderTodayCutoff);
   safeRender(()=>renderTicketList('ticketList',TODAY));
   safeRender(renderActual);
   safeRender(renderAfterHoursPanel);
@@ -1791,27 +1731,6 @@ function renderAll(){
 
   document.getElementById('nickInput').addEventListener('input',()=>{renderPlayerBadge();renderNickGate();});
   document.getElementById('checkinBtn').addEventListener('click',doCheckin);
-
-  document.getElementById('betBtn').addEventListener('click',doBetToday);
-  document.getElementById('modeTimeBtn').addEventListener('click',()=>{
-    betMode='time';
-    document.getElementById('modeTimeBtn').classList.add('active');
-    document.getElementById('modeNoShowBtn').classList.remove('active');
-    document.getElementById('timeInput').style.display='';
-  });
-  document.getElementById('modeNoShowBtn').addEventListener('click',()=>{
-    betMode='noshow';
-    document.getElementById('modeNoShowBtn').classList.add('active');
-    document.getElementById('modeTimeBtn').classList.remove('active');
-    document.getElementById('timeInput').style.display='none';
-  });
-  document.querySelectorAll('#todayBetPanel .lev-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      betLeverage=Number(btn.dataset.lev);
-      document.querySelectorAll('#todayBetPanel .lev-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
 
   document.getElementById('ahBetBtn').addEventListener('click',doBetAfterHours);
   document.getElementById('ahModeTimeBtn').addEventListener('click',()=>{
@@ -1902,7 +1821,6 @@ function renderAll(){
     safeRender(renderDeviceLock);
     if(!skipNickGate) safeRender(renderNickGate);
     safeRender(renderPlayerBadge);
-    safeRender(renderTodayCutoff);
     safeRender(()=>renderTicketList('ticketList',TODAY));
     if(!skipActual) safeRender(renderActual);
     safeRender(renderAfterHoursPanel);
