@@ -181,7 +181,7 @@ details.faq div{padding-top:8px;color:var(--muted);font-size:14px;display:flex;f
 .dl.up{color:var(--good);border-color:var(--good)}
 .dl.dn{color:var(--bad);border-color:var(--bad)}
 textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-height:84px;resize:vertical}
-.sheet .row-btns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.sheet .row-btns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:center}
 
 /* 離職證明 */
 .cert{background:var(--surface);border:3px double var(--ink);padding:30px 24px 34px;position:relative;display:flex;flex-direction:column;gap:18px}
@@ -335,6 +335,7 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
     </div>
     <div class="menu" id="menu" hidden>
       <button type="button" id="mAuto" aria-pressed="false">自動抉擇</button>
+      <button type="button" id="mRefl" aria-pressed="true">填字暫停</button>
       <button type="button" id="mNote">寫下想法</button>
       <button type="button" id="mLeave">離開這份工作</button>
     </div>
@@ -1035,7 +1036,7 @@ function tick(){
  const ev=pickDecision();
  if(ev) queue.unshift({type:'ev',ev});
  else if(r(.5)){const pool=PASSIVE.filter(p=>!p.ok||p.ok(S));const p=pick(pool);apply(p.fx);addLog(p.t,'p')}
- if(REFLECT[S.month]) queue.push({type:'refl',q:REFLECT[S.month]});
+ if(REFLECT[S.month] && !noRefl) queue.push({type:'refl',q:REFLECT[S.month]});
  if(S.month>=120) queue.push({type:'end',key:'decade'});
  render();
  if(queue.length) nextQueue();
@@ -1100,7 +1101,7 @@ function nextQueue(){
  const it=queue.shift();
  if(!it){ closeModal(); render(); play(); return }
  if(it.type==='ev') showEvent(it.ev);
- else if(it.type==='refl') showReflect(it.q);
+ else if(it.type==='refl') showReflect(it.q,it.free);
  else if(it.type==='end'){ closeModal(); endGame(it.key) }
 }
 function meta(who){return `<div class="meta"><span>${calStr(S.cal)}</span><span>年資 ${tenWords(S.month)}</span>${who?`<span class="who">${esc(who)}</span>`:''}</div>`}
@@ -1129,9 +1130,12 @@ function showEvent(ev){
  $('#sheet').querySelectorAll('.choices button').forEach(b=>b.onclick=()=>choose(+b.dataset.i));
  if(autoMode) setTimeout(()=>{ if(modalOpen && $('#sheet .choices')) choose(Math.floor(Math.random()*ev.ch.length)) },1100);
 }
+let noRefl=(()=>{try{return localStorage.getItem('dafei-noRefl')==='1'}catch(e){return false}})();
+function setNoRefl(v){noRefl=v;try{localStorage.setItem('dafei-noRefl',v?'1':'0')}catch(e){} const b=$('#mRefl'); if(b) b.setAttribute('aria-pressed',String(!v));}
 function showReflect(q,free){
- openModal(`${meta(free?'寫下想法':'暫停片刻')}<p class="q">${esc(q)}</p><label class="hint" for="reflTxt">願意的話，留下一行字。只會存在這個瀏覽器裡。</label><textarea id="reflTxt" maxlength="120"></textarea><div class="row-btns"><button type="button" class="btn" id="rSkip">略過</button><button type="button" class="btn-primary" id="rOk" style="font-size:15px;padding:9px 22px">寫下並繼續</button></div>`);
+ openModal(`${meta(free?'寫下想法':'暫停片刻')}<p class="q">${esc(q)}</p><label class="hint" for="reflTxt">願意的話，留下一行字。只會存在這個瀏覽器裡。</label><textarea id="reflTxt" maxlength="120"></textarea><div class="row-btns">${free?'':'<button type="button" class="btn-text" id="rNever" style="margin-right:auto">不再顯示</button>'}<button type="button" class="btn" id="rSkip">略過</button><button type="button" class="btn-primary" id="rOk" style="font-size:15px;padding:9px 22px">寫下並繼續</button></div>`);
  $('#rSkip').onclick=()=>nextQueue();
+ if($('#rNever')) $('#rNever').onclick=()=>{setNoRefl(true);toast('之後不會再跳出填字的暫停');nextQueue()};
  $('#rOk').onclick=()=>{const v=$('#reflTxt').value.trim(); if(v){S.refl.push({q,a:v,mo:S.month}); addLog(`「${v}」`,'note')} nextQueue()};
  if(autoMode) setTimeout(()=>{ if(modalOpen && $('#rSkip')) nextQueue() },1800);
 }
@@ -1285,8 +1289,10 @@ $('#bPause').onclick=()=>{userPaused=!userPaused;$('#bPause').setAttribute('aria
 $('#bSkip').onclick=()=>{turbo=true;if(userPaused){userPaused=false;$('#bPause').setAttribute('aria-pressed','false');$('#bPause').textContent='❚❚'}play()};
 $('#bMenu').onclick=e=>{e.stopPropagation();const m=$('#menu');m.hidden=!m.hidden;$('#bMenu').setAttribute('aria-expanded',!m.hidden)};
 document.addEventListener('click',e=>{if(!$('#menu').hidden&&!$('#menu').contains(e.target)){$('#menu').hidden=true;$('#bMenu').setAttribute('aria-expanded','false')}});
+$('#mRefl').setAttribute('aria-pressed',String(!noRefl));
+$('#mRefl').onclick=()=>{setNoRefl(!noRefl);toast(noRefl?'填字暫停：關':'填字暫停：開')};
 $('#mAuto').onclick=()=>{autoMode=!autoMode;$('#mAuto').setAttribute('aria-pressed',autoMode);toast(autoMode?'自動抉擇：開':'自動抉擇：關')};
-$('#mNote').onclick=()=>{$('#menu').hidden=true;if(!S||S.ended)return;queue.unshift({type:'refl',q:'現在在想什麼？'});halt();nextQueue()};
+$('#mNote').onclick=()=>{$('#menu').hidden=true;if(!S||S.ended)return;queue.unshift({type:'refl',q:'現在在想什麼？',free:true});halt();nextQueue()};
 $('#mLeave').onclick=()=>{$('#menu').hidden=true;if(!S||S.ended)return;openModal(`${meta('離開')}<p class="q">確定要離開這份工作嗎？</p><p class="muted">這段職涯會以「提早離開」結束，並留下離職證明。</p><div class="row-btns"><button type="button" class="btn" id="lNo">再待一下</button><button type="button" class="btn-primary" id="lYes" style="font-size:15px;padding:9px 22px">離開</button></div>`);$('#lNo').onclick=()=>{closeModal();play()};$('#lYes').onclick=()=>endGame('left')};
 $('#gFocus').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;S.focus=b.dataset.f;render()});
 $('#gLog').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;const l=S.log.find(x=>x.id===b.dataset.id);if(l){l.star=!l.star;render()}});
