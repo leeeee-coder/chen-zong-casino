@@ -286,6 +286,7 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
       <details class="faq"><summary>抉擇和每月重心</summary><div>
         <p>你可以為每個月選一個重心：認真做事、摸魚養身、經營人脈、進修充電、準時下班或向上管理。遇到事件時，時間會停下來讓你做選擇。</p>
         <p>覺得做抉擇很麻煩的話，打開上方工具列「⋯」裡的「自動抉擇」，在一旁看著就好。</p>
+        <p>台灣分公司的男同事，可能會發現陳總對你特別不一樣。留意狀態列上的「陳總對你」。</p>
       </div></details>
       <details class="faq"><summary>公司架構</summary><div>
         <p>台灣分公司：總經理（陳總）、三個業務、推廣、美術設計、客服、售後維修、產品經理、會計各一人。除了總經理、一位資深業務和產品經理，薪水大多落在 3.8 萬到 4.8 萬。</p>
@@ -294,6 +295,18 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
       </div></details>
       <details class="faq"><summary>同梯朋友</summary><div>
         <p>和你同一個月去別家公司報到的還有四個大學同學。他們會依照同樣的規則各自待下去或離開，列在你的職涯旁邊。沒有人選擇過自己第一份工作在哪裡。</p>
+      </div></details>
+      <details class="faq"><summary>員工守則（節錄）</summary><div>
+        <p>第 1.1 條　天條：違者一律按嚴重違紀予以解僱，絕不寬貸。</p>
+        <p>第 1.2 條　同仁間禁止戀愛。戀愛雙方一方須調離本公司；未申報者，公司得解除勞動契約。</p>
+        <p>第 3.3 條　不得私自在外兼職。</p>
+        <p>第 4.5 條　員工之間禁止談論薪資。</p>
+        <p>第五章　忘記打卡一個月以 2 次為限；事假、病假時數列入考績。</p>
+        <p>第六章　員工自行延長工作時間者，不屬加班。</p>
+        <p>第 7.3 條　特休須經主管批准。</p>
+        <p>第 8.2 條　年度累計五次考試不及格，視為不勝任。</p>
+        <p>第 12.4 條　公司有權要求員工暫不離職。</p>
+        <p>封面　手冊內容之解釋權及修改權歸公司所有。</p>
       </div></details>
       <details class="faq"><summary>哪些是真實資料？</summary><div>
         <p>沒有。人物言行皆為誇張演出，如有雷同，大概不是巧合。</p>
@@ -464,13 +477,14 @@ const NPC_NAMES=['阿翔','小芸','Vivian','宗翰','佩珊','Jason','怡君','
 const NPC_LEAVE=['被挖角去某電競大廠','說要去澳洲打工度假','回老家開飲料店','考上公職','說要休息一陣子','去了對手公司，大家都假裝不知道','說要專心當實況主'];
 
 const ENDINGS={
- quit:{t:'裸辭',reason:'個人生涯規劃',story:s=>'某個週一早上，你在公司樓下站了五分鐘，然後上樓把辭呈放在主管桌上。走出大樓的時候，天氣好得有點過分。'},
+ quit:{t:'裸辭',reason:'個人生涯規劃',story:s=>'某個週一早上，你在公司樓下站了五分鐘，然後上樓把辭呈放在主管桌上。人資說，依員工守則第 12.4 條，公司有權要求你暫不離職。你還是走了。走出大樓的時候，天氣好得有點過分。'},
  burnout:{t:'身體先投降了',reason:'健康因素',story:s=>'你請了很長的假。回來那天，你把辭呈和一盒伴手禮一起放在主管桌上。陳總說：「身體最重要。」這一次，她說得對。'},
  poached:{t:'被挖角',reason:'另有生涯規劃',story:s=>'你帶著三成的加薪去了別家。最後一天，傑夫說：「出去看看也好，我當年也是。」你沒問他當年是哪一年。'},
  layoff:{t:'組織調整',reason:'死無葬身之地',story:s=>'人資把一盒面紙推到你面前。你沒用到，但把那盒面紙帶走了，覺得公司的東西也是要錢的。'},
  ceo:{t:'成為了下一個陳總',reason:'坐上了總經理的位子',story:s=>'某天，新人經過你的座位。你脫口而出：「最近身體還好嗎？要多休息喔。」說完你愣了一下。'},
  decade:{t:'十年老臣',reason:'服務滿十年',story:s=>`十年了。冰箱換過兩台，Kat 進公司的次數你用一隻手就數得完。新人問你某件事要找誰簽，你說：「${s.boss==='chen'?'陳總，但你要有心理準備。':'傑夫，但先想好意義是什麼。'}」你成了大妃的活歷史。`},
- fired:{t:'被陳總開除',reason:'死無葬身之地',story:s=>'陳總把你叫進辦公室。第一句話是：「最近身體還好嗎？」第二句話是：「我們可能要請你另外發展了。」她送你到門口，提醒你回家路上小心。'},
+ loveban:{t:'禁愛令',reason:'死無葬身之地',story:s=>({deny:'你在人資的小會議室裡，被宣告違反員工守則第 1.2 條「未申報」。陳總那天請了病假。走出公司時，東門站的手扶梯照樣在動。',admit:'依員工守則第 1.2 條，戀愛雙方一方須調離本公司。總經理沒有被調離。你收拾東西的時候，陳總傳來最後一則訊息：「天冷了，身體要顧好。」',chen:'陳總說她也很為難。你離開的那天下午，她在全公司群組重新公告了一次員工守則第 1.2 條。'})[s.lbWay]||'你違反了員工守則第 1.2 條。'},
+ fired:{t:'被陳總開除',reason:'死無葬身之地',story:s=>'傑夫早就說過了，你這樣做事真的死無葬身之地。陳總把你叫進辦公室。第一句話是：「最近身體還好嗎？」第二句話是：「我們可能要請你另外發展了。」她送你到門口，提醒你回家路上小心。'},
  left:{t:'提早離開',reason:'自行離開模擬',story:s=>'你關掉了這份工作。真實的大妃，明天還是要上班。'},
 };
 
@@ -537,7 +551,7 @@ const EV=[
  ['說「那些是行銷要用的公關品」',s=>r(.5)?{fx:{mood:-2},m:'傑夫說：「公關品也是成本，要算錢的。」'}:{fx:{mood:1},m:'傑夫點點頭，暫時放過那排機殼。'}],
  ['辦一場員工特賣',s=>r(.3)?{fx:{net:3,favor:-5},m:'特賣很成功。傑夫問：「為什麼打這麼多折？」'}:{fx:{net:5,favor:4},m:'倉庫空出了一排。傑夫難得笑了，說他當年也是這樣清庫存的。'}],
 ]},
-{id:'jeff_questions',who:'傑夫',cd:4,max:2,w:s=>(s.boss==='jeff'?3:1.4)*(s.seat==='jeffdesk'?2:1),
+{id:'jeff_questions',who:'傑夫',cd:4,max:2,ok:s=>!['gz_fe','gz_be'].includes(s.dept),w:s=>(s.boss==='jeff'?3:1.4)*(s.seat==='jeffdesk'?2:1),
  t:s=>'週會上，傑夫看著你的報告：「問題點是什麼？意義是什麼？進度呢？目標呢？」',
  ch:[
  ['一題一題回答',s=>r(.3+s.skill/160)?{fx:{skill:3,hp:-2,favor:5,question:1},m:'你一口氣答完四題。傑夫停頓了一下：「嗯，下一個。」這已經是最高評價。'}:{fx:{skill:2,hp:-2,favor:-4,question:1},m:'答到「意義」的時候你卡住了。傑夫說：「你自己都不知道意義，客人怎麼會知道？」'}],
@@ -695,14 +709,18 @@ const EV=[
  ['拿出使用者測試數據',s=>r(.3+s.skill/160)?{fx:{skill:3,favor:5,question:1},m:'傑夫看完數據：「嗯，可以。但改成紅色。」'}:{fx:{favor:-3,question:1},m:'傑夫說：「數據是數據，我問的是意義。」'}],
  ['直接改成紅色',s=>({fx:{mood:-3,favor:3},m:'傑夫很滿意。兩週後，他問為什麼按鈕是紅色的。'})],
 ]},
-{id:'gm_romance',who:GM,cd:6,ok:s=>s.unit==='tw'&&s.gender==='m'&&!s.romance&&!s.romanceDone&&s.month>=5,w:s=>1.3,
- t:s=>`最近${GM}常約你一起吃午餐，問你身體還好嗎的語氣，跟問別人的不太一樣。今天下班前，她傳來：「週末有空嗎？」`,
+{id:'gm_romance',who:GM,cd:6,gap:6,max:3,ok:s=>CRUSH_OK(s)&&s.month>=4&&(s.crush||0)>=40,w:s=>0,
+ t:s=>[
+  `最近${GM}常約你一起吃午餐，問你身體還好嗎的語氣，跟問別人的不太一樣。今天下班前，她傳來：「週末有空嗎？」`,
+  `${GM}又傳訊息來了：「上次你說想看的那部電影，週六還有場次。」她記得你隨口說過的話。`,
+  `尾牙散場後，${GM}在門口等你：「我們走一段路好不好？」`,
+ ][((s.uses?.gm_romance||1)-1)%3],
  ch:[
- ['「有空。」',s=>({fx:{romance:1,mood:8,favor:20,body:1},m:'週末你們去看了一場電影。她全程問了你三次冷不冷。'})],
- ['「週末要陪家人。」',s=>({fx:{favor:-4},m:'她回了一個「好喔」。句號用得很重。'})],
- ['裝作沒看到',s=>r(.5)?{fx:{favor:-8,mood:-2},m:'週一她經過你的座位，沒有問你身體還好嗎。這是第一次。'}:{fx:{mood:1},m:'她之後沒再提。你鬆了一口氣，又有點好奇。'}],
+ ['「有空。」',s=>({fx:{romance:1,mood:8,favor:20,body:1,crush:20,expose:5},m:'週末你們去看了一場電影。她全程問了你三次冷不冷。散場的時候，你突然想起員工守則第 1.2 條。'})],
+ ['「週末要陪家人。」',s=>({fx:{favor:-4,crush:-25},m:'她回了一個「好喔」。句號用得很重。'})],
+ ['裝作沒看到',s=>r(.5)?{fx:{favor:-8,mood:-2,crush:-30},m:'週一她經過你的座位，沒有問你身體還好嗎。這是第一次。'}:{fx:{mood:1,crush:-15},m:'她之後沒再提。你鬆了一口氣，又有點好奇。'}],
 ]},
-{id:'gm_promote',who:GM,cd:6,ok:s=>s.romance&&!s.romanceDone&&s.month-s.romanceStart>=2,w:s=>4,
+{id:'gm_promote',who:GM,cd:6,gap:4,max:2,ok:s=>s.romance&&!s.romanceDone&&s.month-s.romanceStart>=2,w:s=>0,
  t:s=>`晚餐時${GM}說：「業務那邊有個位子，我覺得你比較適合。」隔天早上，有一位業務被叫進了小會議室。`,
  ch:[
  ['接受這個位子',s=>{
@@ -718,10 +736,10 @@ const EV=[
 {id:'gm_breakup',who:GM,cd:8,ok:s=>s.romance&&s.month-s.romanceStart>=6,w:s=>.8,
  t:s=>`${GM}約你到會議室，桌上放著兩杯飲料：「我覺得我們還是當同事比較好。」`,
  ch:[
- ['「我懂。」',s=>({fx:{romance:0,mood:-12,favor:-15},m:'你們喝完了飲料。傑夫經過時提醒你，這兩杯他也有付 5%。'})],
- ['「可以再想想嗎？」',s=>r(.4)?{fx:{mood:6},m:'她想了三天，最後說：「好吧，再試試看。」'}:{fx:{romance:0,mood:-15,favor:-20},m:'她說：「我已經想好了。要注意身體喔。」'}],
+ ['「我懂。」',s=>({fx:{romance:0,brokeUp:1,mood:-12,favor:-15},m:'你們喝完了飲料。傑夫經過時提醒你，這兩杯他也有付 5%。'})],
+ ['「可以再想想嗎？」',s=>r(.4)?{fx:{mood:6},m:'她想了三天，最後說：「好吧，再試試看。」'}:{fx:{romance:0,brokeUp:1,mood:-15,favor:-20},m:'她說：「我已經想好了。要注意身體喔。」'}],
 ]},
-{id:'jeff_patrol',who:'傑夫',cd:8,max:3,w:s=>s.unit==='gz'?3:2,
+{id:'jeff_patrol',who:'傑夫',cd:8,max:3,ok:s=>!['gz_fe','gz_be'].includes(s.dept),w:s=>s.unit==='gz'?3:2,
  t:s=>'傑夫今天臉很臭，在辦公室走了一圈，停在你旁邊：「你這週工作有哪些？快速跟我講一下。」',
  ch:[
  ['條列三點，三十秒講完',s=>r(.35+s.skill/150)?{fx:{favor:5,skill:1,question:1},m:'傑夫點點頭，走向下一個人。你聽到他問隔壁：「你這週工作有哪些？」'}:{fx:{favor:-3,mood:-2,question:1},m:'傑夫說：「就這樣？」然後站在你旁邊不走。'}],
@@ -802,8 +820,8 @@ const EV=[
  ['走去她辦公室當面問',s=>r(.5)?{fx:{hp:-1,mood:-3,body:1},m:'陳總說：「我沒看到耶，你再傳一次給我。」然後問你身體還好嗎。'}:{fx:{mood:-2},m:'辦公室的門關著，裡面很安靜。你覺得她在，但沒有證據。'}],
  ['不等了，自己決定',s=>r(.35)?{fx:{favor:-8,blame:1},m:'出事了。陳總終於回了：「這種事你怎麼沒先問我？」'}:{fx:{skill:2,mood:2},m:'什麼事都沒發生。陳總也一直沒有回。'}],
 ]},
-{id:'jeff_pua',who:'傑夫',cd:6,max:3,w:s=>s.unit==='gz'?2:1.2,
- t:s=>['傑夫把你叫到旁邊：「你知道你為什麼一直沒有升嗎？因為你不夠有 ownership。我是為你好才講。」','傑夫說：「外面的公司不會像我這樣對你這麼好，你出去就知道了。」','傑夫看完你做的東西：「這不是能力的問題，是態度的問題。你自己回去想想。」'][((s.uses?.jeff_pua||1)-1)%3],
+{id:'jeff_pua',who:'傑夫',cd:6,max:4,ok:s=>!['gz_fe','gz_be'].includes(s.dept),w:s=>s.unit==='gz'?2:1.2,
+ t:s=>['傑夫把你叫到旁邊：「你知道你為什麼一直沒有升嗎？因為你不夠有 ownership。我是為你好才講。」','傑夫說：「外面的公司不會像我這樣對你這麼好，你出去就知道了。」','傑夫看完你做的東西：「這不是能力的問題，是態度的問題。你自己回去想想。」','傑夫看完你的報告：「重點是你想把這個帶到什麼高度？你自己都不知道，我怎麼幫你？」','傑夫說：「總經理沒想法，你要有想法。你一直等她，你就永遠是專員。」'][((s.uses?.jeff_pua||1)-1)%5],
  ch:[
  ['點頭：「謝謝傑夫，我會檢討。」',s=>({fx:{favor:3,mood:-5,pua:1},m:'你回到座位，開始懷疑自己是不是真的哪裡不夠好。'})],
  ['問他具體是哪裡不夠',s=>r(.4)?{fx:{favor:-3,mood:3,pua:1},m:'傑夫想了很久：「就是……整體的感覺。」'}:{fx:{favor:-2,mood:-5,pua:1},m:'傑夫說：「你看，你就是太敏感了。我是為你好。」'}],
@@ -984,17 +1002,18 @@ const EV=[
  ['熬夜做相容',s=>({fx:{hp:-6,skill:3,favor:3},m:'網站能打開了。客戶說：「看起來跟以前一樣啊。」'})],
  ['請客戶換瀏覽器',s=>({fx:{net:-3,mood:2},m:'美國推廣說客戶的 IT 部門不允許。'})],
 ]},
-{id:'fe_friday',who:'傑夫',cd:8,max:2,ok:s=>s.dept==='gz_fe',w:s=>4,
- t:s=>'週五晚上九點，傑夫傳訊：「首頁輪播圖要換，明天早上上線。」',
+{id:'fe_friday',who:'陳總',cd:8,max:2,ok:s=>s.dept==='gz_fe',w:s=>4,
+ t:s=>'週五晚上九點，陳總傳訊：「官網首頁那張圖可以換一下嗎？明天早上客戶要看。」她沒有附新的圖。',
  ch:[
- ['回家打開電腦改',s=>({fx:{hp:-4,favor:4,mood:-4},m:'你在十一點上線了。週一傑夫說：「還是換回原本那張好了。」'})],
- ['週一早上第一件事做',s=>({fx:{favor:-4,mood:2},m:'週一早上，傑夫問：「我週五說的那個呢？」'})],
+ ['回家打開電腦，先問她要換哪張',s=>({fx:{hp:-3,mood:-3},m:'她十一點才回：「你覺得哪張好就哪張。」週一她說：「還是換回原本那張好了。」'})],
+ ['週一跟傑夫報備再做',s=>({fx:{mood:2},m:'傑夫說：「台灣的事你不用理，我們是不同部門。」然後他自己去跟陳總說了二十分鐘。'})],
 ]},
-{id:'fe_speed',who:'傑夫',cd:12,ok:s=>s.dept==='gz_fe',w:s=>3,
- t:s=>'傑夫把 PageSpeed 截圖丟到群組：分數 32。「為什麼是 32？目標是什麼？」',
+{id:'fe_sales_page',who:'業務',cd:10,ok:s=>s.dept==='gz_fe',w:s=>3.5,
+ t:s=>'台灣的業務走到你旁邊：「可以幫我做一個活動頁嗎？很簡單的，今天下班前就好。」他連文案都還沒有。',
  ch:[
- ['壓縮首頁那十張 4K 主視覺',s=>({fx:{skill:3,hp:-2,favor:3,question:1},m:'分數變 78。傑夫說：「那為什麼不是 100？」'})],
- ['解釋是行銷要求的動畫太多',s=>({fx:{net:-3,question:1},m:'推廣部從此看到你都繞路走。'})],
+ ['幫他做',s=>({fx:{hp:-4,net:3,mood:-3},m:'你做完了。他看了說：「可以再酷一點嗎？」'})],
+ ['請他走正式需求單',s=>({fx:{net:-3,mood:2},m:'業務跳過你，直接去找陳總。陳總傳 LINE 給你：「可以幫一下業務嗎？」'})],
+ ['說要先問傑夫',s=>({fx:{mood:3},m:'傑夫說：「不用理他，你做你的。」業務再也沒來過。至少這週沒有。'})],
 ]},
 // ===== 後端 =====
 {id:'be_down',who:'系統',cd:10,ok:s=>s.dept==='gz_be',w:s=>4,
@@ -1003,17 +1022,24 @@ const EV=[
  ['起床遠端修',s=>({fx:{hp:-7,skill:3,favor:5},m:'四點修好。早上陳總問你：「你昨天是不是沒睡好？身體要顧好喔。」'})],
  ['先關靜音，早上再說',s=>({fx:{favor:-6,mood:3},m:'早上進公司，群組有 63 則未讀，傑夫站在你位子旁邊。'})],
 ]},
-{id:'be_report',who:'傑夫',cd:10,ok:s=>s.dept==='gz_be',w:s=>3.5,
- t:s=>'傑夫要一份「所有數據」的報表，明天要。你問是哪些數據，他說：「全部。」',
+{id:'be_report',who:'陳總',cd:10,ok:s=>s.dept==='gz_be',w:s=>3.5,
+ t:s=>'陳總要一份「上個月所有的訂單資料」，明天開會要用。你問要哪些欄位，她已讀不回。',
  ch:[
- ['真的匯出全部',s=>({fx:{hp:-3,question:1},m:'你交出一份四萬列的 Excel。傑夫說：「這樣我怎麼看？」'})],
- ['做一個簡單的儀表板',s=>r(.5)?{fx:{skill:4,favor:5},m:'傑夫每天早上都打開它，雖然只看第一個數字。'}:{fx:{skill:3,question:1},m:'傑夫問：「這張圖的意義是什麼？」'}],
+ ['真的匯出全部',s=>({fx:{hp:-3,mood:-2},m:'你交出一份四萬列的 Excel。她回：「這樣我怎麼看？」'})],
+ ['做一個簡單的報表',s=>r(.5)?{fx:{skill:3,net:2},m:'陳總說很好用，之後每週都要。'}:{fx:{mood:-3},m:'陳總說：「我要的不是這個。」她還是沒說要的是哪個。'}],
+ ['請傑夫擋一下',s=>({fx:{mood:3},m:'傑夫說：「台灣的事我可以不用管。」然後他還是跑去陳總辦公室管了。'})],
 ]},
-{id:'be_legacy',who:'傑夫',cd:12,ok:s=>s.dept==='gz_be',w:s=>3,
- t:s=>'你打開十年前的程式碼，註解只有一行：「不要動這裡」。傑夫說這裡要改。',
+{id:'be_sales_data',who:'業務',cd:10,ok:s=>s.dept==='gz_be',w:s=>3.5,
+ t:s=>'台灣的業務第三次來問：「可以幫我撈一下這個客戶去年買了什麼嗎？很急。」',
  ch:[
- ['改',s=>r(.5)?{fx:{skill:5,favor:3},m:'改完了，什麼都沒壞。你懷疑這是暴風雨前的寧靜。'}:{fx:{hp:-5,mood:-5,blame:1},m:'改完的隔天，結帳頁開始顯示亂碼。傑夫說：「不是叫你小心一點嗎？」'}],
- ['跟傑夫解釋風險',s=>({fx:{question:1,favor:-2},m:'傑夫說：「這個風險的意義是什麼？」'})],
+ ['幫他撈',s=>({fx:{hp:-1,net:2,mood:-2},m:'撈完了。他說：「那可以順便撈前年的嗎？」'})],
+ ['教他自己從後台查',s=>r(.4)?{fx:{skill:1,net:1,mood:3},m:'他學會了。從此他每天都會來問後台密碼是多少。'}:{fx:{net:-2},m:'他聽完說：「好複雜喔，還是你幫我好了。」'}],
+]},
+{id:'eng_chen_it',who:'陳總',cd:8,max:2,ok:s=>['gz_fe','gz_be'].includes(s.dept),w:s=>3,
+ t:s=>'陳總走到廣州推廣部這一邊：「你是工程師對不對？我的印表機連不上，LINE 也一直登出。」',
+ ch:[
+ ['幫她修',s=>({fx:{hp:-1,mood:-2,body:1},m:'印表機是沒插電。修完她說：「謝謝，你們工程師真厲害。身體要顧好喔。」從此她每週都來。'})],
+ ['「我是寫網站的。」',s=>({fx:{mood:2},m:'陳總說：「都差不多吧。」然後在旁邊等你。'})],
 ]},
 // ===== 國際推廣 =====
 {id:'intl_exclusive',who:'經銷商',cd:12,ok:s=>s.dept==='gz_intl',w:s=>4,
@@ -1052,6 +1078,87 @@ const EV=[
  ch:[
  ['解釋那是美國的流行寫法',s=>({fx:{question:1,mood:-1},m:'傑夫說：「那下次請他拿掉。」'})],
  ['把影片的留言整理成報告',s=>({fx:{skill:3,favor:3},m:'報告第一頁寫著：「大部分留言是正面的。」傑夫只看了第一頁。'})],
+]},
+{id:'hb_clock',who:'人資',cd:12,max:2,w:s=>1.6,
+ t:s=>'你這個月第三次忘記打卡。員工守則第五章寫「一個月以 2 次為限」，第 11.2.2 條又寫「超過五次者」才申誡。人資也不知道該照哪一條。',
+ ch:[
+ ['照第五章，乖乖寫說明',s=>({fx:{mood:-2,favor:1},m:'你寫了一份三百字的說明，內容是「忘記了」。'})],
+ ['指出兩條寫得不一樣',s=>r(.5)?{fx:{mood:3,skill:1},m:'人資說：「好像真的是耶。」這個月就這樣算了。'}:{fx:{favor:-4},m:'人資說：「封面有寫，手冊的解釋權歸公司所有。」'}],
+]},
+{id:'hb_salary',who:'同事',cd:12,w:s=>1.4,
+ t:s=>'同事在茶水間小聲問你月薪多少。員工守則第 4.5 條：員工之間禁止談論薪資。',
+ ch:[
+ ['偷偷跟他講',s=>({fx:{net:3,mood:s.src==='c104'?-5:1},m:s.src==='c104'?'他聽完沉默了一下：「你是陳總從 104 找進來的對吧。」':'他說：「跟我一樣。」你們都鬆了一口氣，又都有點失望。'})],
+ ['「守則說不能講。」',s=>({fx:{net:-2,favor:1},m:'他說：「你真的有在看守則喔？」'})],
+]},
+{id:'hb_overtime',who:'人資',cd:12,max:2,w:s=>1.6,
+ t:s=>'你這個月加班到十點四次，報加班費被退件。理由寫著：依員工守則第六章，員工自行延長工作時間者不屬加班。',
+ ch:[
+ ['補事前申請單',s=>({fx:{mood:-3,hp:-1},m:'人資說事前申請要在加班前送出。你問怎麼在昨天送出今天的申請，人資說：「下次。」'})],
+ ['算了，下次準時走',s=>({fx:{mood:-2,favor:-2,hp:2},m:'隔天六點你準時起身。整排座位的人都抬頭看你。'})],
+ ['把工作量列給主管看',s=>r(.3)?{fx:{favor:-2,mood:4,money:2400},m:'主管看完，私下幫你補了一部分。'}:{fx:{favor:-4,pua:1},m:s.boss==='jeff'?'傑夫說：「做不完是效率的問題，不是時間的問題。」':'陳總說：「辛苦了，身體要顧好。」加班費的事她沒有再回。'}],
+]},
+{id:'hb_sidejob',who:'人資',cd:24,w:s=>1,
+ t:s=>'你週末幫朋友拍商品照賺外快，照片被同事在 IG 上看到。員工守則第 3.3 條：不得私自在外兼職。',
+ ch:[
+ ['說是幫朋友，沒收錢',s=>r(.5)?{fx:{mood:-1},m:'人資說：「好，下不為例。」你把 IG 改成私人帳號。'}:{fx:{favor:-5,mood:-3},m:'同事把轉帳截圖也找到了。你被記了一支申誡。'}],
+ ['刪掉照片，從此低調',s=>({fx:{money:-3000,mood:-3},m:'你推掉了下個月的案子。你的副業比你的年終還早結束。'})],
+]},
+{id:'hb_exam',who:'人資',cd:12,max:2,w:s=>1.2,
+ t:s=>'公司內部考試又不及格了。員工守則第 8.2 條：年度累計五次考試不及格，視為不勝任。',
+ ch:[
+ ['熬夜準備補考',s=>({fx:{hp:-4,skill:3},m:'補考過了。考題裡有一題是「員工守則第 1.1 條天條共有幾條」。'})],
+ ['問同事去年的考古題',s=>({fx:{net:2,skill:1},m:'考古題跟今年的題目一模一樣，連錯字都一樣。'})],
+]},
+{id:'hb_sick',who:'考績',cd:12,w:s=>1.2,
+ t:s=>'你上個月請了三天病假。年終考績表上寫著：依員工守則第五章，事假、病假時數列入考績，作為年終獎金參考。',
+ ch:[
+ ['默默接受',s=>({fx:{mood:-4},m:'你在考績表上簽了名。陳總說：「身體最重要。」'})],
+ ['去問人資這樣合法嗎',s=>({fx:{favor:-3,mood:2},m:'人資說：「我們會再研究。」那份考績表沒有再被提起。'})],
+]},
+{id:'hb_leave',who:'主管',cd:12,w:s=>1.4,
+ t:s=>s.boss==='chen'?'你想排三天特休去日本。陳總說：「員工守則第 7.3 條，特休要主管批准喔。最近比較忙，下個月再說，身體要顧好。」':'你想排三天特休去日本。傑夫說：「員工守則第 7.3 條，特休要主管批准。你請假的意義是什麼？」',
+ ch:[
+ ['改到下個月',s=>({fx:{mood:-3},m:'下個月，主管又說比較忙。'})],
+ ['機票都訂了，堅持要請',s=>r(.5)?{fx:{favor:-4,mood:6,hp:5},m:'主管勉強批了。你在大阪吃了三碗拉麵，回來時桌上有五件急件。'}:{fx:{favor:-6,mood:-4,money:-8000},m:'主管沒批。機票退不了。'}],
+]},
+{id:'hb_mentor',who:'人資',cd:999,ok:s=>s.month<=3,w:s=>5,
+ t:s=>'人資說，依員工守則的「領帶制度」，你的領帶是隔壁同事。你看了看他，他沒有打領帶。',
+ ch:[
+ ['問什麼是領帶制度',s=>({fx:{net:2},m:'隔壁同事說：「就是我帶你啦。我也是看了三個月才懂。」'})],
+ ['隔天打了一條領帶來上班',s=>({fx:{net:3,mood:-1},m:'整間辦公室都在看你。傑夫說：「很有精神，比羅賓好。」'})],
+]},
+{id:'jeff_meddle',who:'傑夫',cd:6,max:3,ok:s=>s.unit==='tw',w:s=>2.6,
+ t:s=>{const d=DEPTS[s.dept].n;return [
+  `傑夫走過來：「我可以不用管台灣的，我們是不同部門。」接著他拉了一張椅子坐下，花二十分鐘評論你的${d==='業務'?'報價單':d==='美術設計'?'主視覺':d==='會計'?'帳':'企劃'}。`,
+  '傑夫在台灣部門的群組裡說：「這個我不方便講，你們是陳總的人。」然後他講了十二則訊息。',
+  '你照陳總的意思做完了。傑夫經過看了一眼：「我們是不同部門我本來不想講，但這個方向是錯的。」',
+ ][((s.uses?.jeff_meddle||1)-1)%3]},
+ ch:[
+ ['照傑夫說的改',s=>r(.5)?{fx:{favor:-6,mood:-3,offend:0,jeffq:1},m:'陳總看到改過的版本：「這是誰叫你改的？」你們兩個都知道答案。'}:{fx:{mood:-2,skill:1,jeffq:1},m:'改完之後，傑夫說：「嗯，這樣比較有高度。」陳總沒有發現。'}],
+ ['「這個陳總已經決定了。」',s=>({fx:{pua:1,mood:1,jeffq:1},m:'傑夫說：「總經理沒想法，你要有想法。」說完回到廣州推廣部那一邊。三分鐘後他又走回來補了一句。'})],
+ ['兩邊都說好，私下照陳總的做',s=>({fx:{hp:-2,mood:-3,skill:1},m:'你同時維護了兩個版本的檔案，命名分別是「最終版」和「最終版_真的」。'})],
+]},
+{id:'jeff_height',who:'傑夫',cd:8,max:2,ok:s=>!['gz_fe','gz_be'].includes(s.dept),w:s=>2,
+ t:s=>'你報告完這個月的工作。傑夫沉默了一下：「重點是你想把這個帶到什麼高度？」',
+ ch:[
+ ['「我想把它做到業界標竿。」',s=>({fx:{favor:4,mood:-2,jeffq:1},m:'傑夫說：「很好。那下週給我一份計畫。」你不知道業界標竿長什麼樣子。'})],
+ ['「先把現在的做好。」',s=>({fx:{favor:-3,pua:1,jeffq:1},m:'傑夫說：「這樣你一輩子都只會在這個高度。」'})],
+ ['反問：「您覺得應該到什麼高度？」',s=>r(.4)?{fx:{favor:2,jeffq:1},m:'傑夫講了半小時他當年創業時的高度。最後的結論是：「你自己想。」'}:{fx:{favor:-4,jeffq:1},m:'傑夫說：「我問你，你問我？」'}],
+]},
+{id:'jeff_findwork',who:'傑夫',cd:10,max:2,ok:s=>!['gz_fe','gz_be'].includes(s.dept),w:s=>1.8,
+ t:s=>'手上的案子剛結案，你難得下午沒事。傑夫經過看到你在整理資料夾：「不可能沒有事做，你要自己找事做，一定有的。」',
+ ch:[
+ ['主動提一個新企劃',s=>({fx:{skill:2,hp:-3,favor:3,jeffq:1},m:'傑夫說很好。這個企劃後來變成你接下來三個月的加班。'})],
+ ['把資料夾整理得更用力',s=>({fx:{mood:-1,jeffq:1},m:'你把資料夾依照顏色重新排了一次。傑夫說：「這就是找事做。」'})],
+ ['「我在等陳總回覆。」',s=>({fx:{favor:-2,jeffq:1},m:'傑夫說：「那你要等到什麼時候？總經理沒想法，你要有想法。」'})],
+]},
+{id:'jeff_doom',who:'傑夫',cd:10,max:2,ok:s=>!['gz_fe','gz_be'].includes(s.dept),w:s=>1.8,
+ t:s=>'傑夫看完你的時程表，倒吸一口氣：「哇，你這樣做事真的死無葬身之地。」',
+ ch:[
+ ['重排時程',s=>({fx:{hp:-2,skill:2,jeffq:1},m:'你把時程重排了三次。傑夫第四次看：「嗯，這個比較不會死無葬身之地。」'})],
+ ['「那您覺得要怎麼排？」',s=>({fx:{favor:-1,question:1,jeffq:1},m:'傑夫說：「我們是不同部門，我不方便講。」然後他講了四十分鐘。'})],
+ ['照原本的做',s=>r(.5)?{fx:{mood:4,skill:1,jeffq:1},m:'案子如期完成了。傑夫說：「運氣好。」'}:{fx:{mood:-5,blame:1,jeffq:1},m:'案子延期了。傑夫說：「我早就說過了，死無葬身之地。」'}],
 ]},
 {id:'intern',who:'人資',cd:24,ok:s=>s.month>=12,w:s=>1,
  t:s=>'部門來了一位實習生，主管說：「你帶。」',
@@ -1213,6 +1320,22 @@ const PASSIVE=[
  {t:'影印機卡紙了。傑夫說：「這台我也有出 5%，小心點用。」',ok:s=>s.unit==='tw',fx:{shares:1}},
  {t:'傑夫在群組說：「中秋快樂，大家的月餅我也有付錢喔。」',fx:{shares:1}},
  {t:'陳總今天問你身體還好嗎，問了五次。',ok:s=>s.romance,fx:{body:5}},
+ {t:'陳總經過你座位時，多停了兩秒。',ok:s=>CRUSH_OK(s)&&s.month>=2,fx:{crush:4}},
+ {t:'人資在全公司群組重新公告了員工守則第 1.2 條：同仁間禁止戀愛。陳總在下面按了一個讚。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=20,fx:{crush:3}},
+ {t:'人資今天在你座位旁邊停了一下，什麼都沒說。',ok:s=>s.romance&&(s.expose||0)>=30,fx:{mood:-2}},
+ {t:'你在電梯裡遇到陳總，兩個人都假裝在看手機。',ok:s=>s.romance,fx:{expose:-3}},
+ {t:'你們約好在公司出了東門站各走各的，到了永康街才會合。',ok:s=>s.romance,fx:{expose:-5,mood:1}},
+ {t:'陳總今天交代急件給所有人，唯獨跳過了你。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=10,fx:{crush:4,mood:1}},
+ {t:'陳總在群組裡回了你的訊息，用了一個她從來沒對別人用過的貼圖。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=10,fx:{crush:5}},
+ {t:'你打了一個噴嚏。五分鐘後，你桌上多了一包喉糖。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=15,fx:{crush:5,body:1}},
+ {t:'陳總問你週末都在做什麼。她以前從來不問這種事。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=15,fx:{crush:5}},
+ {t:'陳總今天穿得特別正式。她跟你說早安的時候，笑了一下。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=25,fx:{crush:5}},
+ {t:'同事說，陳總在會議室裡提到你的名字三次，每次語氣都很溫柔。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=25,fx:{crush:4,net:-1}},
+ {t:'下班時陳總剛好也要走。電梯裡只有你們兩個人，她沒有看手機。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=30,fx:{crush:6}},
+ {t:'陳總下午在你座位旁邊站了一下，問你最近有沒有在跟誰約會。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=35,fx:{crush:6}},
+ {t:'午休時陳總傳了一張永康街芒果冰的照片給你，沒有附任何文字。',ok:s=>s.romance},
+ {t:'陳總下班前在你螢幕上貼了一張便利貼：「今天早點走。」',ok:s=>s.romance,fx:{hp:1}},
+ {t:'週會上陳總叫錯你的名字，叫成了她私下叫你的暱稱。全場安靜了一秒。',ok:s=>s.romance,fx:{net:-1}},
  {t:'茶水間的同事看到你走進來，突然換了話題。',ok:s=>s.romance,fx:{net:-1}},
  {t:'陳總今天的急件沒有給你，給了業務。',ok:s=>s.romance,fx:{mood:1}},
  {t:'廣州推廣部那一排在開英文視訊會議。台灣分公司這一排，同時在討論中午吃什麼。'},
@@ -1245,6 +1368,20 @@ const PASSIVE=[
  {t:'美國客戶下午四點寄信說「明天早上要」。那是台灣的凌晨。',ok:s=>s.dept==='gz_us',fx:{hp:-1}},
  {t:'Amazon 上有人留言問機殼能不能裝進他的車。',ok:s=>s.dept==='gz_us'},
  {t:'辦公室安靜到只聽得到鍵盤聲。',fx:{mood:-1}},
+ {t:'傑夫在台灣部門這一邊說：「我可以不用管台灣的，我們是不同部門。」他說完沒有走。',ok:s=>s.unit==='tw',fx:{jeffq:1}},
+ {t:'傑夫在陳總辦公室門口說：「這個我本來不想管。」然後他進去了，門關了一個小時。',fx:{jeffq:1}},
+ {t:'傑夫對著某份企劃說：「哇，你這樣做事真的死無葬身之地。」全辦公室的人同時檢查了自己的螢幕。',fx:{jeffq:1}},
+ {t:'傑夫在週會上說：「重點是你們想把公司帶到什麼高度。」沒有人回答。',fx:{jeffq:1}},
+ {t:'傑夫說：「總經理沒想法，你們要有想法。」陳總剛好從後面走過。',fx:{jeffq:1}},
+ {t:'有人說手上沒事了。傑夫說：「不可能沒有事做，你要自己找事做，一定有的。」',fx:{jeffq:1}},
+ {t:'傑夫經過你的座位：「你們辛苦了。」然後走去台灣那一邊唸人。',ok:s=>['gz_fe','gz_be'].includes(s.dept),fx:{mood:2}},
+ {t:'傑夫幫你擋掉了台灣業務的第五個「很急的小需求」。',ok:s=>['gz_fe','gz_be'].includes(s.dept),fx:{mood:2}},
+ {t:'陳總又走到廣州推廣部這一邊，問你們工程師會不會修冷氣。',ok:s=>['gz_fe','gz_be'].includes(s.dept),fx:{mood:-1,body:1}},
+ {t:'台灣的業務在你螢幕上貼了一張便利貼：「有空回我一下，很急。」上面沒寫是什麼事。',ok:s=>['gz_fe','gz_be'].includes(s.dept),fx:{mood:-1}},
+ {t:'人資在群組重新公告員工守則第 1.1 條「天條」：違者一律按嚴重違紀予以解僱，絕不寬貸。'},
+ {t:'你翻開員工守則，封面寫著：手冊內容之解釋權及修改權歸公司所有。'},
+ {t:'三節獎金公告最後一行寫著：已提出辭呈者不予發放。有兩個人默默把寫好的辭呈收回抽屜。'},
+ {t:'員工守則第 4.4 條：連續兩個月未達績效標準，公司得調整職務。大家這個月的報表都特別漂亮。'},
  {t:'茶水間沒有人聊天，大家倒完水就走。',fx:{mood:-1}},
  {t:'群組裡的「收到」越來越多，貼圖越來越少。',fx:{mood:-1}},
  {t:'隔壁同事今天嘆了十一次氣。你有數。',fx:{mood:-1}},
@@ -1265,7 +1402,91 @@ const REFLECT={
  60:'五年了。如果明天就離職，你最捨不得的是什麼？',
  96:'八年了。你還記得第一次被問「身體還好嗎」是什麼時候嗎？',
 };
-const ALL={};[...EV,...SEASON,...Object.values(SPECIAL)].forEach(e=>ALL[e.id]=e);
+const CRUSH_OK=s=>s.unit==='tw'&&s.gender==='m'&&!s.romance&&!s.romanceDone&&!s.brokeUp;
+const ROM_HINTS=[
+{id:'h_coffee',who:GM,gap:2,ok:CRUSH_OK,
+ t:s=>`${GM}從外面回來，在你桌上放了一杯拿鐵：「順便買的。」整排座位，只有你桌上有。`,
+ ch:[
+ ['道謝，問她怎麼知道你喝拿鐵',s=>({fx:{crush:15,mood:3},m:'她說：「上次開會你點的就是這個啊。」那是三個月前的事。'})],
+ ['道謝，拿去跟隔壁同事分',s=>({fx:{crush:2,net:2},m:'隔壁同事喝了一口，看看你，又看看陳總的辦公室。'})],
+ ['說你其實不喝咖啡',s=>({fx:{crush:-5},m:'陳總說：「喔，好。」隔天你桌上多了一杯無糖綠茶。'})],
+]},
+{id:'h_lunch',who:GM,gap:2,ok:CRUSH_OK,
+ t:s=>`中午十二點，${GM}走到你座位：「要不要一起去永康街吃飯？」她只問了你。`,
+ ch:[
+ ['一起去',s=>({fx:{crush:15,mood:3,money:-250,body:1},m:'她點了兩碗牛肉麵，把她碗裡的牛肉夾了一塊給你：「你最近太瘦了。」'})],
+ ['說已經訂便當了',s=>({fx:{crush:3},m:'她說：「那下次。」下次是後天。'})],
+ ['找隔壁同事一起去',s=>({fx:{crush:4,net:2},m:'一路上陳總都沒什麼說話。同事吃完就說要先回公司。'})],
+]},
+{id:'h_line',who:GM,gap:2,ok:CRUSH_OK,
+ t:s=>`晚上十一點，${GM}傳了一則跟工作無關的 LINE：「睡了嗎？今天辛苦了。」`,
+ ch:[
+ ['回訊息，一路聊到一點',s=>({fx:{crush:18,hp:-2,mood:2},m:'你們從東門的滷肉飯聊到她的膝蓋。最後一則是她傳的：「早點睡，身體要顧好。」'})],
+ ['回「陳總也早點休息」',s=>({fx:{crush:8},m:'她回了一個晚安貼圖。是一隻抱著愛心的熊。'})],
+ ['隔天早上才回',s=>({fx:{crush:-5},m:'隔天你回了「抱歉昨天睡了」。她已讀，然後交代了一件急件。'})],
+]},
+{id:'h_meeting',who:GM,gap:2,ok:CRUSH_OK,
+ t:s=>`月會上，業務質疑你的提案。還沒等你回答，${GM}就說：「我覺得他講得很好。」全場同時看向你。`,
+ ch:[
+ ['「謝謝陳總。」',s=>({fx:{crush:10,favor:4,net:-3},m:'業務沒有再說話。會後他在群組裡傳了一個意味深長的貼圖。'})],
+ ['低頭繼續報告',s=>({fx:{crush:5,skill:1},m:'你報告完了。陳總帶頭鼓掌，只有她一個人在鼓。'})],
+]},
+{id:'h_souvenir',who:GM,gap:2,ok:CRUSH_OK,
+ t:s=>`${GM}出差回來，大家一人一包鳳梨酥。你拉開抽屜，裡面多了一盒日本巧克力，沒有署名。`,
+ ch:[
+ ['傳訊息謝謝她',s=>({fx:{crush:15,mood:3},m:'她回：「什麼巧克力？」三分鐘後又補了一句：「好吃嗎？」'})],
+ ['假裝沒發現',s=>({fx:{crush:3},m:'下午她經過你座位時，看了一眼你的抽屜。'})],
+ ['拿出來跟大家分',s=>({fx:{crush:-6,net:3},m:'同事們吃得很開心。陳總經過時，表情很複雜。'})],
+]},
+{id:'h_rumor',who:'同事',gap:2,ok:s=>CRUSH_OK(s)&&(s.crush||0)>=25,
+ t:s=>'同事私訊你：「欸，陳總是不是對你特別好？她今天問了你三次身體還好嗎，問我們只有一次。」',
+ ch:[
+ ['「沒有吧，你想太多。」',s=>({fx:{crush:5},m:'同事回：「好喔。」然後把這段對話截圖傳到了另一個群組。'})],
+ ['「我也覺得怪怪的。」',s=>({fx:{crush:3,mood:1,net:1},m:'同事說：「我就知道！」你突然覺得自己不該回這句。'})],
+ ['已讀不回',s=>({fx:{crush:8},m:'隔天整排座位的人看你的眼神都不太一樣。'})],
+]},
+{id:'h_umbrella',who:GM,gap:2,ok:s=>CRUSH_OK(s)&&(s.crush||0)>=20,
+ t:s=>`下大雨，你沒帶傘。${GM}在電梯口說：「我載你去捷運站。」`,
+ ch:[
+ ['上車',s=>({fx:{crush:18,mood:3},m:'東門站其實走路三分鐘。她繞了二十分鐘才到。'})],
+ ['說等雨小一點再走',s=>({fx:{crush:-3,hp:-1},m:'雨沒有變小。你淋著雨走到捷運站，隔天她問你有沒有感冒。'})],
+]},
+];
+const ROM_DATING=[
+{id:'r_secret',who:'同事',gap:4,ok:s=>s.romance,
+ t:s=>'隔壁同事壓低聲音問：「你是不是跟陳總在一起？有人看到你們週末在大安森林公園。」',
+ ch:[
+ ['否認',s=>({fx:{mood:-2},m:'同事說：「喔。」然後把「喔」講得很長。'})],
+ ['承認',s=>({fx:{net:-5,mood:4,expose:35},m:'下午，整間公司都知道了。陳總在群組裡發了一句：「大家身體都要顧好喔。」'})],
+ ['「我們只是常一起吃飯。」',s=>({fx:{net:-1,expose:8},m:'同事說：「我跟我女朋友一開始也是這樣說的。」'})],
+]},
+{id:'r_jeff',who:'傑夫',gap:4,ok:s=>s.romance,
+ t:s=>'傑夫看到你和陳總一起從停車場走出來。下午他走到你座位：「最近跟陳總很熟喔？」',
+ ch:[
+ ['「都是工作上的事。」',s=>({fx:{question:1,expose:5},m:'傑夫說：「那這件工作的意義是什麼？」'})],
+ ['「傑夫，這是私事。」',s=>({fx:{mood:3,pua:1,expose:15},m:'傑夫說：「我是為你好才問的。」然後講了一個你不想聽的笑話。'})],
+]},
+{id:'r_gift',who:GM,gap:4,ok:s=>s.romance,
+ t:s=>`你生日那天，${GM}送了你一條圍巾，卡片上寫著：「天冷了，身體要顧好。」`,
+ ch:[
+ ['當天就圍去上班',s=>({fx:{mood:6,net:-2,body:1,expose:15},m:'整間辦公室都看到了。業務說那條圍巾跟陳總的包包是同一個牌子。'})],
+ ['收在家裡',s=>({fx:{mood:3},m:'隔天陳總問：「圍巾不喜歡嗎？」'})],
+]},
+{id:'r_work',who:'業務',gap:4,ok:s=>s.romance,
+ t:s=>'你的企劃在週會上被陳總稱讚了三分鐘。業務當場翻了一個很大的白眼。',
+ ch:[
+ ['裝作沒看到',s=>({fx:{net:-2},m:'業務會後跳過你，直接找陳總談了你的企劃。陳總說：「他做得很好啊。」'})],
+ ['會後請業務喝飲料',s=>({fx:{money:-65,net:2,shares:1},m:'業務收下了，說了聲謝謝。傑夫經過時說這杯他也有付 5%。'})],
+]},
+];
+const LOVE_BAN={id:'love_ban',who:'人資',
+ t:s=>'人資把你叫進小會議室。桌上放著員工守則，翻開在第 1.2 條：「同仁間禁止戀愛。戀愛雙方一方須調離本公司；未申報者，公司得解除勞動契約。」人資說：「有人反映你和陳總……你要不要說明一下？」',
+ ch:[
+ ['否認：「我們只是同事。」',s=>r(Math.max(.15,.6-(s.expose||0)/150))?{fx:{expose:-45,mood:-6,lbSurvive:1},m:'人資看了你很久：「好，那我就這樣記錄。」走出會議室，你把手機裡的合照設成了隱藏。'}:{fx:{lbWay:'deny'},end:'loveban',m:'人資拿出一張照片，是你們週末在大安森林公園。「依第 1.2 條，未申報者，公司得解除勞動契約。」'}],
+ ['承認，請公司處理',s=>({fx:{lbWay:'admit'},end:'loveban',m:'人資說：「依守則，戀愛雙方一方須調離本公司。」你們兩個都知道，總經理不會是被調離的那一個。'})],
+ ['「這要問陳總。」',s=>({fx:{lbWay:'chen'},end:'loveban',m:'人資去問了。陳總說：「公司有規定，我也很為難。」然後她請人資轉告你，要注意身體。'})],
+]};
+const ALL={};[...EV,...SEASON,...Object.values(SPECIAL),...ROM_HINTS,...ROM_DATING,LOVE_BAN].forEach(e=>ALL[e.id]=e);
 
 /* ---------- 狀態 ---------- */
 let S=null, cfg={start:'now',len:5000,dept:'',gender:'m'};
@@ -1277,7 +1498,7 @@ function newGame(name){
  const now=2026*12+9;
  const startOpt=cfg.start==='any'?pick(['now','spring','launch']):cfg.start;
  const startCal=startOpt==='now'?now:startOpt==='spring'?2027*12+2:2027*12+4;
- const dept=cfg.dept||pick(Object.keys(DEPTS));
+ const dept=cfg.dept||(()=>{const ks=Object.keys(DEPTS),ws=ks.map(k=>k==='gz_fe'||k==='gz_be'?.3:1);let x=Math.random()*ws.reduce((a,b)=>a+b,0);for(let i=0;i<ks.length;i++){x-=ws[i];if(x<=0)return ks[i]}return ks[0]})();
  const unit=DEPTS[dept].u;
  const boss=unit==='tw'?'chen':'jeff';
  const seat=pick(Object.keys(SEATS).filter(k=>SEATS[k].u===unit));
@@ -1299,9 +1520,9 @@ function newGame(name){
  const ret=[1];let sv=1;for(let t=1;t<=120;t++){sv*=1-hazard(t,startCal+t);ret.push(sv)}
  const names=[...NPC_NAMES].sort(()=>Math.random()-.5).slice(0,4);
  S={name:name||'新人',gender:cfg.gender,src,unit,senior,org,romance:0,romanceStart:null,romanceDone:false,dept,boss,seat,month:0,startCal,cal:startCal,
-  hp:rand(60,80),mood:rand(52,68),eng:eng0,skill:rand(20,42),net:rand(15,34),favor:rand(45,60),
+  hp:rand(60,80),mood:rand(52,68),eng:eng0,skill:rand(20,42),net:rand(15,34),favor:(dept==='gz_fe'||dept==='gz_be')?rand(70,82):rand(45,60),
   money:ri(3,9)*10000,salary:sal,expense:ri(21,27)*1000,title:0,focus:'work',
-  log:[],c:{body:0,fridge:0,question:0,blame:0,raise:0,promo:0,shares:0,pua:0,joke:0,offend:0,noBonus:0},cd:{},
+  log:[],c:{body:0,fridge:0,question:0,blame:0,raise:0,promo:0,shares:0,pua:0,joke:0,offend:0,noBonus:0,jeffq:0},cd:{},
   npcs:names.map(n=>({n,co:pick(NPC_COS),left:null,reason:''})),
   map:[],dec:[],refl:[],seenG:{},used:{},biweekly:0,ret,treated:false,leaveDays:7,leaveYear:Math.floor(startCal/12),ended:false,id:Date.now().toString(36)};
 }
@@ -1315,6 +1536,11 @@ function apply(fx){
   else if(k==='setSal') S.salary=v;
   else if(k==='biweekly') S.biweekly=v;
   else if(k==='asked') S.lastAsk=S.month;
+  else if(k==='brokeUp') S.brokeUp=v;
+  else if(k==='lbWay') S.lbWay=v;
+  else if(k==='lbSurvive') S.lbSurvive=(S.lbSurvive||0)+1;
+  else if(k==='expose') S.expose=Math.max(0,(S.expose||0)+v);
+  else if(k==='crush') S.crush=Math.max(0,Math.min(100,(S.crush||0)+v));
   else if(k==='eng') S.eng=clamp((S.eng||0)+v);
   else if(k==='title') S.title=Math.min(TITLES.length-1,S.title+v);
   else if(k in S.c){ S.c[k]+=v; if(k==='raise') S.lastRaise=S.month; }
@@ -1331,7 +1557,8 @@ function tick(){
  if(Math.floor(S.cal/12)!==S.leaveYear){S.leaveYear=Math.floor(S.cal/12);S.leaveDays=7}
  if(autoMode && r(.25)) S.focus = S.hp<35?pick(['slack','home']):S.mood<30?pick(['home','slack','net']):pick(Object.keys(FOCUS));
  apply(FOCUS[S.focus].fx);
- S.hp=clamp(S.hp-.5);S.mood=clamp(S.mood-.6);S.favor=clamp(S.favor+(50-S.favor)*.02);
+ const isEng=S.dept==='gz_fe'||S.dept==='gz_be';
+ S.hp=clamp(S.hp-(isEng?.35:.5));S.mood=clamp(S.mood-(isEng?.3:.6));S.favor=clamp(S.favor+((isEng?72:50)-S.favor)*.02);
  const bonus=S.dept==='tw_sales'?Math.round(Math.random()*S.salary*.3*(S.net/60)/100)*100:0;
  S.money+=S.salary+bonus-S.expense;
  if(S.money<0)S.mood=clamp(S.mood-2);
@@ -1373,15 +1600,17 @@ function tick(){
   if(sc>=40+S.title*5) queue.push({type:'ev',ev:promoEvent()});
   else addLog('又滿三年了。沒有人提起升遷的事。','ms');
  }
+ if(S.romance){ S.expose=(S.expose||0)+3; const l=S.cd.love_ban; if((l==null||S.month-l>=4) && r(Math.min(.5,(S.expose||0)/260))) queue.push({type:'ev',ev:LOVE_BAN}); }
  const ev=pickDecision();
  if(ev) queue.unshift({type:'ev',ev});
  else if(r(.5)){S.pUsed=S.pUsed||[];const ok=PASSIVE.filter(p=>!p.ok||p.ok(S));let pool=ok.filter(p=>!S.pUsed.includes(p.t));if(!pool.length){S.pUsed=[];pool=ok}const p=pick(pool);S.pUsed.push(p.t);apply(p.fx);addLog(p.t,'p')}
+ if(CRUSH_OK(S)&&S.month>=2&&r(.3)){ S.hUsed=S.hUsed||[]; const hp=PASSIVE.filter(p=>p.fx&&p.fx.crush&&p.ok&&p.ok(S)&&!S.hUsed.includes(p.t)); if(hp.length){const p=pick(hp);S.hUsed.push(p.t);apply(p.fx);addLog(p.t,'p')} }
  if(REFLECT[S.month] && !noRefl) queue.push({type:'refl',q:REFLECT[S.month]});
  if(S.month>=120) queue.push({type:'end',key:'decade'});
  render();
  if(queue.length) nextQueue();
 }
-const ROLE_IDS=new Set(["sales_quota", "sales_rival", "promo_line", "promo_threads", "promo_report", "design_pop", "design_texture", "design_favor", "cs_angry", "cs_review", "cs_flood", "repair_rma", "repair_parts", "repair_backlog", "pm_spec", "pm_color", "pm_launch", "acct_payroll", "acct_invoice", "acct_audit", "uiux_dark", "uiux_handoff", "uiux_comments", "fe_browser", "fe_friday", "fe_speed", "be_down", "be_report", "be_legacy", "intl_exclusive", "intl_translate", "intl_samples", "us_listing", "us_ces", "us_youtuber", "promo_kol", "promo_seo", "sales_discount", "sales_eta", "sales_out", "sales_dtf", "wh_count", "wh_container", "pm_sample", "cs_toast", "design_size", "intl_timezone", "intl_expense", "eng_promise", "eng_salary", "acct_chen", "acct_jeff", "uiux_btn", "sales_skip", "promo_collab"]);
+const ROLE_IDS=new Set(["fe_sales_page","be_sales_data","eng_chen_it","sales_quota", "sales_rival", "promo_line", "promo_threads", "promo_report", "design_pop", "design_texture", "design_favor", "cs_angry", "cs_review", "cs_flood", "repair_rma", "repair_parts", "repair_backlog", "pm_spec", "pm_color", "pm_launch", "acct_payroll", "acct_invoice", "acct_audit", "uiux_dark", "uiux_handoff", "uiux_comments", "fe_browser", "fe_friday", "fe_speed", "be_down", "be_report", "be_legacy", "intl_exclusive", "intl_translate", "intl_samples", "us_listing", "us_ces", "us_youtuber", "promo_kol", "promo_seo", "sales_discount", "sales_eta", "sales_out", "sales_dtf", "wh_count", "wh_container", "pm_sample", "cs_toast", "design_size", "intl_timezone", "intl_expense", "eng_promise", "eng_salary", "acct_chen", "acct_jeff", "uiux_btn", "sales_skip", "promo_collab"]);
 function pickDecision(){
  const m=calM(S.cal);
  if(S.hp<22 && cdOk('lowHp')) return SPECIAL.lowHp;
@@ -1389,12 +1618,20 @@ function pickDecision(){
  if(S.month>=2){const se=seasonPick(m);if(se)return se}
  if(S.month>=6 && cdOk('poach') && r(Math.max(0,S.skill+S.net-105)/700)) return SPECIAL.poach;
  if(S.month>=24 && cdOk('reorg') && r(.012)) return SPECIAL.reorg;
+ if(S.unit==='tw'&&S.gender==='m'&&S.month>=2){
+  const U2=S.uses||{}, can=e=>{const l=S.cd[e.id];return (U2[e.id]||0)<(e.max||1)&&(l==null||S.month-l>=(e.gap||4))&&(!e.ok||e.ok(S))};
+  const conf=EV.find(e=>e.id==='gm_romance'), prom=EV.find(e=>e.id==='gm_promote');
+  if(can(conf)&&r(.35)) return conf;
+  if(can(prom)&&r(.35)) return prom;
+  if(CRUSH_OK(S)){ const hs=ROM_HINTS.filter(can); if(hs.length&&r(.3)) return pick(hs.slice(0,3)); }
+  else if(S.romance){ const ds=ROM_DATING.filter(can); if(ds.length&&r(.18)) return pick(ds); }
+ }
  { const cb=EV.find(e=>e.id==='chen_blame'), l=S.cd.chen_blame, u=(S.uses||{}).chen_blame||0;
    if(S.month>=2 && u<cb.max && (l==null||S.month-l>=cb.gap) && r(S.unit==='tw'?.08:.02)) return cb; }
  if(!r(S.month<2?.6:.3)) return null;
- const U=S.uses||{};
+ const U=S.uses||{}, isEngD=S.dept==='gz_fe'||S.dept==='gz_be';
  const pool=EV.filter(e=>{const l=S.cd[e.id];return (l==null||S.month-l>=Math.max(e.cd,e.gap||12))&&(U[e.id]||0)<(e.max||1)&&(!e.ok||e.ok(S))})
-  .map(e=>[e,e.w(S)*(e.who==='陳總'&&S.unit==='gz'?.6:1)*(U[e.id]&&!e.sticky?.35:1)*(ROLE_IDS.has(e.id)?3:1)]).filter(x=>x[1]>0);
+  .map(e=>[e,e.w(S)*(e.who==='陳總'&&S.unit==='gz'?(isEngD?1.4:.6):1)*(e.who==='業務'&&isEngD?1.8:1)*(e.who==='傑夫'&&isEngD&&!e.engOk?.12:1)*(U[e.id]&&!e.sticky?.35:1)*(ROLE_IDS.has(e.id)?3:1)]).filter(x=>x[1]>0);
  if(!pool.length) return null;
  { const rp=pool.filter(x=>ROLE_IDS.has(x[0].id)); if(rp.length&&r(.55)){ let t=rp.reduce((a,x)=>a+x[1],0),y=Math.random()*t; for(const [e,w] of rp){y-=w;if(y<=0)return e} return rp[0][0]; } }
  let tot=pool.reduce((a,x)=>a+x[1],0),x=Math.random()*tot;
@@ -1539,7 +1776,7 @@ function render(){
  $('#gOrg').innerHTML=orgHtml(S.org);
  $('#gStats').innerHTML=Object.keys(STATN).map(k=>{const v=Math.round(S[k]);return `<div class="stat${v<25?' low':''}"><div class="top"><span>${STATN[k]}</span><b>${v}</b></div><div class="track"><div class="fill" style="width:${v}%"></div></div></div>`}).join('');
  { const w=$('#gWarn'); const n=S.unit==='tw'?(S.lowFav||0):0; const o=S.unit==='tw'?(S.c.offend||0):0; const msg=[]; if(n) msg.push(`陳總對你不滿已經 ${n} 個月了，連續 6 個月就會被開除。`); if(o) msg.push(`你已經得罪陳總 ${o} 次，滿 6 次就會被開除。`); w.hidden=!msg.length; w.textContent=msg.join(' '); }
- $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span><span>每月開銷 <b>${fmt(S.expense)}</b></span><span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span><span>英文 <b>${Math.round(S.eng||0)}</b></span>`;
+ $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span><span>每月開銷 <b>${fmt(S.expense)}</b></span><span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span><span>英文 <b>${Math.round(S.eng||0)}</b></span>${(S.unit==='tw'&&S.gender==='m')||S.romance||S.romanceDone?`<span>陳總對你 <b>${crushLabel(S)}</b></span>`:''}`;
  $('#gFocus').innerHTML=Object.entries(FOCUS).map(([k,f])=>`<button type="button" data-f="${k}" aria-pressed="${S.focus===k}">${f.n}<small>${f.d}</small></button>`).join('');
  { const b=$('#aPromo'); const wait=S.lastAsk!=null?12-(S.month-S.lastAsk):0; const top=S.title>=TITLES.length-1; b.disabled=S.ended||top||wait>0; b.textContent=top?'已經升到頂了':wait>0?`主動提升遷（${wait} 個月後可再提）`:'主動提升遷'; }
  $('#aTreat').disabled=S.treated||S.ended; $('#aLeave').disabled=S.leaveDays<=0||S.ended;
@@ -1552,6 +1789,13 @@ function render(){
  const beat=Math.round((1-S.ret[Math.min(120,S.month)])*100);
  $('#gCurveHint').textContent=S.month?`你已經撐過了 ${beat}% 的同期新人（模擬）。`:'同期報到的人當中，仍留在大妃的比例（模擬）';
  $('#gMap').innerHTML=mapHtml(S.map,S.dec,S.month,!S.ended);
+}
+function crushLabel(s){
+ if(s.romance&&s.romanceDone) return '交往中，你坐上了業務的位子';
+ if(s.romance) return '交往中';
+ if(s.romanceDone||s.brokeUp) return '已經分手了';
+ const c=s.crush||0;
+ return c<10?'跟對其他人一樣':c<20?'好像有點不一樣':c<40?'同事開始注意到了':'很明顯了';
 }
 function orgHtml(org){return ['tw','gz'].map(u=>`<div class="org"><h3>${UNITS[u]}</h3>${org[u].map(x=>`<div class="org-row${x.you?' me':''}${x.fired&&!x.you?' gone':''}"><span>${esc(x.role)}${x.senior?'<small class="muted">　資深</small>':''}</span><span class="wh">${x.fired?`<s>${esc(x.who)}</s>　${x.you?'→ 你':'被開除'}`:x.you?(x.moved?'你（台灣調來）':'你'):x.vacant?'（空缺）':esc(x.who||'同事')}</span></div>`).join('')}</div>`).join('')}
 function cellColor(v){const p=Math.round(12+v*.78);return `color-mix(in srgb, var(--accent) ${p}%, var(--surface))`}
@@ -1574,7 +1818,7 @@ function curveSvg(ret,month){
 function endGame(key){
  if(S.ended)return;
  S.ended=true;S.ending=key;halt();closeModal();queue=[];
- const rec={id:S.id,tr:S.transferred||0,name:S.name,gender:S.gender,src:S.src,dept:S.dept,boss:S.boss,seat:S.seat,title:S.title,startCal:S.startCal,endCal:S.cal,months:S.month,ending:key,
+ const rec={id:S.id,lbWay:S.lbWay,tr:S.transferred||0,name:S.name,gender:S.gender,src:S.src,dept:S.dept,boss:S.boss,seat:S.seat,title:S.title,startCal:S.startCal,endCal:S.cal,months:S.month,ending:key,
   stats:{hp:Math.round(S.hp),mood:Math.round(S.mood),skill:Math.round(S.skill),net:Math.round(S.net),favor:Math.round(S.favor)},
   money:S.money,salary:S.salary,c:{...S.c},stars:S.log.filter(l=>l.star).slice(0,6).map(l=>({cal:l.cal,text:l.text})),
   refl:S.refl,words:'',npcs:S.npcs.map(p=>({n:p.n,co:p.co,left:p.left,reason:p.reason})),org:S.org,rm:S.romance?'與總經理交往中':S.romanceDone?'曾與總經理交往，後接任業務':'',map:S.map,dec:S.dec,ret:S.ret};
@@ -1607,7 +1851,7 @@ function renderEnding(rec,live){
    <dt>離職原因</dt><dd>${esc(E.reason)}</dd>
   </dl>
   <p class="story">${esc(E.story(fake))}</p>
-  <p class="muted small">茲證明上述人員確曾任職本公司，服務期間${rec.c.body>20?'身體經常受到關心':'表現尚可'}，特此證明。</p>
+  <p class="muted small">茲證明上述人員確曾任職本公司，服務期間${rec.c.body>20?'身體經常受到關心':'表現尚可'}，特此證明。<br>依員工守則第十五章，應發未領之薪資，待辦妥離職手續後於次月補發。</p>
   <div class="stamp">大妃<br>人資部<br>核</div>
  </div>
  <div class="tally">
@@ -1621,6 +1865,7 @@ function renderEnding(rec,live){
   <div><b>${rec.c.joke||0}</b><span>聽傑夫講黃色笑話</span></div>
   <div><b>${rec.c.offend||0}</b><span>得罪陳總</span></div>
   <div><b>${rec.c.noBonus||0}</b><span>沒有年終的年份</span></div>
+  <div><b>${rec.c.jeffq||0}</b><span>聽到傑夫語錄</span></div>
   <div><b style="font-size:17px">${fmt(rec.salary)}</b><span>離職時月薪</span></div>
   <div><b style="font-size:17px">${fmt(rec.money)}</b><span>離職時存款</span></div>
  </div>
@@ -1676,6 +1921,7 @@ $('#btnBegin').onclick=()=>{
  show('game');logLimit=30;speed=1;userPaused=false;turbo=false;
  document.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sp==='1'));$('#bPause').setAttribute('aria-pressed','false');$('#bPause').textContent='❚❚';
  addLog(`${S.name}到${dn(S.dept)}報到。座位在${SEATS[S.seat].n}，直屬主管是${BOSSES[S.boss].t}${BOSSES[S.boss].n}。`,'ms');
+ addLog('人資請你補交良民證，和一份自費去公立醫院做的體檢報告。另外發了一本員工守則，第一頁是第 1.1 條「天條」。','p'); S.money-=1200;
  render();play();
 };
 document.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{speed=+b.dataset.sp;document.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x===b));if(userPaused){userPaused=false;$('#bPause').setAttribute('aria-pressed','false');$('#bPause').textContent='❚❚'}play()});
@@ -1693,7 +1939,7 @@ $('#gLog').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if
 $('#bMore').onclick=()=>{logLimit+=40;render()};
 $('#aTreat').onclick=()=>{if(S.treated)return;S.treated=true;S.money-=3000;S.mood=clamp(S.mood+6);addLog(pick(['你去吃了一頓燒肉。','你買了一顆自家的風扇，用員工價。','你訂了一間溫泉旅館的週末。','你買了一杯很貴的手沖咖啡，喝的時候沒看手機。']),'p');render()};
 $('#aPromo').onclick=()=>{if(!S||S.ended)return;queue.unshift({type:'ev',ev:askPromoEvent()});halt();nextQueue()};
-$('#aLeave').onclick=()=>{if(S.leaveDays<=0)return;S.leaveDays--;S.hp=clamp(S.hp+4);S.mood=clamp(S.mood+2);S.favor=clamp(S.favor-1.5);if(r(.2)){S.c.body++;S.mood=clamp(S.mood-2);addLog('你請了一天特休。下午陳總打電話來：「身體還好嗎？對了，有件事想問你。」','p')}else addLog('你請了一天特休，睡到自然醒。','p');render()};
+$('#aLeave').onclick=()=>{if(S.leaveDays<=0)return;if(r(.3)){addLog(S.boss==='chen'?'你想請一天特休。陳總說：「守則第 7.3 條，特休要主管批准。這次先不要喔，身體要顧好。」':'你想請一天特休。傑夫說：「守則第 7.3 條，特休要主管批准。你請假的意義是什麼？」','p');S.mood=clamp(S.mood-2);render();return}S.leaveDays--;S.hp=clamp(S.hp+4);S.mood=clamp(S.mood+2);S.favor=clamp(S.favor-1.5);if(r(.2)){S.c.body++;S.mood=clamp(S.mood-2);addLog('你請了一天特休。下午陳總打電話來：「身體還好嗎？對了，有件事想問你。」','p')}else addLog('你請了一天特休，睡到自然醒。','p');render()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#menu').hidden){$('#menu').hidden=true}});
 
 /* 首頁計數器 */
