@@ -290,7 +290,7 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
       </div></details>
       <details class="faq"><summary>公司架構</summary><div>
         <p>台灣分公司：總經理（陳總）、三個業務、推廣、美術設計、客服、售後維修、產品經理、會計各一人。除了總經理、一位資深業務和產品經理，薪水大多落在 3.8 萬到 4.8 萬。</p>
-        <p>廣州推廣部：行銷總監傑夫，加上 UI/UX、前端工程師、後端工程師、國際推廣、美國推廣。都是傑夫找進來的，起薪 8 萬以上，工程師 10 萬起跳。</p>
+        <p>廣州推廣部：行銷總監傑夫，加上 UI/UX、前端工程師、後端工程師、國際推廣、美國推廣。都是傑夫找進來的。只有兩位工程師（10 萬起跳）和美國推廣（8 萬以上）比較貴，UI/UX 起薪大約 4 萬。</p>
         <p>兩個部門都在東門站附近的同一間辦公室。台灣部門的人坐在一起，廣州推廣部在另一邊。傑夫常常走到台灣這一邊聊天。</p>
       </div></details>
       <details class="faq"><summary>同梯朋友</summary><div>
@@ -438,7 +438,7 @@ const DEPTS={
  tw_repair:{u:'tw',n:'售後維修',d:'RMA、維修、盤點，倉庫鑰匙在你身上。'},
  tw_pm:{u:'tw',n:'產品經理',d:'工廠、規格、打樣。台灣少數薪水高一點的位子。'},
  tw_acct:{u:'tw',n:'會計',d:'每一張發票都會經過你，包括傑夫那 5% 的。'},
- gz_uiux:{u:'gz',n:'UI/UX 設計',d:'官網、App，每個按鈕的意義都要跟傑夫解釋。'},
+ gz_uiux:{u:'gz',n:'UI/UX 設計',d:'官網、App，每個按鈕的意義都要跟傑夫解釋。起薪跟台灣差不多。'},
  gz_fe:{u:'gz',n:'前端工程師',d:'業務答應客戶的燈效，最後都會變成你的事。'},
  gz_be:{u:'gz',n:'後端工程師',d:'官網結帳頁卡住的時候，所有人都會想起你。'},
  gz_intl:{u:'gz',n:'國際推廣',d:'全世界的經銷商，和全世界的時差。'},
@@ -446,7 +446,8 @@ const DEPTS={
 };
 const dn=k=>`${UNITS[DEPTS[k].u]}・${DEPTS[k].n}`;
 const SRC={
- jeff:{n:'傑夫找進來的',d:'廣州推廣部都是傑夫找進來的，起薪 8 萬以上。'},
+ jeff:{n:'傑夫找進來的',d:'廣州推廣部都是傑夫找進來的。不是每個位子都很貴。'},
+ jeffus:{n:'傑夫找進來的',d:'美國推廣是傑夫親自找的，起薪 8 萬以上。'},
  c104:{n:'陳總從 104 找進來的',d:'起薪比較低，這件事大家心照不宣。'},
  eng:{n:'傑夫找進來的工程師',d:'工程師行情，月薪 10 萬起跳。'},
  hr:{n:'一般招募',d:'人資排的面試，正常流程。'},
@@ -664,7 +665,7 @@ const EV=[
  t:s=>'你在美國參展的報帳單送回去。傑夫一條一條看：「這趟 120 美金的 Uber，意義是什麼？」',
  ch:[
  ['解釋展場離飯店很遠',s=>r(.5)?{fx:{favor:1,question:1},m:'傑夫說：「那下次住近一點。」下次的預算沒有變多。'}:{fx:{favor:-4,question:1},m:'傑夫問：「為什麼不搭公車？」你沒有答案。'}],
- ['自己吸收',s=>({fx:{money:-3800,mood:-4,favor:2},m:'你用自己的薪水付了那趟 Uber。起薪 8 萬突然沒那麼多了。'})],
+ ['自己吸收',s=>({fx:{money:-3800,mood:-4,favor:2},m:s.dept==='gz_us'?'你用自己的薪水付了那趟 Uber。起薪 8 萬突然沒那麼多了。':'你用自己的薪水付了那趟 Uber。這趟出差你是倒貼的。'})],
 ]},
 {id:'eng_promise',who:'業務',cd:5,ok:s=>['gz_fe','gz_be'].includes(s.dept),w:s=>3,
  t:s=>'業務答應客戶：機殼的 ARGB 燈效可以跟著音樂同步，下週要。這個功能目前不存在。',
@@ -837,7 +838,7 @@ const EV=[
 {id:'transfer_gz',who:'傑夫',cd:12,ok:s=>s.unit==='tw'&&!s.romance&&!s.romanceDone&&s.month>=12&&(s.eng||0)>=45,w:s=>.7,
  t:s=>'傑夫走到你的座位：「聽說你英文進步了。廣州推廣部那邊缺人，你要不要調過來我這邊？」',
  ch:[
- ['答應調過去',s=>{const nd=doTransfer(s);return {fx:{mood:-2},m:`你的電腦被搬到廣州推廣部那一邊，職位變成${DEPTS[nd].n}，主管換成了傑夫。隔壁同事起薪八萬，你維持原薪。`}}],
+ ['答應調過去',s=>{const nd=doTransfer(s);return {fx:{mood:-2},m:`你的電腦被搬到廣州推廣部那一邊，職位變成${DEPTS[nd].n}，主管換成了傑夫。隔壁的美國推廣起薪八萬，你維持原薪。`}}],
  ['婉拒，想留在台灣部門',s=>{if(r(.3)){const nd=doTransfer(s);return {fx:{mood:-8},m:`傑夫說：「這不是在問你。」下週一，你的電腦被搬到廣州推廣部那一邊，職位變成${DEPTS[nd].n}。薪水沒變。`}}return {fx:{favor:-3},m:'傑夫說：「好，那你自己想清楚。」語氣聽起來像是他會再來問。'}}],
 ]},
 // ===== 業務 =====
@@ -1503,7 +1504,7 @@ function newGame(name){
  const boss=unit==='tw'?'chen':'jeff';
  const seat=pick(Object.keys(SEATS).filter(k=>SEATS[k].u===unit));
  let src,sal,senior=false;
- if(unit==='gz'){ if(dept==='gz_fe'||dept==='gz_be'){src='eng';sal=ri(100,120)*1000}else{src='jeff';sal=ri(80,92)*1000} }
+ if(unit==='gz'){ if(dept==='gz_fe'||dept==='gz_be'){src='eng';sal=ri(100,120)*1000}else if(dept==='gz_us'){src='jeffus';sal=ri(80,92)*1000}else{src='jeff';sal=dept==='gz_uiux'?ri(38,42)*1000:ri(42,48)*1000} }
  else{
   src=r(.55)?'c104':'hr';
   if(dept==='tw_pm') sal=ri(58,70)*1000;
