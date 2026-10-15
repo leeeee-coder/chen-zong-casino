@@ -633,10 +633,10 @@ const EV=[
  ['請對方改時間',s=>r(.5)?{fx:{mood:2,skill:1},m:'對方改到台灣時間早上九點。你第一次覺得時差站在你這邊。'}:{fx:{net:-3},m:'對方說他們行程很滿，下個月再說。'}],
 ]},
 {id:'intl_expense',who:'傑夫',cd:6,ok:s=>['gz_us','gz_intl'].includes(s.dept),w:s=>2.5,
- t:s=>'你在美國參展的報帳單送回台灣。傑夫一條一條看：「這頓 180 美金的晚餐，意義是什麼？」',
+ t:s=>'你在美國參展的報帳單送回去。傑夫一條一條看：「這趟 120 美金的 Uber，意義是什麼？」',
  ch:[
- ['解釋那是請經銷商吃的',s=>r(.5)?{fx:{favor:1,question:1},m:'傑夫說：「那下次請他們吃漢堡就好。」'}:{fx:{favor:-4,question:1},m:'傑夫問：「經銷商後來有下單嗎？」你沒有答案。'}],
- ['自己吸收',s=>({fx:{money:-5600,mood:-4,favor:2},m:'你用自己的薪水請了經銷商一頓晚餐。起薪 8 萬突然沒那麼多了。'})],
+ ['解釋展場離飯店很遠',s=>r(.5)?{fx:{favor:1,question:1},m:'傑夫說：「那下次住近一點。」下次的預算沒有變多。'}:{fx:{favor:-4,question:1},m:'傑夫問：「為什麼不搭公車？」你沒有答案。'}],
+ ['自己吸收',s=>({fx:{money:-3800,mood:-4,favor:2},m:'你用自己的薪水付了那趟 Uber。起薪 8 萬突然沒那麼多了。'})],
 ]},
 {id:'eng_promise',who:'業務',cd:5,ok:s=>['gz_fe','gz_be'].includes(s.dept),w:s=>3,
  t:s=>'業務答應客戶：機殼的 ARGB 燈效可以跟著音樂同步，下週要。這個功能目前不存在。',
@@ -707,6 +707,73 @@ const EV=[
  ['「我懂。」',s=>({fx:{romance:0,mood:-12,favor:-15},m:'你們喝完了飲料。傑夫經過時提醒你，這兩杯他也有付 5%。'})],
  ['「可以再想想嗎？」',s=>r(.4)?{fx:{mood:6},m:'她想了三天，最後說：「好吧，再試試看。」'}:{fx:{romance:0,mood:-15,favor:-20},m:'她說：「我已經想好了。要注意身體喔。」'}],
 ]},
+{id:'jeff_patrol',who:'傑夫',cd:3,w:s=>s.unit==='gz'?3:1.2,
+ t:s=>s.unit==='gz'?'傑夫今天臉很臭，在辦公室走了一圈，停在你旁邊：「你這週工作有哪些？快速跟我講一下。」':'傑夫來台灣，心情好像不太好。他在辦公室走了一圈，停在你旁邊：「你這週工作有哪些？快速跟我講一下。」',
+ ch:[
+ ['條列三點，三十秒講完',s=>r(.35+s.skill/150)?{fx:{favor:5,skill:1,question:1},m:'傑夫點點頭，走向下一個人。你聽到他問隔壁：「你這週工作有哪些？」'}:{fx:{favor:-3,mood:-2,question:1},m:'傑夫說：「就這樣？」然後站在你旁邊不走。'}],
+ ['把所有檔案打開給他看',s=>({fx:{hp:-2,favor:2,question:1},m:'傑夫看了十分鐘，指著其中一個檔案問：「這個的意義是什麼？」'})],
+ ['「我剛好要去洗手間」',s=>r(.5)?{fx:{mood:2,favor:-3},m:'你在洗手間待了十分鐘。出來時，傑夫已經巡到另一頭了。'}:{fx:{favor:-6,mood:-2,question:1},m:'你回來的時候，傑夫坐在你的位子上等你。'}],
+]},
+{id:'chen_bet',who:'群組',cd:3,ok:s=>s.unit==='tw',w:s=>2,
+ t:s=>'早上九點半，同事在群組開盤：陳總今天會不會進公司？',
+ ch:[
+ ['押「會」',s=>r(.4)?{fx:{mood:4,money:200,net:1},m:'陳總十一點出現了。你贏了一杯飲料錢。'}:{fx:{mood:-2,money:-100},m:'到下午五點，陳總都沒出現。群組有人貼了一張「早就知道」的貼圖。'}],
+ ['押「不會」',s=>r(.6)?{fx:{mood:4,money:200,net:1},m:'陳總今天沒進公司。你贏了一杯飲料錢。'}:{fx:{favor:-4,mood:-2,money:-100,body:1},m:'你按下送出的時候，陳總剛好走過你身後：「早安，身體還好嗎？」'}],
+ ['不參加',s=>({fx:{net:-1},m:'同事說你很無聊。下午陳總進來了，押「會」的人只有一個。'})],
+]},
+{id:'drink_policy',who:'公告',cd:999,ok:s=>s.unit==='tw'&&!s.biweekly&&s.month>=2,w:s=>2,
+ t:s=>'公司公告：公費飲料從一週一次，改成兩週一次。',
+ ch:[
+ ['接受現實',s=>({fx:{biweekly:1,mood:-4},m:'你在行事曆上標出了「有飲料的週」和「沒有飲料的週」。'})],
+ ['在群組問為什麼',s=>({fx:{biweekly:1,favor:-3,mood:-2,shares:1},m:'傑夫回：「我也有付 5%，大家要共體時艱。」'})],
+ ['沒公費的那週，自己揪團',s=>({fx:{biweekly:1,money:-1500,net:5},m:'你揪了一次。之後大家每兩週都在等你揪。'})],
+]},
+{id:'sales_out',who:'業務',cd:4,ok:s=>s.dept==='tw_sales',w:s=>2.5,
+ t:s=>'下午要出去拜訪客戶。你背起包包的那一刻，辦公室安靜了一下。沒有人說什麼。',
+ ch:[
+ ['照常出門',s=>r(.5)?{fx:{net:4,skill:1,favor:-2,body:1},m:'回來時陳總問：「下午去哪裡了？身體還好嗎？」語氣很溫柔，眼神不是。'}:{fx:{net:4,skill:1,mood:-2},m:'沒人問你。但你的螢幕上多了一張便利貼：「下午有人找你」。沒寫是誰。'}],
+ ['先在群組報備行程和照片',s=>({fx:{favor:2,mood:-3,net:3},m:'你傳了客戶公司門口的照片。陳總已讀，沒有回。'})],
+ ['不出去了，在座位上打電話',s=>({fx:{net:-3,favor:1},m:'大家都看得到你在座位上。客戶問你什麼時候要來。'})],
+]},
+{id:'sales_dtf',who:'客戶',cd:6,ok:s=>s.dept==='tw_sales',w:s=>2,
+ t:s=>'客戶來台北，你帶他去東門的鼎泰豐，門口的號碼牌顯示要等七十分鐘。',
+ ch:[
+ ['排，客戶開心最重要',s=>r(.5)?{fx:{hp:-2,net:6,question:1,favor:-2},m:'客戶吃得很開心，當場加了訂單。報帳時傑夫問：「小籠包的意義是什麼？」'}:{fx:{hp:-2,net:6,favor:2},m:'客戶吃得很開心，當場加了訂單。報帳一次就過，你懷疑是不是哪裡搞錯了。'}],
+ ['改去永康街的小店',s=>({fx:{net:2,mood:2},m:'客戶說這家比較道地。你決定以後都說是你精心挑選的。'})],
+]},
+{id:'lunch',who:'午餐',cd:3,ok:s=>s.unit==='tw',w:s=>1.6,
+ t:s=>'十二點了。東門附近，今天中午吃什麼？',
+ ch:[
+ ['東門市場',s=>({fx:{money:-120,mood:3,hp:1},m:'水果攤老闆已經認得你了，多塞了一顆芭樂。'})],
+ ['永康街排隊名店',s=>r(.3)?{fx:{money:-280,mood:3,favor:-3},m:'觀光客太多，你一點二十分才回到座位。陳總剛好經過。'}:{fx:{money:-280,mood:6},m:'排了二十分鐘，值得。'}],
+ ['樓下便當',s=>({fx:{money:-95,mood:-1},m:'跟昨天一樣的便當。跟明天也會一樣。'})],
+]},
+{id:'cks_walk',who:'下午',cd:5,ok:s=>s.unit==='tw',w:s=>1,
+ t:s=>'下午三點，腦袋轉不動了。中正紀念堂就在走路五分鐘的地方。',
+ ch:[
+ ['溜出去走一圈',s=>r(.3)?{fx:{hp:4,mood:3,favor:-5,body:1},m:'你在自由廣場遇到了陳總。她問你：「出來走走啊？身體還好嗎？」'}:{fx:{hp:4,mood:6},m:'你看了一場衛兵交接，回到座位時神清氣爽。'}],
+ ['去茶水間泡杯咖啡就好',s=>({fx:{mood:1},m:'咖啡機旁邊貼著：「本機傑夫有出 5%」。不知道是誰貼的。'})],
+]},
+{id:'commute',who:'通勤',cd:4,ok:s=>s.unit==='tw',w:s=>1.2,
+ t:s=>'早上八點五十，東門站轉乘的人潮塞滿月台。信義線轉橘線，你連續兩班都擠不上去。',
+ ch:[
+ ['硬擠第三班',s=>({fx:{hp:-3,mood:-2},m:'你擠上去了，臉貼著車門玻璃到站。'})],
+ ['出站改騎 YouBike',s=>r(.5)?{fx:{hp:1,mood:3},m:'你比搭捷運還早到。'}:{fx:{favor:-3,mood:-1},m:'你晚了十分鐘。今天陳總剛好很早進公司。'}],
+ ['傳訊息說會晚到',s=>({fx:{favor:-2,mood:1},m:'群組有人回：「你跟陳總誰會先到？」'})],
+]},
+{id:'typhoon',who:'颱風',cd:10,ok:s=>s.unit==='tw'&&[7,8,9].includes(calM(s.cal)),w:s=>3,
+ t:s=>'颱風要來了。晚上十點，台北市宣布明天停班停課。十點零一分，陳總在群組問：「明天在家可以處理一下嗎？」',
+ ch:[
+ ['回「收到」',s=>({fx:{hp:-3,favor:4,mood:-4,body:1},m:'颱風天你在家回了一整天訊息。陳總最後說：「辛苦了，颱風天要注意身體。」'})],
+ ['已讀，先睡',s=>({fx:{mood:5,favor:-3},m:'你睡得很好。隔天上班，有三個人假裝沒看到那則訊息。'})],
+ ['回「家裡停電」',s=>r(.5)?{fx:{mood:4},m:'陳總回：「那好好休息。」你在黑暗中吃了一包洋芋片慶祝。'}:{fx:{mood:-3,favor:-1},m:'陳總回：「那用手機可以嗎？」'}],
+]},
+{id:'mango',who:'下午茶',cd:10,ok:s=>s.unit==='tw'&&[5,6,7,8].includes(calM(s.cal)),w:s=>1.5,
+ t:s=>'下午熱到不行，有人提議去永康街吃芒果冰。',
+ ch:[
+ ['一起去',s=>r(.25)?{fx:{money:-200,mood:3,favor:-3},m:'吃到一半，傑夫打視訊電話來：「你這週工作有哪些？」'}:{fx:{money:-200,mood:6,net:2},m:'芒果冰很好吃。你們約好下週再來，結果沒有人記得。'}],
+ ['叫外送回辦公室',s=>({fx:{money:-230,mood:3,shares:1},m:'傑夫看到了：「這碗不是公費吧？我有 5%，我要知道。」'})],
+]},
 {id:'intern',who:'人資',cd:24,ok:s=>s.month>=12,w:s=>1,
  t:s=>'部門來了一位實習生，主管說：「你帶。」',
  ch:[
@@ -735,10 +802,31 @@ const EV=[
 ];
 
 const SEASON=[
-{id:'weiya',m:1,who:'尾牙',cd:11,t:s=>'尾牙到了。主持人說還缺一個上台表演的部門。',
+{id:'weiya',m:1,g:'weiya',first:1,who:'尾牙',cd:11,t:s=>'尾牙到了。主持人說還缺一個上台表演的部門。',
  ch:[
  ['上台表演',s=>r(.55)?{fx:{net:7,mood:5,favor:3,body:1},m:'你模仿了陳總的「身體還好嗎」，全場笑翻，陳總也笑了。應該是笑了。'}:{fx:{net:3,mood:-3},m:'表演很冷。只有傑夫在第三排認真鼓掌，說比羅賓去年好。'}],
  ['低調吃飯等抽獎',s=>{const p=pick([['陳總加碼的「身體健康」紅包',{money:3600,mood:4,body:1}],['全聯禮券五百元',{money:500,mood:2}],['一顆自家的機殼',{mood:3}],['什麼都沒抽到',{mood:-2}]]);return {fx:p[1],m:`你抽到了：${p[0]}。`}}],
+]},
+{id:'weiya_vote',m:1,g:'weiya',who:'尾牙',cd:11,t:s=>'尾牙地點投票。業務想去熱炒，傑夫在群組問：「桌菜一桌多少錢？」',
+ ch:[
+ ['投熱炒',s=>r(.5)?{fx:{net:4,mood:4},m:'熱炒贏了。那晚大家喝得很開心，帳單傑夫看了很久。'}:{fx:{mood:-2},m:'桌菜贏了。傑夫說桌菜比較有意義。'}],
+ ['投桌菜',s=>({fx:{favor:3,mood:-1},m:'傑夫很滿意，說他當年創業的尾牙都吃桌菜。'})],
+ ['提議在公司叫外送',s=>({fx:{favor:5,mood:-4,net:-3,shares:1},m:'傑夫說：「這樣我的 5% 比較划算。」全場同事都看著你。'})],
+]},
+{id:'weiya_voucher',m:1,g:'weiya',who:'尾牙',cd:11,t:s=>'今年尾牙不辦了，改發禮券。陳總說：「大家身體健康最重要。」',
+ ch:[
+ ['收下禮券',s=>({fx:{money:1000,mood:-2,body:1},m:'禮券面額一千元。你算了一下，比去年的菜錢少很多。'})],
+ ['自己揪同事去吃',s=>({fx:{net:6,money:-800,mood:4},m:'你們在熱炒店辦了一場非官方尾牙。陳總在群組說：「玩得開心，要注意身體。」'})],
+]},
+{id:'weiya_video',m:1,g:'weiya',who:'尾牙',cd:11,t:s=>'傑夫從廣州視訊參加尾牙，舉起杯子：「今年大家吃的菜，我也有付 5% 喔。」',
+ ch:[
+ ['舉杯回敬',s=>({fx:{favor:3,shares:1},m:'傑夫很開心，在鏡頭前講了十分鐘當年創業的事。網路很卡，大家都說聽得很清楚。'})],
+ ['把鏡頭轉向業務',s=>({fx:{mood:4,net:2,shares:1,question:1},m:'傑夫看到業務，問：「你這週工作有哪些？快速跟我講一下。」尾牙變成了週會。'})],
+]},
+{id:'weiya_lottery',m:1,g:'weiya',who:'尾牙',cd:11,t:s=>'尾牙抽獎，同一位業務連續抽中兩個大獎。全場開始竊竊私語。',
+ ch:[
+ ['跟著起鬨',s=>r(.3)?{fx:{mood:2,favor:-3},m:'你喊得太大聲，被主持人點名上台抽下一個獎。你抽到了自己。'}:{fx:{net:3,mood:4},m:'全場一起喊「重抽」。業務把其中一個獎讓了出來，是一台氣炸鍋。'}],
+ ['默默吃飯',s=>({fx:{mood:1},m:'你吃完了三盤蝦。這是你今年尾牙最大的收穫。'})],
 ]},
 {id:'computex',m:6,who:'展覽',cd:11,t:s=>'Computex 要在南港佈展，需要人去顧攤三天。',
  ch:[
@@ -802,6 +890,16 @@ const PASSIVE=[
  {t:'冷氣又被調到 26 度。'},
  {t:'今天準時下班。主管看了你一眼。',fx:{mood:1}},
  {t:'樓下便當店漲了 5 元。',fx:{mood:-1}},
+ {t:'傑夫心情不好，又在辦公室走了一圈。今天被問「這週工作有哪些」的是隔壁同事。',fx:{question:0}},
+ {t:'你看到傑夫從走廊那頭走過來，整排同事同時開始打字。'},
+ {t:'陳總今天沒進公司。群組裡押「不會」的人贏了一杯飲料。',ok:s=>s.unit==='tw'},
+ {t:'陳總下午三點進公司，說早上去看醫生。',ok:s=>s.unit==='tw'},
+ {t:'今天是沒有公費飲料的那一週。大家都在喝白開水。',ok:s=>s.biweekly},
+ {t:'公費飲料到了。傑夫在群組說：「這次我也有付喔。」',ok:s=>s.biweekly,fx:{shares:1,mood:1}},
+ {t:'你下午出去跑客戶。回來時，三個人同時抬頭看你，又同時低下頭。',ok:s=>s.dept==='tw_sales',fx:{mood:-1}},
+ {t:'永康街的觀光客把人行道塞滿了，你午休回來晚了五分鐘。',ok:s=>s.unit==='tw'},
+ {t:'信義路上又在施工，從東門站出來要繞一大圈。',ok:s=>s.unit==='tw'},
+ {t:'午休去大安森林公園散步，看到松鼠在搶麵包。',ok:s=>s.unit==='tw',fx:{mood:1}},
  {t:'會議室白板上還留著上個月寫的「目標：？」。'},
  {t:'陳總臨時說下午要去看醫生，會議改期了。'},
  {t:'有人在群組問：「這個要找誰簽？」三個人同時回：「陳總。」然後大家都沉默了。'},
@@ -867,7 +965,7 @@ function newGame(name){
   money:ri(3,9)*10000,salary:sal,expense:ri(21,27)*1000,title:0,focus:'work',
   log:[],c:{body:0,fridge:0,question:0,blame:0,raise:0,promo:0,shares:0},cd:{},
   npcs:names.map(n=>({n,co:pick(NPC_COS),left:null,reason:''})),
-  map:[],dec:[],refl:[],ret,treated:false,leaveDays:7,leaveYear:Math.floor(startCal/12),ended:false,id:Date.now().toString(36)};
+  map:[],dec:[],refl:[],seenG:{},used:{},biweekly:0,ret,treated:false,leaveDays:7,leaveYear:Math.floor(startCal/12),ended:false,id:Date.now().toString(36)};
 }
 function addLog(text,kind='p'){S.log.unshift({id:Math.random().toString(36).slice(2,8),mo:S.month,cal:S.cal,text,kind,star:false,fresh:true})}
 function apply(fx){
@@ -877,6 +975,7 @@ function apply(fx){
   else if(k==='salaryPct') S.salary=Math.round(S.salary*(1+v)/100)*100;
   else if(k==='romance'){S.romance=v;if(v)S.romanceStart=S.month}
   else if(k==='setSal') S.salary=v;
+  else if(k==='biweekly') S.biweekly=v;
   else if(k==='title') S.title=Math.min(TITLES.length-1,S.title+v);
   else if(k in S.c) S.c[k]+=v;
  }
@@ -928,7 +1027,7 @@ function pickDecision(){
  const m=calM(S.cal);
  if(S.hp<22 && cdOk('lowHp')) return SPECIAL.lowHp;
  if(S.mood<20 && cdOk('lowMood')) return SPECIAL.lowMood;
- if(S.month>=2) for(const e of SEASON){ if(e.m===m && cdOk(e.id) && (!e.ok||e.ok(S))) return e; }
+ if(S.month>=2){const se=seasonPick(m);if(se)return se}
  if(S.month>=6 && cdOk('poach') && r(Math.max(0,S.skill+S.net-105)/700)) return SPECIAL.poach;
  if(S.month>=24 && cdOk('reorg') && r(.012)) return SPECIAL.reorg;
  if(!r(S.month<2?.6:.36)) return null;
@@ -937,6 +1036,26 @@ function pickDecision(){
  let tot=pool.reduce((a,x)=>a+x[1],0),x=Math.random()*tot;
  for(const [e,w] of pool){x-=w;if(x<=0)return e}
  return pool[0][0];
+}
+const SKIP_LINES={
+ weiya:['今年尾牙在熱炒店。菜很好吃，抽獎你又沒中。','尾牙那天你剛好感冒，在家看同事的限時動態。','尾牙結束時，陳總提醒大家回家路上注意身體。'],
+ computex:['今年 Computex 由別人去顧攤。你在 IG 上看到他們的黑眼圈。'],
+ double11:['今年雙 11 系統很穩。大家都覺得不太對勁。'],
+ jeff_salary:['年中調薪，你決定今年先不談。傑夫的薪水好像也沒漲。'],
+};
+function seasonPick(m){
+ S.seenG=S.seenG||{};S.used=S.used||{};
+ const cands=SEASON.filter(e=>e.m===m&&(!e.ok||e.ok(S)));
+ for(const g of [...new Set(cands.map(e=>e.g||e.id))]){
+  const last=S.cd['g:'+g]; if(last!=null&&S.month-last<11) continue;
+  S.cd['g:'+g]=S.month;
+  const vs=cands.filter(e=>(e.g||e.id)===g);
+  if(S.seenG[g]&&!r(.4)){ if(SKIP_LINES[g]) addLog(pick(SKIP_LINES[g]),'p'); continue; }
+  let pool=S.seenG[g]?vs.filter(e=>!e.first&&!S.used[e.id]):vs.filter(e=>e.first);
+  if(!pool.length) pool=vs.filter(e=>!e.first); if(!pool.length) pool=vs;
+  const ev=pick(pool); S.seenG[g]=1; S.used[ev.id]=1; return ev;
+ }
+ return null;
 }
 function promoEvent(){
  const next=TITLES[S.title+1];
