@@ -710,7 +710,7 @@ const EV=[
  ['拿出使用者測試數據',s=>r(.3+s.skill/160)?{fx:{skill:3,favor:5,question:1},m:'傑夫看完數據：「嗯，可以。但改成紅色。」'}:{fx:{favor:-3,question:1},m:'傑夫說：「數據是數據，我問的是意義。」'}],
  ['直接改成紅色',s=>({fx:{mood:-3,favor:3},m:'傑夫很滿意。兩週後，他問為什麼按鈕是紅色的。'})],
 ]},
-{id:'gm_romance',who:GM,cd:6,gap:6,max:3,ok:s=>CRUSH_OK(s)&&s.month>=4&&(s.crush||0)>=40,w:s=>0,
+{id:'gm_romance',who:GM,cd:6,gap:6,max:3,ok:s=>CRUSH_OK(s)&&s.month>=3&&(s.crush||0)>=35,w:s=>0,
  t:s=>[
   `最近${GM}常約你一起吃午餐，問你身體還好嗎的語氣，跟問別人的不太一樣。今天下班前，她傳來：「週末有空嗎？」`,
   `${GM}又傳訊息來了：「上次你說想看的那部電影，週六還有場次。」她記得你隨口說過的話。`,
@@ -748,7 +748,7 @@ const EV=[
  ['「我剛好要去洗手間」',s=>r(.5)?{fx:{mood:2,favor:-3},m:'你在洗手間待了十分鐘。出來時，傑夫已經巡到另一頭了。'}:{fx:{favor:-6,mood:-2,question:1},m:'你回來的時候，傑夫坐在你的位子上等你。'}],
 ]},
 {id:'chen_bet',who:'群組',cd:8,max:3,w:s=>2,
- t:s=>'早上九點半，同事在群組開盤：陳總今天會不會進公司？',
+ t:s=>calM(s.cal)%2?'早上九點半，同事在群組開盤：陳總今天會不會進公司？':'週一早上九點半，同事在群組開盤：陳總今天會不會進公司？有人加碼：「如果請假，猜理由是腸胃炎還是扁桃腺。」',
  ch:[
  ['押「會」',s=>r(.4)?{fx:{mood:4,money:200,net:1},m:'陳總十一點出現了。你贏了一杯飲料錢。'}:{fx:{mood:-2,money:-100},m:'到下午五點，陳總都沒出現。群組有人貼了一張「早就知道」的貼圖。'}],
  ['押「不會」',s=>r(.6)?{fx:{mood:4,money:200,net:1},m:'陳總今天沒進公司。你贏了一杯飲料錢。'}:{fx:{favor:-4,mood:-2,money:-100,body:1},m:'你按下送出的時候，陳總剛好走過你身後：「早安，身體還好嗎？」'}],
@@ -1161,6 +1161,38 @@ const EV=[
  ['「那您覺得要怎麼排？」',s=>({fx:{favor:-1,question:1,jeffq:1},m:'傑夫說：「我們是不同部門，我不方便講。」然後他講了四十分鐘。'})],
  ['照原本的做',s=>r(.5)?{fx:{mood:4,skill:1,jeffq:1},m:'案子如期完成了。傑夫說：「運氣好。」'}:{fx:{mood:-5,blame:1,jeffq:1},m:'案子延期了。傑夫說：「我早就說過了，死無葬身之地。」'}],
 ]},
+{id:'pm_meeting',who:'陳總',cd:6,max:3,ok:s=>s.dept==='tw_pm',w:s=>4,
+ t:s=>pick(['陳總又約你開會，這是這週第四場。會議主題寫著：「討論下次新品方向」。','陳總下午四點臨時說：「我們來開個會。」會議室只有你們兩個，開到七點。','陳總約你開會討論上次開會的結論。上次開會沒有結論。']),
+ ch:[
+ ['去開，順便把待辦清單帶進去',s=>r(.4)?{fx:{hp:-3,skill:2,favor:4},m:'這次居然有結論了。陳總說：「那你下週給我一版。」'}:{fx:{hp:-4,favor:3,mood:-3},m:'會議結束時，陳總說：「我們再找時間聊。」你的待辦清單一項都沒動。'}],
+ ['說手上的打樣今天要回工廠',s=>({fx:{favor:-4,skill:1},m:'陳總說：「那個先放著，這個比較重要。」你在會議室裡偷回了工廠的信。'})],
+]},
+{id:'gps_clock',who:'打卡',cd:8,max:2,w:s=>1.8,
+ t:s=>'八點五十八分，你在公司樓下用手機定位打完卡。樓下的超商就在你左手邊。',
+ ch:[
+ ['先去超商買咖啡和早餐',s=>{const x=Math.random();return x<.2?{fx:{money:-85,mood:1,shares:1},m:'你在超商排隊的時候，傑夫排在你後面：「這杯咖啡我也有付 5% 嗎？」'}:x<.35?{fx:{money:-85,mood:3},m:'陳總也在超商裡。她也剛打完卡。你們互相點了點頭，誰都沒說話。'}:{fx:{money:-85,mood:4},m:'你九點十五分拎著咖啡和飯糰坐下。隔壁同事也是。'}}],
+ ['直接上樓',s=>({fx:{mood:-1,favor:1},m:'九點整你坐在座位上。整排座位只有你一個人，打卡記錄顯示大家都到了。'})],
+]},
+{id:'forgot_leave',who:'人資',cd:12,w:s=>1.3,
+ t:s=>'人資傳訊息問你：「你昨天沒來，也沒有請假紀錄喔？」你昨天確實排了特休，只是忘了在系統上送出。',
+ ch:[
+ ['馬上補送假單',s=>r(.6)?{fx:{mood:-1},m:'人資說：「好，下次記得。」這是你這個月第二次聽到這句話。'}:{fx:{mood:-3,favor:-2},m:'假單要主管簽核。主管今天請假。'}],
+ ['跟人資說「我有口頭說過」',s=>({fx:{favor:-3,mood:-2},m:'人資說：「守則寫要在系統上申請喔。」'})],
+]},
+{id:'chen_monday',who:'陳總',cd:6,max:2,ok:s=>s.unit==='tw',w:s=>2,
+ t:s=>`週一早上，你有一份急件要陳總簽核。她今天請假，理由是${pick(['腸胃炎','扁桃腺發炎','腸胃不舒服','喉嚨發炎'])}。`,
+ ch:[
+ ['傳 LINE 問她可不可以先簽',s=>r(.4)?{fx:{mood:1,body:1},m:'她回：「我在休息，明天再說。你也要注意身體喔。」'}:{fx:{mood:-2},m:'已讀。週二她進公司時，說她完全沒看手機。'}],
+ ['等週二',s=>({fx:{mood:-2,net:-2},m:'客戶打來第三次。你說：「主管今天身體不太舒服。」客戶說：「上週一也是耶。」'})],
+ ['拿去給傑夫簽',s=>({fx:{favor:-4,jeffq:1},m:'傑夫說：「我可以不用管台灣的，我們是不同部門。」然後他簽了。週二陳總問你：「這個為什麼是傑夫簽的？」'})],
+]},
+{id:'jeff_vs_chen',who:'傑夫',cd:6,max:3,ok:s=>s.unit==='tw',w:s=>2,
+ t:s=>pick(['陳總辦公室的門關著，傑夫的聲音整層樓都聽得到。半小時後陳總走出來，眼眶有點紅。','週會上，傑夫指著陳總的報表：「這個數字的意義是什麼？」陳總說：「我回去再看看。」','傑夫站在陳總座位旁邊講了二十分鐘。陳總一直點頭，一句話都沒有回。']),
+ ch:[
+ ['假裝沒聽到，繼續工作',s=>({fx:{mood:-2,jeffq:1},m:'一小時後，陳總把三件急件轉給了你。'})],
+ ['傳訊息關心她',s=>({fx:{favor:4,crush:3,mood:-1,body:1},m:'她回：「沒事，傑夫也是為公司好。你身體還好嗎？」'})],
+ ['在群組跟同事分享八卦',s=>r(.3)?{fx:{favor:-6,net:2},m:'有人把截圖傳給了陳總。'}:{fx:{net:4,mood:2},m:'群組熱烈討論了一個下午。結論是：陳總都不會回嘴。'}],
+]},
 {id:'intern',who:'人資',cd:24,ok:s=>s.month>=12,w:s=>1,
  t:s=>'部門來了一位實習生，主管說：「你帶。」',
  ch:[
@@ -1321,7 +1353,7 @@ const PASSIVE=[
  {t:'影印機卡紙了。傑夫說：「這台我也有出 5%，小心點用。」',ok:s=>s.unit==='tw',fx:{shares:1}},
  {t:'傑夫在群組說：「中秋快樂，大家的月餅我也有付錢喔。」',fx:{shares:1}},
  {t:'陳總今天問你身體還好嗎，問了五次。',ok:s=>s.romance,fx:{body:5}},
- {t:'陳總經過你座位時，多停了兩秒。',ok:s=>CRUSH_OK(s)&&s.month>=2,fx:{crush:4}},
+ {t:'陳總經過你座位時，多停了兩秒。',ok:s=>CRUSH_OK(s)&&hasSpark(s),fx:{crush:4}},
  {t:'人資在全公司群組重新公告了員工守則第 1.2 條：同仁間禁止戀愛。陳總在下面按了一個讚。',ok:s=>CRUSH_OK(s)&&(s.crush||0)>=20,fx:{crush:3}},
  {t:'人資今天在你座位旁邊停了一下，什麼都沒說。',ok:s=>s.romance&&(s.expose||0)>=30,fx:{mood:-2}},
  {t:'你在電梯裡遇到陳總，兩個人都假裝在看手機。',ok:s=>s.romance,fx:{expose:-3}},
@@ -1369,6 +1401,26 @@ const PASSIVE=[
  {t:'美國客戶下午四點寄信說「明天早上要」。那是台灣的凌晨。',ok:s=>s.dept==='gz_us',fx:{hp:-1}},
  {t:'Amazon 上有人留言問機殼能不能裝進他的車。',ok:s=>s.dept==='gz_us'},
  {t:'辦公室安靜到只聽得到鍵盤聲。',fx:{mood:-1}},
+ {t:'隔壁同事又忘記打下班卡了，這個月第四次。打卡記錄顯示他昨天上班了二十六小時。'},
+ {t:'人資在群組提醒：「請記得打下班卡。」三秒後有兩個人默默去補了卡。'},
+ {t:'人資在群組問：「今天誰沒來？系統上沒有人請假。」過了十分鐘，有人回：「啊我忘記請了。」'},
+ {t:'某位同事今天九點四十二分到。這個月第六次遲到，大家已經不會抬頭了。'},
+ {t:'遲到大王今天九點準時進門。整排座位的人都抬頭看了他一眼。'},
+ {t:'九點零一分，打卡記錄顯示全員到齊。座位上只有三個人，其他人在樓下超商排隊。'},
+ {t:'有同事拎著咖啡和早餐九點二十分上樓，說他八點五十九分就打卡了。這是真的。'},
+ {t:'週一。陳總請假，理由是腸胃炎。',ok:s=>s.unit==='tw'},
+ {t:'週一。陳總請假，扁桃腺發炎。群組有人問：「上次是腸胃炎，這次是扁桃腺？」',ok:s=>s.unit==='tw'},
+ {t:'週一早上九點半，陳總傳訊息說今天身體不舒服。週一的身體特別不舒服。',ok:s=>s.unit==='tw'},
+ {t:'陳總今天週一進公司了。大家都在問她身體還好嗎。'},
+ {t:'傑夫在陳總辦公室講了一個小時。陳總出來的時候，什麼話都沒說，直接把急件轉給了大家。',ok:s=>s.unit==='tw',fx:{mood:-1}},
+ {t:'傑夫在群組回陳總：「這個你確定嗎？」陳總回：「好的，我再確認。」',fx:{jeffq:1}},
+ {t:'陳總被傑夫唸完之後，在會議上說：「這個我之前就有提醒過了喔。」大家都知道是誰要背了。',ok:s=>s.unit==='tw',fx:{blame:1,mood:-2}},
+ {t:'陳總今天跟你開了三場會。你的工作一件都還沒開始。',ok:s=>s.dept==='tw_pm',fx:{hp:-1,mood:-1}},
+ {t:'陳總把你的行事曆整個下午都排成「討論」。',ok:s=>s.dept==='tw_pm',fx:{mood:-1}},
+ {t:'台灣部門的同事問你：「陳總今天在嗎？」你說：「在，在跟我開會。」',ok:s=>s.dept==='tw_pm'},
+ {t:'你傳給陳總的進度報告，已讀第九天了。她在跟產品經理開會。',ok:s=>s.unit==='tw'&&!['tw_sales','tw_pm'].includes(s.dept)&&s.cphase==='ignore',fx:{mood:-1}},
+ {t:'陳總經過你的座位，沒有停，也沒有問你身體還好嗎。',ok:s=>s.unit==='tw'&&!['tw_sales','tw_pm'].includes(s.dept)&&s.cphase==='ignore'},
+ {t:'陳總這週約了台灣部門每個人「聊一下近況」，大家都很緊張。',ok:s=>s.unit==='tw'&&s.cphase==='active',fx:{mood:-1}},
  {t:'傑夫在台灣部門這一邊說：「我可以不用管台灣的，我們是不同部門。」他說完沒有走。',ok:s=>s.unit==='tw',fx:{jeffq:1}},
  {t:'傑夫在陳總辦公室門口說：「這個我本來不想管。」然後他進去了，門關了一個小時。',fx:{jeffq:1}},
  {t:'傑夫對著某份企劃說：「哇，你這樣做事真的死無葬身之地。」全辦公室的人同時檢查了自己的螢幕。',fx:{jeffq:1}},
@@ -1403,50 +1455,52 @@ const REFLECT={
  60:'五年了。如果明天就離職，你最捨不得的是什麼？',
  96:'八年了。你還記得第一次被問「身體還好嗎」是什麼時候嗎？',
 };
-const CRUSH_OK=s=>s.unit==='tw'&&s.gender==='m'&&!s.romance&&!s.romanceDone&&!s.brokeUp;
+const hintsSeen=s=>ROM_HINTS.reduce((a,e)=>a+((s.uses||{})[e.id]||0),0);
+const hasSpark=s=>hintsSeen(s)>0&&(s.crush||0)>=10;
+const CRUSH_OK=s=>s.unit==='tw'&&s.gender==='m'&&!s.romance&&!s.romanceDone&&!s.brokeUp&&!s.crushOver;
 const ROM_HINTS=[
-{id:'h_coffee',who:GM,gap:2,ok:CRUSH_OK,
+{id:'h_coffee',who:GM,gap:1,ok:CRUSH_OK,
  t:s=>`${GM}從外面回來，在你桌上放了一杯拿鐵：「順便買的。」整排座位，只有你桌上有。`,
  ch:[
  ['道謝，問她怎麼知道你喝拿鐵',s=>({fx:{crush:15,mood:3},m:'她說：「上次開會你點的就是這個啊。」那是三個月前的事。'})],
  ['道謝，拿去跟隔壁同事分',s=>({fx:{crush:2,net:2},m:'隔壁同事喝了一口，看看你，又看看陳總的辦公室。'})],
  ['說你其實不喝咖啡',s=>({fx:{crush:-5},m:'陳總說：「喔，好。」隔天你桌上多了一杯無糖綠茶。'})],
 ]},
-{id:'h_lunch',who:GM,gap:2,ok:CRUSH_OK,
+{id:'h_lunch',who:GM,gap:1,ok:CRUSH_OK,
  t:s=>`中午十二點，${GM}走到你座位：「要不要一起去永康街吃飯？」她只問了你。`,
  ch:[
  ['一起去',s=>({fx:{crush:15,mood:3,money:-250,body:1},m:'她點了兩碗牛肉麵，把她碗裡的牛肉夾了一塊給你：「你最近太瘦了。」'})],
  ['說已經訂便當了',s=>({fx:{crush:3},m:'她說：「那下次。」下次是後天。'})],
  ['找隔壁同事一起去',s=>({fx:{crush:4,net:2},m:'一路上陳總都沒什麼說話。同事吃完就說要先回公司。'})],
 ]},
-{id:'h_line',who:GM,gap:2,ok:CRUSH_OK,
+{id:'h_line',who:GM,gap:1,ok:CRUSH_OK,
  t:s=>`晚上十一點，${GM}傳了一則跟工作無關的 LINE：「睡了嗎？今天辛苦了。」`,
  ch:[
  ['回訊息，一路聊到一點',s=>({fx:{crush:18,hp:-2,mood:2},m:'你們從東門的滷肉飯聊到她的膝蓋。最後一則是她傳的：「早點睡，身體要顧好。」'})],
  ['回「陳總也早點休息」',s=>({fx:{crush:8},m:'她回了一個晚安貼圖。是一隻抱著愛心的熊。'})],
  ['隔天早上才回',s=>({fx:{crush:-5},m:'隔天你回了「抱歉昨天睡了」。她已讀，然後交代了一件急件。'})],
 ]},
-{id:'h_meeting',who:GM,gap:2,ok:CRUSH_OK,
+{id:'h_meeting',who:GM,gap:1,ok:CRUSH_OK,
  t:s=>`月會上，業務質疑你的提案。還沒等你回答，${GM}就說：「我覺得他講得很好。」全場同時看向你。`,
  ch:[
  ['「謝謝陳總。」',s=>({fx:{crush:10,favor:4,net:-3},m:'業務沒有再說話。會後他在群組裡傳了一個意味深長的貼圖。'})],
  ['低頭繼續報告',s=>({fx:{crush:5,skill:1},m:'你報告完了。陳總帶頭鼓掌，只有她一個人在鼓。'})],
 ]},
-{id:'h_souvenir',who:GM,gap:2,ok:CRUSH_OK,
+{id:'h_souvenir',who:GM,gap:1,ok:CRUSH_OK,
  t:s=>`${GM}出差回來，大家一人一包鳳梨酥。你拉開抽屜，裡面多了一盒日本巧克力，沒有署名。`,
  ch:[
  ['傳訊息謝謝她',s=>({fx:{crush:15,mood:3},m:'她回：「什麼巧克力？」三分鐘後又補了一句：「好吃嗎？」'})],
  ['假裝沒發現',s=>({fx:{crush:3},m:'下午她經過你座位時，看了一眼你的抽屜。'})],
  ['拿出來跟大家分',s=>({fx:{crush:-6,net:3},m:'同事們吃得很開心。陳總經過時，表情很複雜。'})],
 ]},
-{id:'h_rumor',who:'同事',gap:2,ok:s=>CRUSH_OK(s)&&(s.crush||0)>=25,
+{id:'h_rumor',who:'同事',gap:1,ok:s=>CRUSH_OK(s)&&(s.crush||0)>=25,
  t:s=>'同事私訊你：「欸，陳總是不是對你特別好？她今天問了你三次身體還好嗎，問我們只有一次。」',
  ch:[
  ['「沒有吧，你想太多。」',s=>({fx:{crush:5},m:'同事回：「好喔。」然後把這段對話截圖傳到了另一個群組。'})],
  ['「我也覺得怪怪的。」',s=>({fx:{crush:3,mood:1,net:1},m:'同事說：「我就知道！」你突然覺得自己不該回這句。'})],
  ['已讀不回',s=>({fx:{crush:8},m:'隔天整排座位的人看你的眼神都不太一樣。'})],
 ]},
-{id:'h_umbrella',who:GM,gap:2,ok:s=>CRUSH_OK(s)&&(s.crush||0)>=20,
+{id:'h_umbrella',who:GM,gap:1,ok:s=>CRUSH_OK(s)&&(s.crush||0)>=20,
  t:s=>`下大雨，你沒帶傘。${GM}在電梯口說：「我載你去捷運站。」`,
  ch:[
  ['上車',s=>({fx:{crush:18,mood:3},m:'東門站其實走路三分鐘。她繞了二十分鐘才到。'})],
@@ -1487,7 +1541,14 @@ const LOVE_BAN={id:'love_ban',who:'人資',
  ['承認，請公司處理',s=>({fx:{lbWay:'admit'},end:'loveban',m:'人資說：「依守則，戀愛雙方一方須調離本公司。」你們兩個都知道，總經理不會是被調離的那一個。'})],
  ['「這要問陳總。」',s=>({fx:{lbWay:'chen'},end:'loveban',m:'人資去問了。陳總說：「公司有規定，我也很為難。」然後她請人資轉告你，要注意身體。'})],
 ]};
-const ALL={};[...EV,...SEASON,...Object.values(SPECIAL),...ROM_HINTS,...ROM_DATING,LOVE_BAN].forEach(e=>ALL[e.id]=e);
+const CHEN_ACTIVE={id:'chen_active',who:'陳總',
+ t:s=>pick(['陳總突然走到你座位：「你最近是不是手上沒什麼案子？」你手上有七個案子。','陳總在群組標了你：「最近比較少看到你的進度，是不是手上沒什麼事？」你昨天加班到九點。','陳總消失了兩個月，今天突然約台灣部門每個人一對一：「最近是不是比較閒？」']),
+ ch:[
+ ['把手上的案子一個一個列給她看',s=>({fx:{favor:2,mood:-3,hp:-1},m:'陳總聽完說：「這麼多喔？那這個也一起做吧。」你手上變成八個。'})],
+ ['「還好，還有一點空間。」',s=>({fx:{favor:5,hp:-5,mood:-3},m:'陳總很滿意，當場交代了兩件新的。下個月她又不見了，兩件都沒人驗收。'})],
+ ['「最近都在忙傑夫交代的。」',s=>({fx:{favor:-6,mood:1},m:'陳總說：「傑夫的事？你是台灣部門的耶。」她轉身去傑夫的座位，兩個人講了半小時。'})],
+]};
+const ALL={};[...EV,CHEN_ACTIVE,...SEASON,...Object.values(SPECIAL),...ROM_HINTS,...ROM_DATING,LOVE_BAN].forEach(e=>ALL[e.id]=e);
 
 /* ---------- 狀態 ---------- */
 let S=null, cfg={start:'now',len:5000,dept:'',gender:'m'};
@@ -1559,6 +1620,20 @@ function tick(){
  if(autoMode && r(.25)) S.focus = S.hp<35?pick(['slack','home']):S.mood<30?pick(['home','slack','net']):pick(Object.keys(FOCUS));
  apply(FOCUS[S.focus].fx);
  const isEng=S.dept==='gz_fe'||S.dept==='gz_be';
+ // 一兩年後沒交往就沒戲
+ if(S.unit==='tw'&&S.gender==='m'&&!S.romance&&!S.romanceDone&&!S.crushOver&&S.month>=12){ S.crushOver=1; if(hintsSeen(S)>0) addLog('陳總最近問你身體還好嗎的語氣，又變回跟問別人一樣了。','p'); }
+ // 陳總的週期：不在乎 → 正常 → 突然積極
+ if(S.unit==='tw'){
+  S.cpLeft=(S.cpLeft||0)-1;
+  if(S.cpLeft<=0){
+   const prev=S.cphase||'normal';
+   const next=prev==='ignore'?(r(.3)?'active':'normal'):prev==='active'?(r(.6)?'ignore':'normal'):(r(.8)?'ignore':'active');
+   S.cphase=next; S.cpLeft=next==='ignore'?ri(4,8):next==='active'?ri(1,2):ri(2,5);
+   const vip=['tw_sales','tw_pm'].includes(S.dept);
+   if(next==='ignore'&&!vip) addLog(pick(['陳總最近幾乎不來台灣部門這一排了，她的行事曆排滿了跟產品經理的會。','陳總這陣子沒有再找你。你傳的三則訊息都還是已讀。','陳總最近只跟業務和產品經理講話。其他人好像變成了空氣。']),'p');
+   if(next==='active'&&!vip&&!S.romance) queue.push({type:'ev',ev:CHEN_ACTIVE});
+  }
+ }
  S.hp=clamp(S.hp-(isEng?.35:.5));S.mood=clamp(S.mood-(isEng?.3:.6));S.favor=clamp(S.favor+((isEng?72:50)-S.favor)*.02);
  const bonus=S.dept==='tw_sales'?Math.round(Math.random()*S.salary*.3*(S.net/60)/100)*100:0;
  S.money+=S.salary+bonus-S.expense;
@@ -1605,13 +1680,18 @@ function tick(){
  const ev=pickDecision();
  if(ev) queue.unshift({type:'ev',ev});
  else if(r(.5)){S.pUsed=S.pUsed||[];const ok=PASSIVE.filter(p=>!p.ok||p.ok(S));let pool=ok.filter(p=>!S.pUsed.includes(p.t));if(!pool.length){S.pUsed=[];pool=ok}const p=pick(pool);S.pUsed.push(p.t);apply(p.fx);addLog(p.t,'p')}
- if(CRUSH_OK(S)&&S.month>=2&&r(.3)){ S.hUsed=S.hUsed||[]; const hp=PASSIVE.filter(p=>p.fx&&p.fx.crush&&p.ok&&p.ok(S)&&!S.hUsed.includes(p.t)); if(hp.length){const p=pick(hp);S.hUsed.push(p.t);apply(p.fx);addLog(p.t,'p')} }
+ if(CRUSH_OK(S)&&hintsSeen(S)>0&&r(hasSpark(S)?.5:.03)){ S.hUsed=S.hUsed||[]; const hp=PASSIVE.filter(p=>p.fx&&p.fx.crush&&p.ok&&p.ok(S)&&!S.hUsed.includes(p.t)); if(hp.length){const p=pick(hp);S.hUsed.push(p.t);apply(p.fx);addLog(p.t,'p')} }
  if(REFLECT[S.month] && !noRefl) queue.push({type:'refl',q:REFLECT[S.month]});
  if(S.month>=120) queue.push({type:'end',key:'decade'});
  render();
  if(queue.length) nextQueue();
 }
 const ROLE_IDS=new Set(["fe_sales_page","be_sales_data","eng_chen_it","sales_quota", "sales_rival", "promo_line", "promo_threads", "promo_report", "design_pop", "design_texture", "design_favor", "cs_angry", "cs_review", "cs_flood", "repair_rma", "repair_parts", "repair_backlog", "pm_spec", "pm_color", "pm_launch", "acct_payroll", "acct_invoice", "acct_audit", "uiux_dark", "uiux_handoff", "uiux_comments", "fe_browser", "fe_friday", "fe_speed", "be_down", "be_report", "be_legacy", "intl_exclusive", "intl_translate", "intl_samples", "us_listing", "us_ces", "us_youtuber", "promo_kol", "promo_seo", "sales_discount", "sales_eta", "sales_out", "sales_dtf", "wh_count", "wh_container", "pm_sample", "cs_toast", "design_size", "intl_timezone", "intl_expense", "eng_promise", "eng_salary", "acct_chen", "acct_jeff", "uiux_btn", "sales_skip", "promo_collab"]);
+function chenMul(s){
+ if(s.dept==='tw_pm') return 1.6;
+ if(s.dept==='tw_sales') return 1;
+ return s.cphase==='ignore'?.15:s.cphase==='active'?2.5:1;
+}
 function pickDecision(){
  const m=calM(S.cal);
  if(S.hp<22 && cdOk('lowHp')) return SPECIAL.lowHp;
@@ -1622,17 +1702,17 @@ function pickDecision(){
  if(S.unit==='tw'&&S.gender==='m'&&S.month>=2){
   const U2=S.uses||{}, can=e=>{const l=S.cd[e.id];return (U2[e.id]||0)<(e.max||1)&&(l==null||S.month-l>=(e.gap||4))&&(!e.ok||e.ok(S))};
   const conf=EV.find(e=>e.id==='gm_romance'), prom=EV.find(e=>e.id==='gm_promote');
-  if(can(conf)&&r(.35)) return conf;
+  if(can(conf)&&r(.6)) return conf;
   if(can(prom)&&r(.35)) return prom;
-  if(CRUSH_OK(S)){ const hs=ROM_HINTS.filter(can); if(hs.length&&r(.3)) return pick(hs.slice(0,3)); }
+  if(CRUSH_OK(S)&&S.month>=2){ const hs=ROM_HINTS.filter(can); const seen=hintsSeen(S); const p=seen===0?(S.month>=2&&S.month<=8?.16:0):hasSpark(S)?.55:.03; if(hs.length&&r(p)) return pick(hs.slice(0,3)); }
   else if(S.romance){ const ds=ROM_DATING.filter(can); if(ds.length&&r(.18)) return pick(ds); }
  }
  { const cb=EV.find(e=>e.id==='chen_blame'), l=S.cd.chen_blame, u=(S.uses||{}).chen_blame||0;
-   if(S.month>=2 && u<cb.max && (l==null||S.month-l>=cb.gap) && r(S.unit==='tw'?.08:.02)) return cb; }
+   if(S.month>=2 && u<cb.max && (l==null||S.month-l>=cb.gap) && r(S.unit==='tw'?.08*Math.min(1,chenMul(S)):.02)) return cb; }
  if(!r(S.month<2?.6:.3)) return null;
  const U=S.uses||{}, isEngD=S.dept==='gz_fe'||S.dept==='gz_be';
  const pool=EV.filter(e=>{const l=S.cd[e.id];return (l==null||S.month-l>=Math.max(e.cd,e.gap||12))&&(U[e.id]||0)<(e.max||1)&&(!e.ok||e.ok(S))})
-  .map(e=>[e,e.w(S)*(e.who==='陳總'&&S.unit==='gz'?(isEngD?1.4:.6):1)*(e.who==='業務'&&isEngD?1.8:1)*(e.who==='傑夫'&&isEngD&&!e.engOk?.12:1)*(U[e.id]&&!e.sticky?.35:1)*(ROLE_IDS.has(e.id)?3:1)]).filter(x=>x[1]>0);
+  .map(e=>[e,e.w(S)*(e.who==='陳總'&&S.unit==='gz'?(isEngD?1.4:.6):1)*(e.who==='陳總'&&S.unit==='tw'?chenMul(S):1)*(e.who==='業務'&&isEngD?1.8:1)*(e.who==='傑夫'&&isEngD&&!e.engOk?.12:1)*(U[e.id]&&!e.sticky?.35:1)*(ROLE_IDS.has(e.id)?3:1)]).filter(x=>x[1]>0);
  if(!pool.length) return null;
  { const rp=pool.filter(x=>ROLE_IDS.has(x[0].id)); if(rp.length&&r(.55)){ let t=rp.reduce((a,x)=>a+x[1],0),y=Math.random()*t; for(const [e,w] of rp){y-=w;if(y<=0)return e} return rp[0][0]; } }
  let tot=pool.reduce((a,x)=>a+x[1],0),x=Math.random()*tot;
@@ -1777,7 +1857,7 @@ function render(){
  $('#gOrg').innerHTML=orgHtml(S.org);
  $('#gStats').innerHTML=Object.keys(STATN).map(k=>{const v=Math.round(S[k]);return `<div class="stat${v<25?' low':''}"><div class="top"><span>${STATN[k]}</span><b>${v}</b></div><div class="track"><div class="fill" style="width:${v}%"></div></div></div>`}).join('');
  { const w=$('#gWarn'); const n=S.unit==='tw'?(S.lowFav||0):0; const o=S.unit==='tw'?(S.c.offend||0):0; const msg=[]; if(n) msg.push(`陳總對你不滿已經 ${n} 個月了，連續 6 個月就會被開除。`); if(o) msg.push(`你已經得罪陳總 ${o} 次，滿 6 次就會被開除。`); w.hidden=!msg.length; w.textContent=msg.join(' '); }
- $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span><span>每月開銷 <b>${fmt(S.expense)}</b></span><span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span><span>英文 <b>${Math.round(S.eng||0)}</b></span>${(S.unit==='tw'&&S.gender==='m')||S.romance||S.romanceDone?`<span>陳總對你 <b>${crushLabel(S)}</b></span>`:''}`;
+ $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span><span>每月開銷 <b>${fmt(S.expense)}</b></span><span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span><span>英文 <b>${Math.round(S.eng||0)}</b></span>${S.unit==='tw'?`<span>陳總最近 <b>${['tw_sales','tw_pm'].includes(S.dept)?(S.dept==='tw_pm'?'一直找你開會':'很常找你'):S.cphase==='ignore'?'不太理台灣部門':S.cphase==='active'?'突然很積極':'正常'}</b></span>`:''}${(S.unit==='tw'&&S.gender==='m')||S.romance||S.romanceDone?`<span>陳總對你 <b>${crushLabel(S)}</b></span>`:''}`;
  $('#gFocus').innerHTML=Object.entries(FOCUS).map(([k,f])=>`<button type="button" data-f="${k}" aria-pressed="${S.focus===k}">${f.n}<small>${f.d}</small></button>`).join('');
  { const b=$('#aPromo'); const wait=S.lastAsk!=null?12-(S.month-S.lastAsk):0; const top=S.title>=TITLES.length-1; b.disabled=S.ended||top||wait>0; b.textContent=top?'已經升到頂了':wait>0?`主動提升遷（${wait} 個月後可再提）`:'主動提升遷'; }
  $('#aTreat').disabled=S.treated||S.ended; $('#aLeave').disabled=S.leaveDays<=0||S.ended;
@@ -1795,8 +1875,9 @@ function crushLabel(s){
  if(s.romance&&s.romanceDone) return '交往中，你坐上了業務的位子';
  if(s.romance) return '交往中';
  if(s.romanceDone||s.brokeUp) return '已經分手了';
+ if(s.crushOver) return '跟對其他人一樣';
  const c=s.crush||0;
- return c<10?'跟對其他人一樣':c<20?'好像有點不一樣':c<40?'同事開始注意到了':'很明顯了';
+ return c<10?'跟對其他人一樣':c<20?'好像有點不一樣':c<35?'同事開始注意到了':'很明顯了';
 }
 function orgHtml(org){return ['tw','gz'].map(u=>`<div class="org"><h3>${UNITS[u]}</h3>${org[u].map(x=>`<div class="org-row${x.you?' me':''}${x.fired&&!x.you?' gone':''}"><span>${esc(x.role)}${x.senior?'<small class="muted">　資深</small>':''}</span><span class="wh">${x.fired?`<s>${esc(x.who)}</s>　${x.you?'→ 你':'被開除'}`:x.you?(x.moved?'你（台灣調來）':'你'):x.vacant?'（空缺）':esc(x.who||'同事')}</span></div>`).join('')}</div>`).join('')}
 function cellColor(v){const p=Math.round(12+v*.78);return `color-mix(in srgb, var(--accent) ${p}%, var(--surface))`}
