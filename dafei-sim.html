@@ -476,8 +476,14 @@ const ENDINGS={
 
 /* ---------- 事件 ---------- */
 const EV=[
-{id:'chen_blame',who:'陳總',cd:6,w:s=>s.boss==='chen'?3:1.5,
- t:s=>'專案出包了。陳總在會議上說：「這個我之前就有提醒過了喔。」你很確定她沒有。',
+{id:'chen_blame',who:'陳總',cd:5,gap:5,max:5,sticky:1,w:s=>s.unit==='tw'?5:1.5,
+ t:s=>{const d=DEPTS[s.dept].n;return [
+  '專案出包了。陳總在會議上說：「這個我之前就有提醒過了喔。」你很確定她沒有。',
+  `客戶打來抱怨。陳總在群組裡說：「這部分是${d}負責的，請${d}回覆一下。」那件事你從頭到尾沒有經手。`,
+  '報價單上的價格寫錯了，是陳總簽核的那一版。她說：「我以為你有確認過。」',
+  `傑夫問陳總那件事的進度。陳總說：「我一直在等${d}給我資料。」資料你上週就寄了，她已讀。`,
+  '活動成效不好。陳總在月會上說：「當初我就覺得這個方向怪怪的。」當初是她拍板的。',
+ ][((s.uses?.chen_blame||1)-1)%5]},
  ch:[
  ['當場拿出對話紀錄',s=>({fx:{favor:-10,mood:4,net:2},m:'你在會議上拿出了對話紀錄。全場安靜了三秒。陳總說：「那可能是我記錯了，最近身體不太好。」'})],
  ['吞下來，會後默默補救',s=>({fx:{mood:-6,skill:2,favor:3,blame:1},m:'你默默補完了漏洞。沒有人知道是誰救的，包括陳總。'})],
@@ -1211,6 +1217,9 @@ const PASSIVE=[
  {t:'陳總今天的急件沒有給你，給了業務。',ok:s=>s.romance,fx:{mood:1}},
  {t:'廣州推廣部那一排在開英文視訊會議。台灣分公司這一排，同時在討論中午吃什麼。'},
  {t:'外面下雨了。傑夫說他當年創業，也是這種天氣。'},
+ {t:'陳總在會議上說：「這部分我已經交給你了。」你是第一次聽說。',ok:s=>s.unit==='tw',fx:{blame:1,mood:-2}},
+ {t:'群組裡陳總問：「這個上次是誰負責的？」然後標了你。上次負責的是她。',ok:s=>s.unit==='tw',fx:{blame:1,mood:-2}},
+ {t:'陳總跟傑夫說進度落後是因為「下面的人動作比較慢」。你就是下面的人。',ok:s=>s.unit==='tw',fx:{blame:1,mood:-2}},
  {t:'客戶傳來一張照片，問這個機殼的側板是不是裝反了。是。',ok:s=>s.dept==='tw_sales'},
  {t:'經銷商說月底才付款。上個月他也是這樣說的。',ok:s=>s.dept==='tw_sales',fx:{mood:-1}},
  {t:'KOL 的開箱影片上線了，留言第一則是「業配？」',ok:s=>s.dept==='tw_promo'},
@@ -1380,10 +1389,12 @@ function pickDecision(){
  if(S.month>=2){const se=seasonPick(m);if(se)return se}
  if(S.month>=6 && cdOk('poach') && r(Math.max(0,S.skill+S.net-105)/700)) return SPECIAL.poach;
  if(S.month>=24 && cdOk('reorg') && r(.012)) return SPECIAL.reorg;
+ { const cb=EV.find(e=>e.id==='chen_blame'), l=S.cd.chen_blame, u=(S.uses||{}).chen_blame||0;
+   if(S.month>=2 && u<cb.max && (l==null||S.month-l>=cb.gap) && r(S.unit==='tw'?.08:.02)) return cb; }
  if(!r(S.month<2?.6:.3)) return null;
  const U=S.uses||{};
- const pool=EV.filter(e=>{const l=S.cd[e.id];return (l==null||S.month-l>=Math.max(e.cd,12))&&(U[e.id]||0)<(e.max||1)&&(!e.ok||e.ok(S))})
-  .map(e=>[e,e.w(S)*(e.who==='陳總'&&S.unit==='gz'?.6:1)*(U[e.id]?.35:1)*(ROLE_IDS.has(e.id)?3:1)]).filter(x=>x[1]>0);
+ const pool=EV.filter(e=>{const l=S.cd[e.id];return (l==null||S.month-l>=Math.max(e.cd,e.gap||12))&&(U[e.id]||0)<(e.max||1)&&(!e.ok||e.ok(S))})
+  .map(e=>[e,e.w(S)*(e.who==='陳總'&&S.unit==='gz'?.6:1)*(U[e.id]&&!e.sticky?.35:1)*(ROLE_IDS.has(e.id)?3:1)]).filter(x=>x[1]>0);
  if(!pool.length) return null;
  { const rp=pool.filter(x=>ROLE_IDS.has(x[0].id)); if(rp.length&&r(.55)){ let t=rp.reduce((a,x)=>a+x[1],0),y=Math.random()*t; for(const [e,w] of rp){y-=w;if(y<=0)return e} return rp[0][0]; } }
  let tot=pool.reduce((a,x)=>a+x[1],0),x=Math.random()*tot;
