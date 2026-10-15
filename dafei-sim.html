@@ -242,6 +242,13 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
           <button type="button" data-v="m" aria-pressed="true">男</button>
           <button type="button" data-v="f" aria-pressed="false">女</button>
         </div></div></div>
+      <div class="row"><div class="lab">住哪裡</div><div class="val">
+        <div class="seg" id="segRent">
+          <button type="button" data-v="rent" aria-pressed="true">在外面租屋</button>
+          <button type="button" data-v="home" aria-pressed="false">住家裡</button>
+        </div>
+        <div id="rentBox" style="display:flex;align-items:center;gap:8px;font-size:14px"><label for="inRent" class="muted">每月房租 NT$</label><input type="text" id="inRent" inputmode="numeric" value="10000" style="max-width:7em"></div>
+        <p class="hint">住家裡不用房租，但每月要給家裡孝親費。</p></div></div>
       <div class="row"><div class="lab">報到時間</div><div class="val">
         <div class="seg" id="segStart">
           <button type="button" data-v="now" aria-pressed="true">現在（2026年10月）</button>
@@ -371,6 +378,7 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
       <div class="acts">
         <button type="button" class="btn" id="aTreat">犒賞自己（NT$3,000）</button>
         <button type="button" class="btn" id="aLeave">請一天特休</button>
+        <button type="button" class="btn" id="aTrip">特休出國（3 天，NT$40,000）</button>
         <button type="button" class="btn" id="aPromo">主動提升遷</button>
       </div>
     </div>
@@ -1544,7 +1552,7 @@ const CHEN_ACTIVE={id:'chen_active',who:'陳總',
 const ALL={};[...EV,CHEN_ACTIVE,...SEASON,...Object.values(SPECIAL),...ROM_HINTS,...ROM_DATING,LOVE_BAN].forEach(e=>ALL[e.id]=e);
 
 /* ---------- 狀態 ---------- */
-let S=null, cfg={start:'now',len:5000,dept:'',gender:'m'};
+let S=null, cfg={start:'now',len:5000,dept:'',gender:'m',rent:'rent'};
 let speed=1, turbo=false, userPaused=false, running=false, modalOpen=false, autoMode=false, logLimit=30;
 let lastTs=0, acc=0, queue=[];
 
@@ -1576,10 +1584,10 @@ function newGame(name){
  const names=[...NPC_NAMES].sort(()=>Math.random()-.5).slice(0,4);
  S={name:name||'新人',gender:cfg.gender,src,unit,senior,org,romance:0,romanceStart:null,romanceDone:false,dept,boss,seat,month:0,startCal,cal:startCal,
   hp:rand(60,80),mood:rand(52,68),eng:eng0,skill:rand(20,42),net:rand(15,34),favor:(dept==='gz_fe'||dept==='gz_be')?rand(70,82):rand(45,60),
-  money:ri(3,9)*10000,salary:sal,expense:ri(21,27)*1000,title:0,focus:'work',
+  money:ri(2,6)*10000,salary:sal,rent:cfg.rent==='rent'?(cfg.rentAmt??10000):0,family:cfg.rent==='rent'?0:ri(5,8)*1000,living:ri(27,30)*1000,expense:0,market:'normal',mkLeft:ri(3,8),kpi:0,title:0,focus:'work',
   log:[],c:{body:0,fridge:0,question:0,blame:0,raise:0,promo:0,shares:0,pua:0,joke:0,offend:0,noBonus:0,jeffq:0},cd:{},
   npcs:names.map(n=>({n,co:pick(NPC_COS),left:null,reason:''})),
-  map:[],dec:[],refl:[],seenG:{},used:{},biweekly:0,ret,treated:false,leaveDays:7,leaveYear:Math.floor(startCal/12),ended:false,id:Date.now().toString(36)};
+  map:[],dec:[],refl:[],seenG:{},used:{},biweekly:0,ret,treated:false,leaveDays:0,leaveYear:Math.floor(startCal/12),ended:false,id:Date.now().toString(36)};
 }
 function addLog(text,kind='p'){S.log.unshift({id:Math.random().toString(36).slice(2,8),mo:S.month,cal:S.cal,text,kind,star:false,fresh:true})}
 function apply(fx){
@@ -1592,6 +1600,7 @@ function apply(fx){
   else if(k==='biweekly') S.biweekly=v;
   else if(k==='asked') S.lastAsk=S.month;
   else if(k==='brokeUp') S.brokeUp=v;
+  else if(k==='rent') S.rent+=v;
   else if(k==='lbWay') S.lbWay=v;
   else if(k==='lbSurvive') S.lbSurvive=(S.lbSurvive||0)+1;
   else if(k==='expose') S.expose=Math.max(0,(S.expose||0)+v);
@@ -1609,7 +1618,7 @@ function tick(){
  S.month++;S.cal++;
  const m=calM(S.cal);
  S.treated=false;
- if(Math.floor(S.cal/12)!==S.leaveYear){S.leaveYear=Math.floor(S.cal/12);S.leaveDays=7}
+ if(Math.floor(S.cal/12)!==S.leaveYear){S.leaveYear=Math.floor(S.cal/12);S.leaveDays=S.month<12?3:S.month<24?7:S.month<36?10:S.month<60?14:15}
  if(autoMode && r(.25)) S.focus = S.hp<35?pick(['slack','home']):S.mood<30?pick(['home','slack','net']):pick(Object.keys(FOCUS));
  apply(FOCUS[S.focus].fx);
  const isEng=S.dept==='gz_fe'||S.dept==='gz_be';
@@ -1628,8 +1637,22 @@ function tick(){
   }
  }
  S.hp=clamp(S.hp-(isEng?.35:.5));S.mood=clamp(S.mood-(isEng?.3:.6));S.favor=clamp(S.favor+((isEng?72:50)-S.favor)*.02);
- const bonus=S.dept==='tw_sales'?Math.round(Math.random()*S.salary*.3*(S.net/60)/100)*100:0;
- S.money+=S.salary+bonus-S.expense;
+ // 景氣
+ S.mkLeft--; if(S.mkLeft<=0){ const x=Math.random(); const nm=x<.15?'good':x<.55?'bad':'normal'; if(nm!==S.market&&(S.dept==='tw_sales'||S.dept==='gz_us'||S.dept==='gz_intl')) addLog(nm==='good'?'市場突然轉好了。顯卡降價，大家都在組新電腦。':nm==='bad'?'市場又冷下來了。經銷商說倉庫都還是滿的。':'市場回到普通的樣子。','p'); S.market=nm; S.mkLeft=nm==='good'?ri(2,5):ri(4,9); }
+ // 開銷
+ S.expense=S.rent+S.family+Math.round(S.living*(1+.02*Math.floor(S.month/12))/100)*100;
+ let commission=0;
+ if(S.dept==='tw_sales'){ commission=Math.round(S.salary*.05*(S.net/60)*(S.market==='good'?2:S.market==='bad'?.5:1)/100)*100; }
+ S.money+=S.salary+commission-S.expense;
+ if(r(.45)){ const it=pick(EXTRA_COST.filter(x=>!x.ok||x.ok(S))); S.money-=it.c; if(it.fx)apply(it.fx); addLog(`${it.t}${fmt(it.c)}。`,'p'); }
+ // 業務 KPI（每季）
+ if(S.dept==='tw_sales'&&S.month%3===0){
+  const p=Math.min(.85,(S.market==='good'?.6:S.market==='bad'?.04:.14)+(S.net-40)/400+(S.skill-40)/500);
+  const rate=r(p)?ri(100,128):S.market==='bad'?ri(42,78):ri(65,96);
+  S.kpi=rate;
+  if(rate>=100){ const b=Math.round(S.salary*(rate>=115?.6:.4)/100)*100; S.money+=b; S.favor=clamp(S.favor+6); S.mood=clamp(S.mood+6); S.c.kpiHit=(S.c.kpiHit||0)+1; addLog(`本季 KPI 達成率 ${rate}%，達標了！業績獎金 ${fmt(b)}。陳總說：「辛苦了，身體要顧好。」`,'ms'); }
+  else { S.favor=clamp(S.favor-4); S.mood=clamp(S.mood-4); S.c.kpiMiss=(S.c.kpiMiss||0)+1; addLog(`本季 KPI 達成率 ${rate}%，沒有達標。${S.market==='bad'?'市場很冷，三個業務都沒達標。':pick(['陳總說：「下一季加油。」','傑夫經過說：「你這樣做事真的死無葬身之地。」','另外兩個業務也沒達標，大家默默鬆了一口氣。'])}`,'ms'); }
+ }
  if(S.money<0)S.mood=clamp(S.mood-2);
  // 同梯
  for(const p of S.npcs){ if(!p.left && r(hazard(S.month,S.cal)*1.15)){ p.left=S.month; p.reason=(m===2||m===3)&&r(.5)?'在年終入帳後遞了辭呈':pick(NPC_LEAVE.filter(x=>!S.npcs.some(q=>q.reason===x)))||pick(NPC_LEAVE); addLog(`大學同學${p.n}離職了：${p.reason}。`,'p'); S.mood=clamp(S.mood-1.5);} }
@@ -1641,7 +1664,7 @@ function tick(){
    S.c.noBonus++; S.mood=clamp(S.mood-7);
    addLog(pick(['公司宣布：今年沒有年終獎金。','今年沒有年終。陳總說：「明年大家一起加油，身體要顧好。」','今年沒有年終。傑夫說：「我們當年創業哪有年終。」','今年沒有年終。群組安靜了一整天。']),'ms');
   } else {
-   let mo=Math.max(.5,Math.min(2,Math.round((S.favor+S.skill)/70*2)/2));
+   let mo=Math.max(.5,Math.min(1.5,Math.round((S.favor+S.skill)/90*2)/2));
    if(S.month<12) mo=Math.max(.5,Math.round(mo*S.month/12*2)/2);
    S.money+=S.salary*mo;
    addLog(`年終入帳：${mo} 個月，${fmt(S.salary*mo)}。`+(mo<=1?'傑夫說：「公司今年很辛苦，大家要知足。」':''),'ms');
@@ -1680,6 +1703,14 @@ function tick(){
  if(queue.length) nextQueue();
 }
 const ROLE_IDS=new Set(["fe_sales_page","be_sales_data","eng_chen_it","sales_quota", "sales_rival", "promo_line", "promo_threads", "promo_report", "design_pop", "design_texture", "design_favor", "cs_angry", "cs_review", "cs_flood", "repair_rma", "repair_parts", "repair_backlog", "pm_spec", "pm_color", "pm_launch", "acct_payroll", "acct_invoice", "acct_audit", "uiux_dark", "uiux_handoff", "uiux_comments", "fe_browser", "fe_friday", "fe_speed", "be_down", "be_report", "be_legacy", "intl_exclusive", "intl_translate", "intl_samples", "us_listing", "us_ces", "us_youtuber", "promo_kol", "promo_seo", "sales_discount", "sales_eta", "sales_out", "sales_dtf", "wh_count", "wh_container", "pm_sample", "cs_toast", "design_size", "intl_timezone", "intl_expense", "eng_promise", "eng_salary", "acct_chen", "acct_jeff", "uiux_btn", "sales_skip", "promo_collab"]);
+const EXTRA_COST=[
+ {t:'機車該保養了，',c:3500},{t:'朋友結婚，紅包包了',c:3600},{t:'手機螢幕摔破了，修理花了',c:6000},
+ {t:'看牙醫，自費項目',c:2800},{t:'電腦椅壞了，買新的花了',c:4500},{t:'家裡冷氣壞了，你分攤了',c:8000},
+ {t:'信用卡帳單比你想的多了',c:5200},{t:'同事離職，大家合送禮物，你出了',c:500},
+ {t:'機車被拖吊，領回來花了',c:1000},{t:'週末去宜蘭玩了一趟，花了',c:4200},{t:'壓力太大，網購了一堆用不到的東西，',c:3900,fx:{mood:2}},
+ {t:'房東說要漲房租，下個月開始每月多',c:1000,ok:s=>s.rent>0,fx:{rent:1000}},
+ {t:'家裡說最近手頭比較緊，這個月多給了',c:5000,ok:s=>s.family>0},
+];
 function chenMul(s){
  if(s.dept==='tw_pm') return 1.6;
  if(s.dept==='tw_sales') return 1;
@@ -1850,10 +1881,10 @@ function render(){
  $('#gOrg').innerHTML=orgHtml(S.org);
  $('#gStats').innerHTML=Object.keys(STATN).map(k=>{const v=Math.round(S[k]);return `<div class="stat${v<25?' low':''}"><div class="top"><span>${STATN[k]}</span><b>${v}</b></div><div class="track"><div class="fill" style="width:${v}%"></div></div></div>`}).join('');
  { const w=$('#gWarn'); const n=S.unit==='tw'?(S.lowFav||0):0; const o=S.unit==='tw'?(S.c.offend||0):0; const msg=[]; if(n) msg.push(`陳總對你不滿已經 ${n} 個月了，連續 6 個月就會被開除。`); if(o) msg.push(`你已經得罪陳總 ${o} 次，滿 6 次就會被開除。`); w.hidden=!msg.length; w.textContent=msg.join(' '); }
- $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span><span>每月開銷 <b>${fmt(S.expense)}</b></span><span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span><span>英文 <b>${Math.round(S.eng||0)}</b></span>${S.unit==='tw'?`<span>陳總最近 <b>${['tw_sales','tw_pm'].includes(S.dept)?(S.dept==='tw_pm'?'一直找你開會':'很常找你'):S.cphase==='ignore'?'不太理台灣部門':S.cphase==='active'?'突然很積極':'正常'}</b></span>`:''}${(S.unit==='tw'&&S.gender==='m')||S.romance||S.romanceDone?`<span>陳總對你 <b>${crushLabel(S)}</b></span>`:''}`;
+ $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span>${S.rent?`<span>房租 <b>${fmt(S.rent)}</b></span>`:`<span>孝親費 <b>${fmt(S.family)}</b></span>`}<span>每月開銷 <b>${fmt(S.expense||S.rent+S.family+S.living)}</b></span>${S.dept==='tw_sales'?`<span>市場 <b>${S.market==='good'?'景氣好':S.market==='bad'?'很冷':'普通'}</b></span><span>上季 KPI <b>${S.kpi?S.kpi+'%':'—'}</b></span>`:''}<span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span><span>英文 <b>${Math.round(S.eng||0)}</b></span>${S.unit==='tw'?`<span>陳總最近 <b>${['tw_sales','tw_pm'].includes(S.dept)?(S.dept==='tw_pm'?'一直找你開會':'很常找你'):S.cphase==='ignore'?'不太理台灣部門':S.cphase==='active'?'突然很積極':'正常'}</b></span>`:''}${(S.unit==='tw'&&S.gender==='m')||S.romance||S.romanceDone?`<span>陳總對你 <b>${crushLabel(S)}</b></span>`:''}`;
  $('#gFocus').innerHTML=Object.entries(FOCUS).map(([k,f])=>`<button type="button" data-f="${k}" aria-pressed="${S.focus===k}">${f.n}<small>${f.d}</small></button>`).join('');
  { const b=$('#aPromo'); const wait=S.lastAsk!=null?12-(S.month-S.lastAsk):0; const top=S.title>=TITLES.length-1; b.disabled=S.ended||top||wait>0; b.textContent=top?'已經升到頂了':wait>0?`主動提升遷（${wait} 個月後可再提）`:'主動提升遷'; }
- $('#aTreat').disabled=S.treated||S.ended; $('#aLeave').disabled=S.leaveDays<=0||S.ended;
+ $('#aTreat').disabled=S.treated||S.ended; $('#aLeave').disabled=S.leaveDays<=0||S.ended; $('#aTrip').disabled=S.leaveDays<3||S.ended;
  const items=S.log.slice(0,logLimit);
  $('#gLog').innerHTML=items.length?items.map(l=>`<button type="button" class="log-item${l.star?' on':''}${l.kind==='ms'?' ms':''}${l.fresh?' new':''}" data-id="${l.id}"><span class="when">${calStr(l.cal)}</span><span>${l.kind==='d'?'<span class="tag">抉擇</span>':l.kind==='ms'?'<span class="tag">里程碑</span>':l.kind==='note'?'<span class="tag">想法</span>':''}${esc(l.text)}</span><span class="star">${l.star?'★':'☆'}</span></button>`).join(''):`<p class="empty">第一天。你找到了自己的座位，電腦還沒裝好。</p>`;
  S.log.forEach(l=>l.fresh=false);
@@ -1941,6 +1972,8 @@ function renderEnding(rec,live){
   <div><b>${rec.c.offend||0}</b><span>得罪陳總</span></div>
   <div><b>${rec.c.noBonus||0}</b><span>沒有年終的年份</span></div>
   <div><b>${rec.c.jeffq||0}</b><span>聽到傑夫語錄</span></div>
+  <div><b>${rec.c.trips||0}</b><span>特休出國</span></div>
+  ${rec.dept==='tw_sales'?`<div><b>${rec.c.kpiHit||0}／${(rec.c.kpiHit||0)+(rec.c.kpiMiss||0)}</b><span>KPI 達標季數</span></div>`:''}
   <div><b style="font-size:17px">${fmt(rec.salary)}</b><span>離職時月薪</span></div>
   <div><b style="font-size:17px">${fmt(rec.money)}</b><span>離職時存款</span></div>
  </div>
@@ -1981,7 +2014,7 @@ async function doAssign(){
  await spin($('#sBoss'),$('#sBossD'),['陳總（總經理）','傑夫（行銷總監）'],{n:`${BOSSES[S.boss].n}（${BOSSES[S.boss].t}）`,d:BOSSES[S.boss].d},700);
  await spin($('#sSrc'),$('#sSrcD'),Object.values(SRC).map(d=>d.n),SRC[S.src],600);
  await spin($('#sSeat'),$('#sSeatD'),Object.values(SEATS).map(d=>d.n),SEATS[S.seat],700);
- await spin($('#sSal'),$('#sSalD'),['NT$29,500','NT$38,500','NT$86,000','NT$112,000'],{n:fmt(S.salary),d:`每月開銷約 ${fmt(S.expense)}，存款 ${fmt(S.money)}。`},500);
+ await spin($('#sSal'),$('#sSalD'),['NT$29,500','NT$38,500','NT$86,000','NT$112,000'],{n:fmt(S.salary),d:`${S.rent?`房租 ${fmt(S.rent)}，`:`住家裡，孝親費 ${fmt(S.family)}，`}每月開銷約 ${fmt(S.rent+S.family+S.living)}，存款 ${fmt(S.money)}。`},500);
  $('#asEyebrow').textContent=`${calStr(S.startCal)} 報到`;
  $('#btnBegin').disabled=false;$('#btnBegin').focus();
 }
@@ -1989,9 +2022,10 @@ async function doAssign(){
 /* ---------- 綁定 ---------- */
 Object.entries(UNITS).forEach(([u,un])=>{const g=document.createElement('optgroup');g.label=un;Object.entries(DEPTS).filter(([k,d])=>d.u===u).forEach(([k,d])=>{const o=document.createElement('option');o.value=k;o.textContent=d.n;g.appendChild(o)});$('#inDept').appendChild(g)});
 function seg(id,key,num){$(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');cfg[key]=num?+b.dataset.v:b.dataset.v})}
-seg('#segStart','start');seg('#segGender','gender');seg('#segLen','len',true);
+seg('#segStart','start');seg('#segGender','gender');seg('#segRent','rent');
+$('#segRent').addEventListener('click',()=>{$('#rentBox').hidden=cfg.rent!=='rent'});seg('#segLen','len',true);
 $('#inDept').onchange=e=>cfg.dept=e.target.value;
-$('#btnStart').onclick=()=>{newGame($('#inName').value.trim());doAssign()};
+$('#btnStart').onclick=()=>{cfg.rentAmt=Math.max(0,Math.round((parseInt(String($('#inRent').value).replace(/\D/g,''),10)||10000)/100)*100);newGame($('#inName').value.trim());doAssign()};
 $('#btnBegin').onclick=()=>{
  show('game');logLimit=30;speed=1;userPaused=false;turbo=false;
  document.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sp==='1'));$('#bPause').setAttribute('aria-pressed','false');$('#bPause').textContent='❚❚';
@@ -2014,6 +2048,10 @@ $('#gLog').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if
 $('#bMore').onclick=()=>{logLimit+=40;render()};
 $('#aTreat').onclick=()=>{if(S.treated)return;S.treated=true;S.money-=3000;S.mood=clamp(S.mood+6);addLog(pick(['你去吃了一頓燒肉。','你買了一顆自家的風扇，用員工價。','你訂了一間溫泉旅館的週末。','你買了一杯很貴的手沖咖啡，喝的時候沒看手機。']),'p');render()};
 $('#aPromo').onclick=()=>{if(!S||S.ended)return;queue.unshift({type:'ev',ev:askPromoEvent()});halt();nextQueue()};
+$('#aTrip').onclick=()=>{if(!S||S.ended||S.leaveDays<3)return;
+ if(r(.3)){addLog(S.boss==='chen'?'你想排三天特休出國。陳總說：「守則第 7.3 條，特休要主管批准。最近比較忙，下個月再說，身體要顧好。」':'你想排三天特休出國。傑夫說：「守則第 7.3 條，特休要主管批准。出國的意義是什麼？」','p');S.mood=clamp(S.mood-3);render();return}
+ S.leaveDays-=3;S.money-=40000;S.mood=clamp(S.mood+18);S.hp=clamp(S.hp+10);S.favor=clamp(S.favor-2);S.c.trips=(S.c.trips||0)+1;
+ addLog(pick(['你請了三天特休去大阪，吃了五碗拉麵。回來時桌上有五件急件。','你請了三天特休去首爾，買了一整個行李箱的保養品。回來第一天，陳總問你身體還好嗎。','你請了三天特休去曼谷，按摩按到睡著。回來時群組有 214 則未讀。','你請了三天特休去沖繩，關掉了所有通知。回來發現傑夫在你位子上留了一張便利貼：「意義？」']),'p');render()};
 $('#aLeave').onclick=()=>{if(S.leaveDays<=0)return;if(r(.3)){addLog(S.boss==='chen'?'你想請一天特休。陳總說：「守則第 7.3 條，特休要主管批准。這次先不要喔，身體要顧好。」':'你想請一天特休。傑夫說：「守則第 7.3 條，特休要主管批准。你請假的意義是什麼？」','p');S.mood=clamp(S.mood-2);render();return}S.leaveDays--;S.hp=clamp(S.hp+4);S.mood=clamp(S.mood+2);S.favor=clamp(S.favor-1.5);if(r(.2)){S.c.body++;S.mood=clamp(S.mood-2);addLog('你請了一天特休。下午陳總打電話來：「身體還好嗎？對了，有件事想問你。」','p')}else addLog('你請了一天特休，睡到自然醒。','p');render()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#menu').hidden){$('#menu').hidden=true}});
 
