@@ -119,6 +119,7 @@ details.faq div{padding-top:8px;color:var(--muted);font-size:14px;display:flex;f
 .stat.low .top b{color:var(--bad)}
 .money{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:14px}
 .money b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.warn{margin:0;font-size:14px;color:var(--bad);border:1px solid var(--bad);border-radius:6px;padding:8px 12px}
 .focus{display:flex;flex-direction:column;gap:8px}
 .focus-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -278,7 +279,7 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
         <div class="stat-key"><b>心情</b><span>對這份工作的忍耐程度。歸零的那天，你不會再上樓。</span></div>
         <div class="stat-key"><b>專業</b><span>影響考績、談加薪的成功率，以及獵頭找上門的機率。</span></div>
         <div class="stat-key"><b>人脈</b><span>KOL、經銷商、同事的支援。業務的獎金也看它。</span></div>
-        <div class="stat-key"><b>主管好感</b><span>直屬主管對你的觀感。升遷看它，被甩鍋時也看它。</span></div>
+        <div class="stat-key"><b>主管好感</b><span>直屬主管對你的觀感。升遷看它，被甩鍋時也看它。台灣分公司的人，如果陳總對你不滿（低於 25）連續 6 個月，就會被開除；廣州推廣部不受影響。</span></div>
         <p>數值高只會提高可能性，不會決定結果。就像真實職場一樣，運氣和主管心情也一起發揮作用。</p>
       </div></details>
       <details class="faq"><summary>抉擇和每月重心</summary><div>
@@ -348,6 +349,7 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
     </div>
     <div class="stats" id="gStats"></div>
     <div class="money" id="gMoney"></div>
+    <p class="warn" id="gWarn" hidden></p>
     <div class="focus">
       <div class="focus-head"><h3 style="font-size:15px">本月重心</h3><span class="hint">隨時可以更改</span></div>
       <div class="chips" id="gFocus"></div>
@@ -464,6 +466,7 @@ const ENDINGS={
  layoff:{t:'組織調整',reason:'公司組織調整',story:s=>'人資把一盒面紙推到你面前。你沒用到，但把那盒面紙帶走了，覺得公司的東西也是要錢的。'},
  ceo:{t:'成為了下一個陳總',reason:'坐上了總經理的位子',story:s=>'某天，新人經過你的座位。你脫口而出：「最近身體還好嗎？要多休息喔。」說完你愣了一下。'},
  decade:{t:'十年老臣',reason:'服務滿十年',story:s=>`十年了。冰箱換過兩台，Kat 進公司的次數你用一隻手就數得完。新人問你某件事要找誰簽，你說：「${s.boss==='chen'?'陳總，但你要有心理準備。':'傑夫，但先想好意義是什麼。'}」你成了大妃的活歷史。`},
+ fired:{t:'被陳總開除',reason:'工作表現未符合期待',story:s=>'陳總把你叫進辦公室。第一句話是：「最近身體還好嗎？」第二句話是：「我們可能要請你另外發展了。」她送你到門口，提醒你回家路上小心。'},
  left:{t:'提早離開',reason:'自行離開模擬',story:s=>'你關掉了這份工作。真實的大妃，明天還是要上班。'},
 };
 
@@ -870,6 +873,12 @@ poach:{id:'poach',who:'獵頭',cd:8,t:s=>'有獵頭私訊你：「某電競大�
  ['拿 offer 去談加薪',s=>r(.5)?{fx:{salaryPct:.12,favor:-6,raise:1},m:'傑夫看著你：「好，加 12%。但你要知道，我的薪水都沒漲。」'}:{fx:{},end:'poached',m:'傑夫說：「那你去吧。」語氣意外地平靜。'}],
  ['婉拒',s=>({fx:{mood:1,favor:1},m:'你回：「謝謝，目前沒有考慮。」然後把對話釘選起來。'})],
 ]},
+chenWarn:{id:'chenWarn',who:'陳總',cd:0,t:s=>'陳總請你進她的辦公室，把門關上：「最近是不是身體不太好？工作好像有點跟不上喔。」',
+ ch:[
+ ['誠懇道歉，保證會改進',s=>({fx:{favor:12,mood:-4},m:'陳總點點頭：「好，那我們再看看。要注意身體喔。」你知道「再看看」是什麼意思。'})],
+ ['拿出這幾個月的成果',s=>r(.3+s.skill/150)?{fx:{favor:16,skill:1},m:'陳總看完沉默了一下：「原來你有在做事。」你決定不要問這句話是什麼意思。'}:{fx:{favor:-3,mood:-3},m:'陳總說：「這些我都知道，我說的是態度。」'}],
+ ['「我身體很好，謝謝陳總」',s=>({fx:{favor:-5,body:1},m:'陳總說：「那就好。」這次的「那就好」，聽起來不太好。'})],
+]},
 reorg:{id:'reorg',who:'公司',cd:24,t:s=>`公司宣布組織調整，${UNITS[s.unit]}要調整人力配置，你的位子要跟另一個職位合併。`,
  ch:[
  ['主動爭取新的位子',s=>r(.45+(s.favor+s.skill-100)/200)?{fx:{title:1,salaryPct:.1,promo:1,hp:-3},m:'你拿到了合併後的位子。陳總說：「恭喜，要注意身體。」'}:{fx:{},end:'layoff',m:'人資約你到小會議室。桌上有一盒面紙。'}],
@@ -1008,6 +1017,14 @@ function tick(){
  S.map.push(S.mood);
  if(S.hp<=0){render();return endGame('burnout')}
  if(S.mood<=0){render();return endGame('quit')}
+ // 陳總不滿太久會開除（只限台灣分公司）
+ if(S.unit==='tw'){
+  if(S.favor<25){ S.lowFav=(S.lowFav||0)+1;
+   if(S.lowFav===2) addLog('陳總最近經過你座位時，不再問你身體還好嗎了。','p');
+   if(S.lowFav===4) queue.push({type:'ev',ev:SPECIAL.chenWarn});
+   if(S.lowFav>=6){render();return endGame('fired')}
+  } else S.lowFav=0;
+ }
  // 考績
  if(S.month%12===0){
   const sc=S.skill*.45+S.favor*.3+S.net*.25+rand(-8,8);
@@ -1128,6 +1145,7 @@ function render(){
  $('#gName').textContent=S.name;$('#gDept').textContent=dn(S.dept);$('#gTitle').textContent=TITLES[S.title];$('#gBoss').textContent=`${BOSSES[S.boss].n}（${BOSSES[S.boss].t}）`;
  $('#gOrg').innerHTML=orgHtml(S.org);
  $('#gStats').innerHTML=Object.keys(STATN).map(k=>{const v=Math.round(S[k]);return `<div class="stat${v<25?' low':''}"><div class="top"><span>${STATN[k]}</span><b>${v}</b></div><div class="track"><div class="fill" style="width:${v}%"></div></div></div>`}).join('');
+ { const w=$('#gWarn'); const n=S.unit==='tw'?(S.lowFav||0):0; w.hidden=!n; if(n) w.textContent=`陳總對你不滿已經 ${n} 個月了。連續 6 個月，你就會被開除。`; }
  $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span><span>每月開銷 <b>${fmt(S.expense)}</b></span><span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span>`;
  $('#gFocus').innerHTML=Object.entries(FOCUS).map(([k,f])=>`<button type="button" data-f="${k}" aria-pressed="${S.focus===k}">${f.n}<small>${f.d}</small></button>`).join('');
  $('#aTreat').disabled=S.treated||S.ended; $('#aLeave').disabled=S.leaveDays<=0||S.ended;
