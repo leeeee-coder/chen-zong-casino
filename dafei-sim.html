@@ -1194,6 +1194,33 @@ const EV=[
  ['傳訊息關心她',s=>({fx:{favor:4,crush:3,mood:-1,body:1},m:'她回：「沒事，傑夫也是為公司好。你身體還好嗎？」'})],
  ['在群組跟同事分享八卦',s=>r(.3)?{fx:{favor:-6,net:2},m:'有人把截圖傳給了陳總。'}:{fx:{net:4,mood:2},m:'群組熱烈討論了一個下午。結論是：陳總都不會回嘴。'}],
 ]},
+{id:'jeff_chat',who:'傑夫',cd:2,gap:2,max:6,sticky:1,ok:s=>['tw_design','tw_repair'].includes(s.dept),w:s=>3,
+ t:s=>{const d=s.dept==='tw_design';return [
+  `傑夫走過來靠在你的隔板上：「中午吃什麼？」聊了三分鐘便當，他突然問：「對了，你這週工作有哪些？」`,
+  `傑夫拉了張椅子坐在你旁邊，從股票聊起。十分鐘後話題變成：「我以前在上一間公司，${d?'設計稿都是一天出三版':'維修都是當天修好'}，你知道為什麼嗎？」`,
+  `傑夫拿著咖啡過來：「最近還好嗎？」你說還好。他說：「還好就是有進步空間。我當年創業的時候……」`,
+  `傑夫說他只是路過，順便聊聊。四十分鐘後，他已經講到他二十年前帶的第一個團隊，然後問你：「${d?'這張圖的意義是什麼？':'這台的維修紀錄呢？'}」`,
+  `傑夫問你週末去哪裡玩。你說去宜蘭。他說他以前去宜蘭談過一個大客戶，然後講了那個客戶一個小時，最後問：「所以你那個案子進度呢？」`,
+ ][((s.uses?.jeff_chat||1)-1)%5]},
+ ch:[
+ ['陪他聊，一邊點頭一邊偷做事',s=>({fx:{hp:-2,favor:3,jeffq:1,mood:-2},m:'他講完的時候，你剛好完成了一半。他說：「很好，跟你聊天很愉快。明天再來。」'})],
+ ['把話題拉回工作，快速報告',s=>r(.5)?{fx:{favor:2,question:1},m:'傑夫說：「好，那你繼續。」他走了。五分鐘後他又走回來，說他忘了講他以前的經驗。'}:{fx:{favor:-2,question:1,pua:1},m:'傑夫說：「我不是來問工作的，我是來關心你。」然後接著問了四個工作的問題。'}],
+ ['戴上耳機假裝在開會',s=>r(.4)?{fx:{mood:3},m:'傑夫在你旁邊站了一分鐘，走去找隔壁同事聊了。'}:{fx:{favor:-4,mood:-1},m:'傑夫等你「開完會」，站了二十分鐘。'}],
+]},
+{id:'jeff_nitpick',who:'傑夫',cd:3,gap:3,max:5,sticky:1,ok:s=>!['gz_fe','gz_be'].includes(s.dept),w:s=>2,
+ t:s=>[
+  '傑夫經過你的螢幕：「你的檔名為什麼是『最終版2』？最終版就是最終版。」',
+  '傑夫把你寄的信轉回來，只畫了一個重點：「主旨不夠清楚。」主旨是「報價單」。',
+  '傑夫站在你的桌子旁邊看了十秒：「你的桌面這麼亂，工作怎麼會有效率？」',
+  '傑夫指著你的 Excel：「這個欄位為什麼是黃色？黃色的意義是什麼？」',
+  '傑夫在群組裡標了你：「你昨天幾點下班？」你六點準時走的。',
+  '傑夫看到你在喝飲料：「這杯我也有付 5% 喔。上班時間喝飲料，效率會好嗎？」',
+ ][((s.uses?.jeff_nitpick||1)-1)%6],
+ ch:[
+ ['馬上改',s=>({fx:{mood:-3,favor:2,question:1},m:'改完之後，傑夫說：「這樣比較好。」然後指出了另一個問題。'})],
+ ['解釋原因',s=>r(.35)?{fx:{favor:1,mood:1,question:1},m:'傑夫說：「好，那下次注意。」你不知道要注意什麼。'}:{fx:{favor:-3,pua:1,jeffq:1},m:'傑夫說：「我是為你好才講。總經理不會講，你要自己有想法。」'}],
+ ['「好，謝謝傑夫。」然後什麼都不改',s=>({fx:{mood:1},m:'傑夫走了。三天後他又來問同一件事。'})],
+]},
 {id:'intern',who:'人資',cd:24,ok:s=>s.month>=12,w:s=>1,
  t:s=>'部門來了一位實習生，主管說：「你帶。」',
  ch:[
@@ -1549,7 +1576,29 @@ const CHEN_ACTIVE={id:'chen_active',who:'陳總',
  ['「還好，還有一點空間。」',s=>({fx:{favor:5,hp:-5,mood:-3},m:'陳總很滿意，當場交代了兩件新的。下個月她又不見了，兩件都沒人驗收。'})],
  ['「最近都在忙傑夫交代的。」',s=>({fx:{favor:-6,mood:1},m:'陳總說：「傑夫的事？你是台灣部門的耶。」她轉身去傑夫的座位，兩個人講了半小時。'})],
 ]};
-const ALL={};[...EV,CHEN_ACTIVE,...SEASON,...Object.values(SPECIAL),...ROM_HINTS,...ROM_DATING,LOVE_BAN].forEach(e=>ALL[e.id]=e);
+const OVER_ITEMS=['16,000 支滑鼠','8,000 顆風扇','3,000 台機殼','5,000 組鍵盤'];
+const OVER_ROLE={
+ tw_sales:['陳總說：「這批你們三個業務分一分，這季推給經銷商。」KPI 表上多了一欄「滑鼠」。','你打給第十二家經銷商。對方說：「你們上次那批還在我們倉庫。」'],
+ tw_promo:['陳總說：「推廣想一下活動，這個月要清掉。」你看著倉庫照片，想不到任何活動能賣掉這麼多。','你做了一個「買機殼送滑鼠」的活動。留言區有人問：「可以不要滑鼠嗎？」'],
+ tw_design:['陳總要你今天做出促銷主視覺、門市 POP、官網 Banner，還有「清倉」不能寫在上面。','你把同一張滑鼠的照片做成了十二種尺寸。'],
+ tw_cs:['降價促銷一上線，上個月原價買的客人全部打來要求退差價。','你今天第四十次說：「這是限時優惠，不適用之前的訂單。」'],
+ tw_repair:['倉庫塞爆了。貨櫃的箱子一路堆到你的維修台旁邊，你要側身才走得進去。','你開始在滑鼠箱子上修主機。'],
+ tw_pm:['陳總沒有先問你就直接下單了。工廠打來確認交期，你才知道這件事。','你算了一下，照現在的銷量，這批要賣七年。'],
+ tw_acct:['工廠的請款單來了。你看著公司帳戶，又看了一眼請款單上的數字。','你這個月打給銀行的次數，比打給家人還多。'],
+ gz_uiux:['陳總走到廣州推廣部這一邊：「官網可以做一個清倉頁嗎？很急。」傑夫在旁邊說：「這是台灣的事。」','你設計了一個倒數計時器。倒數結束後，陳總要你重設成三天。'],
+ gz_fe:['陳總走到廣州推廣部這一邊：「官網今天可以上一個促銷頁嗎？」傑夫說：「這是台灣的事。」然後他自己去陳總辦公室了。','你把滑鼠的商品頁複製了四次，分別叫「限時」「加碼」「最後一波」和「真的最後一波」。'],
+ gz_be:['陳總問你能不能讓官網「買任何東西都自動加一支滑鼠」。','你寫了一個自動加購的功能。退貨率上升了 40%。'],
+ gz_intl:['陳總問你：「國外經銷商能不能吃下一半？」你看著那個數字，回她：「我問問看。」','荷蘭經銷商回信只有一個字：「No.」'],
+ gz_us:['陳總問你：「美國 Amazon 那邊能不能賣一些？」你算了一下運費，比滑鼠本身還貴。','你把滑鼠上架到 Amazon。第一則評論是：「為什麼買機殼送了我三支滑鼠？」'],
+};
+const CHEN_ORDER={id:'chen_overorder',who:'陳總',
+ t:s=>{const it=(s.uses?.chen_overorder||1)===1?OVER_ITEMS[0]:pick(OVER_ITEMS.slice(1));s._oi=it;return `陳總沒有跟任何人討論，一口氣下單了 ${it}。貨櫃下週到。${OVER_ROLE[s.dept][0]}`},
+ ch:[
+ ['認命配合，想辦法清庫存',s=>({fx:{hp:-6,mood:-4,skill:2,favor:4,overstock:6},m:OVER_ROLE[s.dept][1]})],
+ ['去問陳總為什麼下這麼多',s=>({fx:{favor:-6,mood:-2,overstock:6},m:pick(['陳總說：「廠商說量大比較便宜啊。」','陳總說：「我以為上一批已經賣完了。」','陳總說：「這個我之前就有提醒過了喔，你們要多推一點。」'])})],
+ ['去跟傑夫講',s=>({fx:{jeffq:1,mood:-2,overstock:6},m:'傑夫說：「我可以不用管台灣的。」然後他去陳總辦公室罵了一個小時。陳總出來之後，把清庫存的工作平均分給了每一個人，包括你。'})],
+]};
+const ALL={};[...EV,CHEN_ACTIVE,CHEN_ORDER,...SEASON,...Object.values(SPECIAL),...ROM_HINTS,...ROM_DATING,LOVE_BAN].forEach(e=>ALL[e.id]=e);
 
 /* ---------- 狀態 ---------- */
 let S=null, cfg={start:'now',len:5000,dept:'',gender:'m',rent:'rent'};
@@ -1600,6 +1649,7 @@ function apply(fx){
   else if(k==='biweekly') S.biweekly=v;
   else if(k==='asked') S.lastAsk=S.month;
   else if(k==='brokeUp') S.brokeUp=v;
+  else if(k==='overstock') S.overstock=v;
   else if(k==='rent') S.rent+=v;
   else if(k==='lbWay') S.lbWay=v;
   else if(k==='lbSurvive') S.lbSurvive=(S.lbSurvive||0)+1;
@@ -1697,11 +1747,43 @@ function tick(){
  if(ev) queue.unshift({type:'ev',ev});
  else if(r(.5)){S.pUsed=S.pUsed||[];const ok=PASSIVE.filter(p=>!p.ok||p.ok(S));let pool=ok.filter(p=>!S.pUsed.includes(p.t));if(!pool.length){S.pUsed=[];pool=ok}const p=pick(pool);S.pUsed.push(p.t);apply(p.fx);addLog(p.t,'p')}
  if(CRUSH_OK(S)&&hintsSeen(S)>0&&r(hasSpark(S)?.5:.03)){ S.hUsed=S.hUsed||[]; const hp=PASSIVE.filter(p=>p.fx&&p.fx.crush&&p.ok&&p.ok(S)&&!S.hUsed.includes(p.t)); if(hp.length){const p=pick(hp);S.hUsed.push(p.t);apply(p.fx);addLog(p.t,'p')} }
+ if(S.overstock>0){ S.overstock--; if(r(.6)){ S.oUsed=S.oUsed||[]; const L=OVER_LINES.filter(x=>!S.oUsed.includes(x)); if(L.length){const x=pick(L);S.oUsed.push(x);addLog(x.replace('{it}',S._oi||'那批貨'),'p');S.mood=clamp(S.mood-1);} } if(S.overstock===0) addLog('倉庫裡的箱子終於少到看得見地板了。還剩大概三分之二。','p'); }
+ if(r(.8)){ S.jUsed=S.jUsed||[]; let jp=JEFF_LINES.filter(x=>(!x.ok||x.ok(S))&&!S.jUsed.includes(x.t)); if(!jp.length){S.jUsed=[];jp=JEFF_LINES.filter(x=>!x.ok||x.ok(S))} const x=pick(jp); S.jUsed.push(x.t); if(x.fx)apply(x.fx); addLog(x.t,'p'); }
  if(REFLECT[S.month] && !noRefl) queue.push({type:'refl',q:REFLECT[S.month]});
  if(S.month>=120) queue.push({type:'end',key:'decade'});
  render();
  if(queue.length) nextQueue();
 }
+const OVER_LINES=[
+ '倉庫的走道被箱子堵住了。大家開始從箱子上面跨過去。',
+ '公司宣布員工價特賣：一人限購十件。沒有人買到十件。',
+ '茶水間、會議室、陳總辦公室門口，都堆著同樣的箱子。',
+ '傑夫在週會上問：「{it}，現在賣掉多少了？」沒有人敢回答。',
+ '業務說經銷商看到他的電話號碼就不接了。',
+ '有同事在箱子上貼了一張便利貼：「陳總的」。隔天被撕掉了。',
+ '今天的出貨單只有四筆。倉庫裡的箱子看起來一點都沒有變少。',
+ '陳總在群組說：「大家有親戚朋友需要的，可以推薦一下喔。」',
+ '下一次尾牙的抽獎獎品，大家都已經猜到是什麼了。',
+ '有人用箱子在倉庫裡疊了一張辦公桌。傑夫問：「這張桌子的意義是什麼？」',
+];
+const JEFF_LINES=[
+ {t:'傑夫這週又去找美術閒聊了三次。每一次都從午餐開始，從「你這週工作有哪些」結束。',ok:s=>s.dept!=='tw_design'},
+ {t:'傑夫在售後維修那邊站了半小時。一開始在聊機車，最後在講他以前上一間公司的維修流程。',ok:s=>s.dept!=='tw_repair'},
+ {t:'傑夫今天找了業務麻煩。業務回座位的時候，臉是灰的。',ok:s=>s.dept!=='tw_sales'},
+ {t:'傑夫這週的受害者是客服。客服說他問了三遍「客訴的意義是什麼」。',ok:s=>s.dept!=='tw_cs'},
+ {t:'傑夫今天在辦公室走了兩圈。第二圈的時候，大家打字的速度明顯變快了。'},
+ {t:'傑夫在茶水間跟會計聊天，聊到後來會計在幫他算他當年創業的帳。'},
+ {t:'傑夫在美術旁邊講了一個小時他以前公司的設計部有多強。美術一張圖都還沒動。',ok:s=>s.dept!=='tw_design'},
+ {t:'傑夫說他只是過來聊聊。聊完之後，售後多了三件「順便」要處理的事。',ok:s=>s.dept!=='tw_repair'},
+ {t:'傑夫今天心情不好。大家從他走路的聲音就聽得出來。'},
+ {t:'傑夫在週會上講了二十分鐘他以前帶的團隊。週會本來只排了十五分鐘。',fx:{jeffq:1}},
+ {t:'傑夫說：「我不是要管你們，我只是給建議。」說完他又給了七個建議。',fx:{jeffq:1}},
+ {t:'傑夫今天沒有找任何人麻煩。整間辦公室都覺得怪怪的。'},
+ {t:'傑夫經過你的座位，看了一眼你的螢幕，沒有說話。這比說話還可怕。',ok:s=>!['gz_fe','gz_be'].includes(s.dept),fx:{mood:-1}},
+ {t:'傑夫去找美術聊天。你聽到他說：「我以前在上一間公司的時候……」你戴上了耳機。',ok:s=>s.dept!=='tw_design'},
+ {t:'傑夫這週第三天坐在售後的位子旁邊。售後已經幫他準備了一張專用椅子。',ok:s=>s.dept!=='tw_repair'},
+ {t:'傑夫說今天要早點走。他六點半才走，走之前去每個人座位說了再見，順便問了進度。'},
+];
 const ROLE_IDS=new Set(["fe_sales_page","be_sales_data","eng_chen_it","sales_quota", "sales_rival", "promo_line", "promo_threads", "promo_report", "design_pop", "design_texture", "design_favor", "cs_angry", "cs_review", "cs_flood", "repair_rma", "repair_parts", "repair_backlog", "pm_spec", "pm_color", "pm_launch", "acct_payroll", "acct_invoice", "acct_audit", "uiux_dark", "uiux_handoff", "uiux_comments", "fe_browser", "fe_friday", "fe_speed", "be_down", "be_report", "be_legacy", "intl_exclusive", "intl_translate", "intl_samples", "us_listing", "us_ces", "us_youtuber", "promo_kol", "promo_seo", "sales_discount", "sales_eta", "sales_out", "sales_dtf", "wh_count", "wh_container", "pm_sample", "cs_toast", "design_size", "intl_timezone", "intl_expense", "eng_promise", "eng_salary", "acct_chen", "acct_jeff", "uiux_btn", "sales_skip", "promo_collab"]);
 const EXTRA_COST=[
  {t:'機車該保養了，',c:3500},{t:'朋友結婚，紅包包了',c:3600},{t:'手機螢幕摔破了，修理花了',c:6000},
@@ -1731,6 +1813,14 @@ function pickDecision(){
   if(CRUSH_OK(S)&&S.month>=2){ const hs=ROM_HINTS.filter(can); const seen=hintsSeen(S); const p=seen===0?(S.month>=2&&S.month<=8?.16:0):hasSpark(S)?.55:.03; if(hs.length&&r(p)) return pick(hs.slice(0,3)); }
   else if(S.romance){ const ds=ROM_DATING.filter(can); if(ds.length&&r(.18)) return pick(ds); }
  }
+ if(!['gz_fe','gz_be'].includes(S.dept)&&S.month>=1){
+  const U3=S.uses||{}, canJ=e=>{const l=S.cd[e.id];return (U3[e.id]||0)<(e.max||1)&&(l==null||S.month-l>=Math.max(e.cd||4,e.gap||4))&&(!e.ok||e.ok(S))};
+  const chat=EV.find(e=>e.id==='jeff_chat');
+  if(canJ(chat)&&r(.45)) return chat;
+  if(r(.3)){ const js=EV.filter(e=>e.who==='傑夫'&&e.id!=='jeff_chat'&&canJ(e)); if(js.length){ const ws=js.map(e=>e.w(S)); let t=ws.reduce((a,b)=>a+b,0),y=Math.random()*t; for(let i=0;i<js.length;i++){y-=ws[i];if(y<=0)return js[i]} } }
+ }
+ { const l=S.cd.chen_overorder, u=(S.uses||{}).chen_overorder||0;
+   if(S.month>=4 && u<2 && (l==null||S.month-l>=18) && r(u?.03:.06)) return CHEN_ORDER; }
  { const cb=EV.find(e=>e.id==='chen_blame'), l=S.cd.chen_blame, u=(S.uses||{}).chen_blame||0;
    if(S.month>=2 && u<cb.max && (l==null||S.month-l>=cb.gap) && r(S.unit==='tw'?.08*Math.min(1,chenMul(S)):.02)) return cb; }
  if(!r(S.month<2?.6:.3)) return null;
