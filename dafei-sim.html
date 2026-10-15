@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="大妃版職涯模擬：隨機分發職位、主管與座位，撐過陳總和傑夫，拿到你的離職證明。">
+<title>大妃職場模擬器</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=LXGW+WenKai+TC&family=Noto+Serif+TC:wght@700;900&display=swap">
+<style>
+/* 版面概念：打卡鐘＋人事表單。單欄、表單格線、藍筆填寫，紅色印章只在離職證明上出現一次。 */
+:root{
+  --bg:#E8EDEB; --surface:#F8FAF9; --ink:#1B232C; --muted:#5A6770; --line:#CBD5D2;
+  --accent:#2A52D4; --on-accent:#FFFFFF; --stamp:#C2382B; --good:#257A4C; --bad:#B8432C; --scrim:rgba(20,26,32,.42);
+  --f-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --f-hand:"LXGW WenKai TC","Kaiti TC","DFKai-SB",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --f-body:system-ui,-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1418; --surface:#171E24; --ink:#E3E9ED; --muted:#8E9BA5; --line:#2A343C;
+  --accent:#88A4FF; --on-accent:#0D1430; --stamp:#FF6E5C; --good:#62C891; --bad:#FF8064; --scrim:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1418; --surface:#171E24; --ink:#E3E9ED; --muted:#8E9BA5; --line:#2A343C;
+  --accent:#88A4FF; --on-accent:#0D1430; --stamp:#FF6E5C; --good:#62C891; --bad:#FF8064; --scrim:rgba(0,0,0,.6); color-scheme:dark}
+html,body{height:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 72px;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* 首頁 */
+.hero{display:flex;flex-direction:column;gap:14px}
+.hero h1{font-family:var(--f-display);font-weight:900;font-size:clamp(38px,9vw,64px);line-height:1.1;letter-spacing:.02em}
+.hero h1 .frac{display:block;font-size:.38em;font-weight:700;color:var(--muted);letter-spacing:.12em;margin-bottom:6px}
+.hero .lede{font-size:17px;max-width:34em}
+.counters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.counter{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.counter b{font-family:var(--f-mono);font-size:28px;font-weight:600;font-variant-numeric:tabular-nums}
+.counter span{font-size:13px;color:var(--muted)}
+.form{background:var(--surface);border:1px solid var(--line)}
+.form .row{display:grid;grid-template-columns:8.5em minmax(0,1fr);border-top:1px solid var(--line)}
+.form .row:first-child{border-top:0}
+.form .lab{padding:14px 16px;font-size:13px;color:var(--muted);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.form .lab small{font-size:11px}
+.form .val{padding:10px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.form input[type=text],.form select{font:inherit;font-family:var(--f-hand);font-size:18px;color:var(--accent);background:transparent;border:0;border-bottom:1px dashed var(--line);padding:4px 2px;width:100%;max-width:20em}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:transparent;padding:5px 12px;border-radius:999px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.hint{font-size:12px;color:var(--muted)}
+.cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 16px;border-radius:6px;font-size:14px}
+.btn:hover{border-color:var(--ink)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-size:17px;padding:12px 28px;font-weight:600;letter-spacing:.1em}
+.btn-primary:hover{filter:brightness(1.08);border-color:var(--accent)}
+.btn-text{border:0;background:none;color:var(--accent);padding:4px 0;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.section{display:flex;flex-direction:column;gap:12px}
+.section h2{font-family:var(--f-display);font-size:20px;font-weight:700}
+.hist{display:flex;flex-direction:column;border:1px solid var(--line);background:var(--surface)}
+.hist-item{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--line)}
+.hist-item:first-child{border-top:0}
+.hist-item .who{min-width:0}
+.empty{padding:18px 16px;color:var(--muted);font-family:var(--f-hand);font-size:16px}
+details.faq{border-top:1px solid var(--line);padding:12px 0}
+details.faq summary{cursor:pointer;font-weight:600}
+details.faq div{padding-top:8px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:6px}
+.stat-key{display:grid;grid-template-columns:5em minmax(0,1fr);gap:4px 10px}
+.foot{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+
+/* 分發 */
+.slots{display:flex;flex-direction:column;border:1px solid var(--line);background:var(--surface)}
+.slot{display:grid;grid-template-columns:7em minmax(0,1fr);border-top:1px solid var(--line)}
+.slot:first-child{border-top:0}
+.slot .lab{padding:16px;color:var(--muted);font-size:13px;border-right:1px solid var(--line)}
+.slot .v{padding:12px 16px;min-width:0}
+.slot .v b{font-family:var(--f-hand);font-size:22px;color:var(--accent);font-weight:400;display:block}
+.slot .v span{font-size:13px;color:var(--muted)}
+
+/* 遊戲 */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar-in{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;position:relative}
+.clock{display:flex;flex-direction:column;line-height:1.2}
+.clock .t{font-family:var(--f-mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.clock .d{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.ctrls{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.ctrls button{border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:3px 9px;font-family:var(--f-mono);font-size:13px}
+.ctrls button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.prog{position:absolute;left:0;bottom:-1px;height:2px;background:var(--accent);width:0}
+.menu{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:100%;margin-top:6px;background:var(--surface);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column;min-width:190px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:6}
+.menu button{border:0;background:none;text-align:left;padding:10px 14px;font-size:14px;border-top:1px solid var(--line)}
+.menu button:first-child{border-top:0}
+.menu button[aria-pressed="true"]::after{content:"　開";color:var(--accent);font-weight:600}
+.idcard{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);background:var(--surface)}
+.idcard div{padding:10px 14px;border-left:1px solid var(--line);min-width:0;display:flex;flex-direction:column}
+.idcard div:first-child{border-left:0}
+.idcard small{font-size:11px;color:var(--muted);letter-spacing:.06em}
+.idcard b{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 22px}
+.stat{display:flex;flex-direction:column;gap:4px;min-width:0}
+.stat .top{display:flex;justify-content:space-between;align-items:baseline;font-size:14px}
+.stat .top b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.track{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.fill{height:100%;background:var(--ink);border-radius:3px;transition:width .35s ease}
+.stat.low .fill{background:var(--bad)}
+.stat.low .top b{color:var(--bad)}
+.money{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:14px}
+.money b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.focus{display:flex;flex-direction:column;gap:8px}
+.focus-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 12px;font-size:14px;display:flex;flex-direction:column;align-items:flex-start;line-height:1.3}
+.chips button small{font-size:11px;color:var(--muted)}
+.chips button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.chips button[aria-pressed="true"] small{color:var(--accent)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.acts button:disabled{opacity:.45;cursor:not-allowed}
+.log{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.log-item{display:grid;grid-template-columns:4.6em minmax(0,1fr) 1.6em;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:baseline;cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%}
+.log-item .when{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.log-item .tag{display:inline-block;font-size:11px;border:1px solid var(--accent);color:var(--accent);border-radius:3px;padding:0 5px;margin-right:6px;vertical-align:1px}
+.log-item.ms .tag{border-color:var(--ink);color:var(--ink)}
+.log-item .star{color:var(--muted);text-align:right}
+.log-item.on .star{color:var(--accent)}
+.log-item.new{animation:flash 1.2s ease}
+@keyframes flash{from{background:color-mix(in srgb,var(--accent) 14%,transparent)}to{background:transparent}}
+.orgs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.org{display:flex;flex-direction:column;border-top:1px solid var(--line);min-width:0}
+.org h3{font-size:13px;color:var(--muted);font-weight:600;padding:8px 0 4px;letter-spacing:.06em}
+.org-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+.org-row .wh{color:var(--muted);text-align:right}
+.org-row.me{font-weight:600}
+.org-row.me .wh{color:var(--accent)}
+.org-row.gone{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.npcs{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.npc{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.npc .st{color:var(--muted);text-align:right;font-size:13px}
+.npc.gone .nm{text-decoration:line-through;text-decoration-color:var(--muted)}
+.map{display:grid;grid-template-columns:2.4em repeat(12,minmax(0,1fr));gap:3px;align-items:center}
+.map .yl{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.cell{aspect-ratio:1;max-width:100%;border:1px solid var(--line);border-radius:2px;position:relative}
+.cell.dec::after{content:"";position:absolute;inset:35%;border-radius:50%;background:var(--surface)}
+.cell.now{outline:2px solid var(--accent);outline-offset:1px}
+.curve svg{width:100%;height:auto;display:block}
+.curve .ln{fill:none;stroke:var(--ink);stroke-width:1.6}
+.curve .ar{fill:color-mix(in srgb,var(--ink) 8%,transparent)}
+.curve .ax{stroke:var(--line);stroke-width:1}
+.curve text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
+.curve .me{fill:var(--accent)}
+.curve .mel{fill:var(--accent);font-size:11px;font-weight:600}
+
+/* 彈出 */
+.modal{position:fixed;inset:0;z-index:20;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:max(16px,env(safe-area-inset-bottom,0px));padding-top:max(16px,env(safe-area-inset-top,0px))}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;max-width:540px;width:100%;max-height:100%;overflow:auto;padding:22px 22px 20px;display:flex;flex-direction:column;gap:16px;animation:rise .25s ease}
+@keyframes rise{from{transform:translateY(12px);opacity:.4}to{transform:none;opacity:1}}
+.sheet .meta{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.sheet .meta .who{color:var(--accent);font-weight:600}
+.sheet .txt{font-size:17px;line-height:1.8}
+.sheet .q{font-family:var(--f-display);font-size:19px;font-weight:700;line-height:1.6}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choices button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:12px 14px;text-align:left;font-size:15px}
+.choices button:hover{border-color:var(--accent)}
+.result{font-family:var(--f-hand);font-size:18px;line-height:1.8}
+.deltas{display:flex;flex-wrap:wrap;gap:6px}
+.dl{font-family:var(--f-mono);font-size:12px;border-radius:3px;padding:1px 7px;border:1px solid}
+.dl.up{color:var(--good);border-color:var(--good)}
+.dl.dn{color:var(--bad);border-color:var(--bad)}
+textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-height:84px;resize:vertical}
+.sheet .row-btns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* 離職證明 */
+.cert{background:var(--surface);border:3px double var(--ink);padding:30px 24px 34px;position:relative;display:flex;flex-direction:column;gap:18px}
+.cert h2{font-family:var(--f-display);font-weight:900;font-size:28px;text-align:center;letter-spacing:.6em;padding-left:.6em}
+.cert .no{text-align:center;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.cert dl{display:grid;grid-template-columns:6.5em minmax(0,1fr);margin:0;border-top:1px solid var(--line)}
+.cert dt,.cert dd{margin:0;padding:8px 6px;border-bottom:1px solid var(--line)}
+.cert dt{color:var(--muted);font-size:13px}
+.cert dd{font-family:var(--f-hand);font-size:18px;color:var(--accent)}
+.cert .story{font-family:var(--f-hand);font-size:18px;line-height:1.9}
+.cert .end-title{font-family:var(--f-display);font-size:22px;font-weight:900}
+.stamp{position:absolute;right:20px;bottom:18px;width:96px;height:96px;border:3px solid var(--stamp);color:var(--stamp);border-radius:50%;display:grid;place-items:center;transform:rotate(-14deg);font-family:var(--f-display);font-weight:900;font-size:15px;line-height:1.25;text-align:center;opacity:.88;animation:stampin .5s cubic-bezier(.3,1.6,.5,1) both .3s;pointer-events:none}
+@keyframes stampin{from{transform:rotate(-14deg) scale(1.8);opacity:0}to{transform:rotate(-14deg) scale(1);opacity:.88}}
+.tally{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.tally div{background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;min-width:0}
+.tally b{font-family:var(--f-mono);font-size:22px;font-variant-numeric:tabular-nums}
+.tally span{font-size:12px;color:var(--muted)}
+.quotes{display:flex;flex-direction:column;gap:10px}
+.quotes blockquote{margin:0;padding:0 0 0 14px;border-left:2px solid var(--line);font-family:var(--f-hand);font-size:17px}
+.quotes blockquote small{display:block;font-family:var(--f-body);font-size:12px;color:var(--muted)}
+.share{background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:12px 14px;font-size:14px;white-space:pre-wrap;word-break:break-word}
+.toast{position:fixed;left:50%;bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 16px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:8px 16px;border-radius:999px;font-size:14px;z-index:30}
+
+@media (max-width:560px){
+  .form .row,.slot{grid-template-columns:1fr}
+  .form .lab,.slot .lab{border-right:0;padding-bottom:0}
+  .idcard{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .idcard div:nth-child(3){border-left:0}
+  .idcard div:nth-child(n+3){border-top:1px solid var(--line)}
+  .grid2,.orgs{grid-template-columns:1fr}
+  .tally{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cert h2{font-size:23px;letter-spacing:.4em}
+  .stamp{width:80px;height:80px;font-size:13px;right:12px;bottom:12px}
+  .stats{gap:12px 16px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<div id="app">
+<!-- 首頁 -->
+<section id="landing">
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow">v0.1 測試版 · 免費職涯模擬 · 根據 0 份真實統計</p>
+      <h1><span class="frac">大妃員工之一</span>大妃職場模擬器</h1>
+      <p class="lede">就在此刻，又有一位新人在大妃報到。你將成為其中一個，把這份工作做到最後。被分到哪個部門、遇到哪位主管、座位在不在冰箱旁邊，都無法選擇。就像你當初一樣。</p>
+    </div>
+    <div class="counters">
+      <div class="counter"><b id="cBody">0</b><span>打開這個頁面後，陳總問的「身體還好嗎」</span></div>
+      <div class="counter"><b id="cFridge">0</b><span>同一段時間裡，被傑夫點名的冰箱</span></div>
+    </div>
+    <div class="form" role="group" aria-label="入職設定">
+      <div class="row"><div class="lab">姓名</div><div class="val"><input type="text" id="inName" maxlength="12" value="新人" autocomplete="off"></div></div>
+      <div class="row"><div class="lab">性別</div><div class="val">
+        <div class="seg" id="segGender">
+          <button type="button" data-v="m" aria-pressed="true">男</button>
+          <button type="button" data-v="f" aria-pressed="false">女</button>
+        </div></div></div>
+      <div class="row"><div class="lab">報到時間</div><div class="val">
+        <div class="seg" id="segStart">
+          <button type="button" data-v="now" aria-pressed="true">現在（2026年10月）</button>
+          <button type="button" data-v="spring" aria-pressed="false">年後（3月）</button>
+          <button type="button" data-v="launch" aria-pressed="false">新品季（5月）</button>
+          <button type="button" data-v="any" aria-pressed="false">隨便都好</button>
+        </div>
+        <p class="hint">報到月份會影響你先遇到尾牙、Computex、雙 11 還是年終。</p></div></div>
+      <div class="row"><div class="lab">一段職涯的長度</div><div class="val">
+        <div class="seg" id="segLen">
+          <button type="button" data-v="2500" aria-pressed="false">約5分鐘</button>
+          <button type="button" data-v="5000" aria-pressed="true">約10分鐘</button>
+          <button type="button" data-v="10000" aria-pressed="false">約20分鐘</button>
+        </div>
+        <p class="hint">這是撐滿十年所需的時間。以10分鐘來說，一個月大約過5秒。過程中可以暫停或加速。</p></div></div>
+      <div class="row"><div class="lab">職位分發<small>選填</small></div><div class="val">
+        <select id="inDept"><option value="">隨機分發（推薦）</option></select>
+        <p class="hint">在真實世界裡，你通常也沒得選。</p></div></div>
+    </div>
+    <div class="cta">
+      <button class="btn-primary" id="btnStart" type="button">報到</button>
+      <span class="hint">設定不用改，直接報到也沒關係。<br>甩鍋、拖延、連環質問等沉重情節，會依照（不存在的）真實統計出現。</span>
+    </div>
+
+    <div class="section">
+      <h2>前幾份工作</h2>
+      <p class="muted small">最近的10份工作。按「再看一次」就能重新打開離職證明。紀錄只會留在這個瀏覽器裡。</p>
+      <div class="hist" id="hist"></div>
+    </div>
+
+    <div class="section">
+      <h2>這個模擬裡的事</h2>
+      <details class="faq"><summary>狀態 0–100 代表什麼？</summary><div>
+        <div class="stat-key"><b>體力</b><span>太低會被迫休假，歸零就撐不下去了。認真做事和加班會讓它下降。</span></div>
+        <div class="stat-key"><b>心情</b><span>對這份工作的忍耐程度。歸零的那天，你不會再上樓。</span></div>
+        <div class="stat-key"><b>專業</b><span>影響考績、談加薪的成功率，以及獵頭找上門的機率。</span></div>
+        <div class="stat-key"><b>人脈</b><span>KOL、經銷商、同事的支援。業務的獎金也看它。</span></div>
+        <div class="stat-key"><b>主管好感</b><span>直屬主管對你的觀感。升遷看它，被甩鍋時也看它。</span></div>
+        <p>數值高只會提高可能性，不會決定結果。就像真實職場一樣，運氣和主管心情也一起發揮作用。</p>
+      </div></details>
+      <details class="faq"><summary>抉擇和每月重心</summary><div>
+        <p>你可以為每個月選一個重心：認真做事、摸魚養身、經營人脈、進修充電、準時下班或向上管理。遇到事件時，時間會停下來讓你做選擇。</p>
+        <p>覺得做抉擇很麻煩的話，打開上方工具列「⋯」裡的「自動抉擇」，在一旁看著就好。</p>
+      </div></details>
+      <details class="faq"><summary>公司架構</summary><div>
+        <p>台灣分公司：總經理（陳總）、三個業務、推廣、美術設計、客服、售後維修、產品經理、會計各一人。除了總經理、一位資深業務和產品經理，薪水大多落在 3.8 萬到 4.8 萬。</p>
+        <p>廣州推廣部：行銷總監傑夫，加上 UI/UX、前端工程師、後端工程師、國際推廣、美國推廣。都是傑夫找進來的，起薪 8 萬以上，工程師 10 萬起跳。</p>
+      </div></details>
+      <details class="faq"><summary>同梯朋友</summary><div>
+        <p>和你同一個月去別家公司報到的還有四個大學同學。他們會依照同樣的規則各自待下去或離開，列在你的職涯旁邊。沒有人選擇過自己第一份工作在哪裡。</p>
+      </div></details>
+      <details class="faq"><summary>哪些是真實資料？</summary><div>
+        <p>沒有。人物言行皆為誇張演出，如有雷同，大概不是巧合。</p>
+      </div></details>
+    </div>
+    <p class="foot">大妃職場模擬器是內部娛樂作品，不代表任何人的真實工作表現。靈感來自「80億分之1」人生模擬。</p>
+  </div>
+</section>
+
+<!-- 分發 -->
+<section id="assign" hidden>
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow" id="asEyebrow">正在分發</p>
+      <h1 style="font-size:clamp(30px,7vw,44px)">入職登記</h1>
+    </div>
+    <div class="slots">
+      <div class="slot"><div class="lab">職位</div><div class="v"><b id="sDept">—</b><span id="sDeptD">&nbsp;</span></div></div>
+      <div class="slot"><div class="lab">直屬主管</div><div class="v"><b id="sBoss">—</b><span id="sBossD">&nbsp;</span></div></div>
+      <div class="slot"><div class="lab">誰找你進來的</div><div class="v"><b id="sSrc">—</b><span id="sSrcD">&nbsp;</span></div></div>
+      <div class="slot"><div class="lab">座位</div><div class="v"><b id="sSeat">—</b><span id="sSeatD">&nbsp;</span></div></div>
+      <div class="slot"><div class="lab">起薪</div><div class="v"><b id="sSal">—</b><span id="sSalD">&nbsp;</span></div></div>
+    </div>
+    <div class="cta"><button class="btn-primary" id="btnBegin" type="button" disabled>開始上班</button></div>
+  </div>
+</section>
+
+<!-- 遊戲 -->
+<section id="game" hidden>
+  <div class="bar"><div class="bar-in">
+    <div class="clock"><span class="t" id="gTen">0年 00月</span><span class="d" id="gCal">2026.10 報到</span></div>
+    <div class="ctrls">
+      <button type="button" id="bPause" aria-pressed="false">❚❚</button>
+      <button type="button" data-sp="1" aria-pressed="true">1×</button>
+      <button type="button" data-sp="2" aria-pressed="false">2×</button>
+      <button type="button" data-sp="4" aria-pressed="false">4×</button>
+      <button type="button" data-sp="8" aria-pressed="false">8×</button>
+      <button type="button" data-sp="16" aria-pressed="false">16×</button>
+      <button type="button" id="bSkip">下一個抉擇 »</button>
+      <button type="button" id="bMenu" aria-expanded="false" aria-label="更多">⋯</button>
+    </div>
+    <div class="menu" id="menu" hidden>
+      <button type="button" id="mAuto" aria-pressed="false">自動抉擇</button>
+      <button type="button" id="mNote">寫下想法</button>
+      <button type="button" id="mLeave">離開這份工作</button>
+    </div>
+    <div class="prog" id="prog"></div>
+  </div></div>
+  <div class="wrap" style="padding-top:20px">
+    <div class="idcard">
+      <div><small>姓名</small><b id="gName">新人</b></div>
+      <div><small>職位</small><b id="gDept">—</b></div>
+      <div><small>職稱</small><b id="gTitle">專員</b></div>
+      <div><small>直屬主管</small><b id="gBoss">—</b></div>
+    </div>
+    <div class="stats" id="gStats"></div>
+    <div class="money" id="gMoney"></div>
+    <div class="focus">
+      <div class="focus-head"><h3 style="font-size:15px">本月重心</h3><span class="hint">隨時可以更改</span></div>
+      <div class="chips" id="gFocus"></div>
+      <div class="acts">
+        <button type="button" class="btn" id="aTreat">犒賞自己（NT$3,000）</button>
+        <button type="button" class="btn" id="aLeave">請一天特休</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="focus-head"><h2>職場紀錄</h2><span class="hint">最新的在前 · 點一行可以加☆</span></div>
+      <div class="log" id="gLog"></div>
+      <div><button type="button" class="btn-text" id="bMore" hidden>查看更早的紀錄</button></div>
+    </div>
+    <div class="section">
+      <h2>公司架構</h2>
+      <div class="orgs" id="gOrg"></div>
+    </div>
+    <div class="grid2">
+      <div class="section">
+        <h2>同梯朋友</h2>
+        <p class="hint">和你同一個月去別家公司報到的大學同學</p>
+        <div class="npcs" id="gNpc"></div>
+      </div>
+      <div class="section curve">
+        <h2>留任曲線</h2>
+        <p class="hint" id="gCurveHint">同期報到的人當中，仍留在大妃的比例（模擬）</p>
+        <div id="gCurve"></div>
+      </div>
+    </div>
+    <div class="section">
+      <h2>職涯地圖</h2>
+      <p class="hint">一格＝一個月。顏色越深，那個月心情越好；白點是做過抉擇的月份。</p>
+      <div class="map" id="gMap"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 離職 -->
+<section id="ending" hidden>
+  <div class="wrap" id="endWrap"></div>
+</section>
+</div>
+
+<div class="modal" id="modal" hidden><div class="sheet" role="dialog" aria-modal="true" id="sheet"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const rand=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rand(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const r=p=>Math.random()<p;
+const clamp=v=>Math.max(0,Math.min(100,v));
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>(n<0?'−':'')+'NT$'+Math.abs(Math.round(n)).toLocaleString('en-US');
+const pad=n=>String(n).padStart(2,'0');
+const calStr=c=>`${Math.floor(c/12)}.${pad(c%12+1)}`;
+const calM=c=>c%12+1;
+const tenStr=m=>`${Math.floor(m/12)}年${pad(m%12)}月`;
+const tenWords=m=>{const y=Math.floor(m/12),mm=m%12;return (y?`${y}年`:'')+(mm?`${mm}個月`:(y?'':'不到一個月'))};
+
+const GM='陳總';
+const UNITS={tw:'台灣分公司',gz:'廣州推廣部'};
+const DEPTS={
+ tw_sales:{u:'tw',n:'業務',d:'台灣三個業務之一。三個人搶客戶，偶爾也搶著找上面。'},
+ tw_promo:{u:'tw',n:'推廣',d:'KOL、社群、部落格、LINE 推播，全部一個人。'},
+ tw_design:{u:'tw',n:'美術設計',d:'「再大一點」和「再小一點」通常同時出現。'},
+ tw_cs:{u:'tw',n:'客服',d:'你會看到人類對電腦零件做過的各種事。'},
+ tw_repair:{u:'tw',n:'售後維修',d:'RMA、維修、盤點，倉庫鑰匙在你身上。'},
+ tw_pm:{u:'tw',n:'產品經理',d:'工廠、規格、打樣。台灣少數薪水高一點的位子。'},
+ tw_acct:{u:'tw',n:'會計',d:'每一張發票都會經過你，包括傑夫那 5% 的。'},
+ gz_uiux:{u:'gz',n:'UI/UX 設計',d:'官網、App，每個按鈕的意義都要跟傑夫解釋。'},
+ gz_fe:{u:'gz',n:'前端工程師',d:'業務答應客戶的燈效，最後都會變成你的事。'},
+ gz_be:{u:'gz',n:'後端工程師',d:'官網結帳頁卡住的時候，所有人都會想起你。'},
+ gz_intl:{u:'gz',n:'國際推廣',d:'全世界的經銷商，和全世界的時差。'},
+ gz_us:{u:'gz',n:'美國推廣',d:'美國市場的一切。起薪漂亮，時差很醜。'},
+};
+const dn=k=>`${UNITS[DEPTS[k].u]}・${DEPTS[k].n}`;
+const SRC={
+ jeff:{n:'傑夫找進來的',d:'廣州推廣部都是傑夫找進來的，起薪 8 萬以上。'},
+ c104:{n:'陳總從 104 找進來的',d:'起薪比較低，這件事大家心照不宣。'},
+ eng:{n:'傑夫找進來的工程師',d:'工程師行情，月薪 10 萬起跳。'},
+ hr:{n:'一般招募',d:'人資排的面試，正常流程。'},
+};
+const BOSSES={chen:{n:'陳總',t:'總經理',d:'她很關心你的身體。事情的進度就比較不關心。'},jeff:{n:'傑夫',t:'行銷總監',d:'凡事先問意義。他有 5% 的股份，所以你喝的飲料他都有付錢。'}};
+const SEATS={
+ fridge:{u:'tw',n:'冰箱旁邊',d:'傑夫來台灣的時候，每天都會經過。'},
+ door:{u:'tw',n:'陳總辦公室門口',d:'被問身體還好嗎的機率加倍。'},
+ window:{u:'tw',n:'靠窗',d:'至少看得到外面的天氣。'},
+ wh:{u:'tw',n:'倉庫旁',d:'公關品觸手可及，盤點時也最先被問。'},
+ gzdoor:{u:'gz',n:'傑夫辦公室門口',d:'被問「意義是什麼」的機率加倍。'},
+ gzwin:{u:'gz',n:'靠窗',d:'看得到珠江新城的天際線。'},
+ gzmeet:{u:'gz',n:'視訊會議室旁',d:'台灣開會的聲音整天傳過來。'},
+ gzpantry:{u:'gz',n:'茶水間旁',d:'這台咖啡機，傑夫也有出 5%。'},
+};
+const NPC_COS=['某電競大廠','半導體廠','外商軟體公司','新創公司','電商平台','零件代理商'];
+const TITLES=['專員','資深專員','主任','副理','經理','協理','總經理'];
+const STATN={hp:'體力',mood:'心情',skill:'專業',net:'人脈',favor:'主管好感'};
+const FOCUS={
+ work:{n:'認真做事',d:'專業↑ 體力↓',fx:{skill:1.6,hp:-1.6,mood:-.6,favor:.8}},
+ slack:{n:'摸魚養身',d:'體力↑ 好感↓',fx:{hp:1.6,mood:1.3,skill:-.6,favor:-1.4}},
+ net:{n:'經營人脈',d:'人脈↑ 花點錢',fx:{net:1.8,mood:.5,hp:-.6,money:-800}},
+ study:{n:'進修充電',d:'專業↑ 花錢',fx:{skill:2,hp:-.8,money:-1500}},
+ home:{n:'準時下班',d:'體力↑ 心情↑',fx:{hp:1.4,mood:1.4,favor:-.8,skill:-.2}},
+ up:{n:'向上管理',d:'好感↑ 心情↓',fx:{favor:2.4,mood:-1.2,net:.6}},
+};
+const NPC_NAMES=['阿翔','小芸','Vivian','宗翰','佩珊','Jason','怡君','小柯','Momo','建宏','Allen','欣妤'];
+const NPC_LEAVE=['被挖角去某電競大廠','說要去澳洲打工度假','回老家開飲料店','考上公職','說要休息一陣子','去了對手公司，大家都假裝不知道','說要專心當實況主'];
+
+const ENDINGS={
+ quit:{t:'裸辭',reason:'個人生涯規劃',story:s=>'某個週一早上，你在公司樓下站了五分鐘，然後上樓把辭呈放在主管桌上。走出大樓的時候，天氣好得有點過分。'},
+ burnout:{t:'身體先投降了',reason:'健康因素',story:s=>'你請了很長的假。回來那天，你把辭呈和一盒伴手禮一起放在主管桌上。陳總說：「身體最重要。」這一次，她說得對。'},
+ poached:{t:'被挖角',reason:'另有生涯規劃',story:s=>'你帶著三成的加薪去了別家。最後一天，傑夫說：「出去看看也好，我當年也是。」你沒問他當年是哪一年。'},
+ layoff:{t:'組織調整',reason:'公司組織調整',story:s=>'人資把一盒面紙推到你面前。你沒用到，但把那盒面紙帶走了，覺得公司的東西也是要錢的。'},
+ ceo:{t:'成為了下一個陳總',reason:'坐上了總經理的位子',story:s=>'某天，新人經過你的座位。你脫口而出：「最近身體還好嗎？要多休息喔。」說完你愣了一下。'},
+ decade:{t:'十年老臣',reason:'服務滿十年',story:s=>`十年了。冰箱換過兩台，Kat 進公司的次數你用一隻手就數得完。新人問你某件事要找誰簽，你說：「${s.boss==='chen'?'陳總，但你要有心理準備。':'傑夫，但先想好意義是什麼。'}」你成了大妃的活歷史。`},
+ left:{t:'提早離開',reason:'自行離開模擬',story:s=>'你關掉了這份工作。真實的大妃，明天還是要上班。'},
+};
+
+/* ---------- 事件 ---------- */
+const EV=[
+{id:'chen_blame',who:'陳總',cd:6,w:s=>s.boss==='chen'?3:1.5,
+ t:s=>'專案出包了。陳總在會議上說：「這個我之前就有提醒過了喔。」你很確定她沒有。',
+ ch:[
+ ['當場拿出對話紀錄',s=>({fx:{favor:-10,mood:4,net:2},m:'你在會議上拿出了對話紀錄。全場安靜了三秒。陳總說：「那可能是我記錯了，最近身體不太好。」'})],
+ ['吞下來，會後默默補救',s=>({fx:{mood:-6,skill:2,favor:3,blame:1},m:'你默默補完了漏洞。沒有人知道是誰救的，包括陳總。'})],
+ ['去茶水間跟同事抱怨',s=>r(.25)?{fx:{mood:2,favor:-8,blame:1},m:'你在茶水間抱怨了十分鐘。隔天陳總問你：「聽說你對專案有些想法？」'}:{fx:{mood:4,net:3,blame:1},m:'同事們都懂。原來不只你一個人「之前就有被提醒過」。'}],
+]},
+{id:'chen_delay',who:'陳總',cd:5,w:s=>s.boss==='chen'?3:1.2,
+ t:s=>'你上個月送簽的報價單，陳總還沒回。供應商今天第三次打來問了。',
+ ch:[
+ ['再傳訊息提醒一次',s=>r(.5)?{fx:{mood:-2},m:'陳總回：「我已經回了啊。」你往上滑了三遍，什麼都沒有。'}:{fx:{mood:1,skill:1},m:'兩小時後，陳總回了一個貼圖。你決定把它當作同意。'}],
+ ['直接去辦公室堵人',s=>r(.6)?{fx:{hp:-2,favor:-2,skill:2},m:'你站在門口不走。陳總嘆了口氣，當場簽了。'}:{fx:{hp:-2,favor:-3,mood:-3},m:'陳總說她等一下要去看醫生，明天再說。明天她沒有進公司。'}],
+ ['先自己決定，出事再說',s=>r(.3)?{fx:{favor:-10,mood:-4,blame:1},m:'出事了。陳總說：「這種事怎麼沒先問過我？」'}:{fx:{skill:3,mood:2},m:'什麼事都沒發生。你開始懷疑那張報價單是不是本來就不需要簽。'}],
+]},
+{id:'chen_urgent',who:'陳總',cd:4,w:s=>s.boss==='chen'?3:1.5,
+ t:s=>'下午五點四十分，陳總傳來：「這個今天可以給我嗎？很急。」你上週問她的事，她到現在還沒回。',
+ ch:[
+ ['加班做完',s=>({fx:{hp:-6,favor:6,mood:-4},m:'你十點才離開公司。陳總回：「好，辛苦了，要注意身體。」那份檔案她三天後才打開。'})],
+ ['回「明天早上給您」',s=>({fx:{favor:-4,hp:1},m:'陳總已讀。隔天早上她問：「好了嗎？」時間是七點五十二分。'})],
+ ['已讀，假裝在捷運上沒訊號',s=>r(.4)?{fx:{favor:-6,mood:-2},m:'隔天陳總說：「昨天都找不到你。」語氣跟她自己不回訊息時完全不同。'}:{fx:{mood:4,hp:2},m:'隔天陳總好像忘了這件事。很急的事，通常都會被忘記。'}],
+]},
+{id:'chen_body',who:'陳總',cd:3,ok:s=>s.unit==='tw',w:s=>(s.boss==='chen'?2.5:1.2)*(s.seat==='door'?2:1),
+ t:s=>'陳總經過你的座位：「最近身體還好嗎？要多休息喔。」你桌上是她剛交代的三件急件。',
+ ch:[
+ ['「還好，謝謝陳總關心」',s=>({fx:{favor:2,body:1},m:'陳總點點頭，走之前補了一句：「那三件今天可以嗎？」'})],
+ ['「其實有點累，可以晚點交嗎？」',s=>r(.5)?{fx:{mood:-3,body:1},m:'陳總說：「當然可以，身體最重要。」半小時後她來問進度。'}:{fx:{hp:4,mood:2,body:1},m:'陳總說好。這次是真的好。你不太敢相信。'}],
+]},
+{id:'chen_replied',who:'陳總',cd:6,w:s=>s.boss==='chen'?2:1,
+ t:s=>'你問陳總那封客戶信回了沒。她說：「早就回了。」五分鐘後客戶打來，說沒收到任何回覆。',
+ ch:[
+ ['幫她重寄一次，副本給她',s=>({fx:{skill:1,favor:-1,mood:-2},m:'你重寄了。陳總後來在會議上說：「這封我有回喔，你們可以看副本。」'})],
+ ['跟客戶說「可能在垃圾信件匣」',s=>({fx:{mood:-2,net:-1},m:'客戶翻了垃圾信件匣，找到三封你們公司的電子報，沒有回覆。'})],
+ ['回去跟陳總說客戶沒收到',s=>r(.5)?{fx:{mood:-3},m:'陳總說：「那應該是系統的問題。」這是本月第四次系統出問題。'}:{fx:{favor:-2,skill:1},m:'陳總沉默了一下，默默開始打字。'}],
+]},
+{id:'sales_skip',who:'業務',cd:7,w:s=>['tw_promo','tw_pm','tw_design'].includes(s.dept)?2.5:.4,
+ t:s=>'你已經定案的活動方案，業務私下跑去找上面談，被改掉了。整個部門你是最後一個知道的。',
+ ch:[
+ ['找業務當面講清楚',s=>r(.5)?{fx:{net:-4,mood:3,skill:1},m:'業務說：「我以為你知道啊。」你們都知道他不是這樣以為的。'}:{fx:{net:-2,mood:4},m:'業務有點尷尬，答應下次會先找你。下次的事，下次再說。'}],
+ ['寫信把決策流程講清楚，副本給主管',s=>r(.45)?{fx:{favor:-2,skill:3,mood:6},m:'主管回信：「之後這類活動以你們部門的決定為準。」你把這封信截圖存了三份。'}:{fx:{favor:-3,skill:2,mood:-2},m:'主管回：「大家都是為了公司好。」問題沒有被解決，但被定義成了好事。'}],
+ ['算了，反正下次也一樣',s=>({fx:{mood:-6},m:'你在行事曆上寫下：「下次也一樣。」'})],
+]},
+{id:'jeff_fridge',who:'傑夫',cd:4,w:s=>(s.boss==='jeff'?2.5:1.3)*(s.seat==='fridge'?2.5:1),
+ t:s=>'傑夫打開冰箱，沉默了五秒：「這是誰的？能賣的賣掉，該報廢的報廢。」',
+ ch:[
+ ['自告奮勇整理',s=>({fx:{hp:-2,favor:5,fridge:1},m:'你清出了一罐 2024 年的辣椒醬、兩盒沒人認領的布丁，還有一顆不知道從哪來的檸檬。'})],
+ ['把自己的便當藏到最深處',s=>r(.35)?{fx:{favor:-4,mood:-2},m:'傑夫找到了你的便當，問：「這個便當放在這裡的意義是什麼？」'}:{fx:{mood:2},m:'你的便當躲過了這一次。'}],
+ ['提議排「冰箱值日生」',s=>({fx:{net:3,skill:1,fridge:1},m:'傑夫說好，然後把你排在第一週。'})],
+]},
+{id:'jeff_warehouse',who:'傑夫',cd:6,w:s=>(s.boss==='jeff'?2:1)*((s.dept==='tw_repair'||s.seat==='wh')?2:1),ok:s=>s.unit==='tw',
+ t:s=>'傑夫巡完倉庫回來：「那排機殼放多久了？放在那裡的意義是什麼？」',
+ ch:[
+ ['馬上做一份庫存表',s=>({fx:{skill:3,hp:-3,favor:4},m:'你做了一份有顏色標記的庫存表。傑夫說：「很好，那你每週更新。」'})],
+ ['說「那些是行銷要用的公關品」',s=>r(.5)?{fx:{mood:-2},m:'傑夫說：「公關品也是成本，要算錢的。」'}:{fx:{mood:1},m:'傑夫點點頭，暫時放過那排機殼。'}],
+ ['辦一場員工特賣',s=>r(.3)?{fx:{net:3,favor:-5},m:'特賣很成功。傑夫問：「為什麼打這麼多折？」'}:{fx:{net:5,favor:4},m:'倉庫空出了一排。傑夫難得笑了，說他當年也是這樣清庫存的。'}],
+]},
+{id:'jeff_questions',who:'傑夫',cd:4,w:s=>(s.boss==='jeff'?3:1.4)*(s.seat==='gzdoor'?2:1),
+ t:s=>'週會上，傑夫看著你的報告：「問題點是什麼？意義是什麼？進度呢？目標呢？」',
+ ch:[
+ ['一題一題回答',s=>r(.3+s.skill/160)?{fx:{skill:3,hp:-2,favor:5,question:1},m:'你一口氣答完四題。傑夫停頓了一下：「嗯，下一個。」這已經是最高評價。'}:{fx:{skill:2,hp:-2,favor:-4,question:1},m:'答到「意義」的時候你卡住了。傑夫說：「你自己都不知道意義，客人怎麼會知道？」'}],
+ ['「這部分我會後整理給您」',s=>({fx:{favor:-2,mood:1,question:1},m:'傑夫說好。會後他傳了四個問題給你，還多了第五個：「時程？」'})],
+ ['反問「您覺得目標應該是什麼？」',s=>r(.45)?{fx:{hp:-4,favor:2,question:1},m:'傑夫開始講他當年創業的目標。會議延長了一個小時。'}:{fx:{favor:-6,question:1},m:'傑夫看著你：「我問你，你問我？」'}],
+]},
+{id:'jeff_charge',who:'傑夫',cd:6,ok:s=>s.unit==='tw',w:s=>s.dept==='tw_promo'?2.5:.8,
+ t:s=>'你想從倉庫拿一顆風扇給 KOL 測試。傑夫說：「公司的東西也是要錢的，你要怎麼算？」',
+ ch:[
+ ['填正式借用單',s=>({fx:{skill:1,mood:-2,hp:-1},m:'借用單要三個人簽，其中一個是陳總。所以你還在等。'})],
+ ['自己掏錢買',s=>({fx:{money:-1290,mood:-3,favor:2},m:'你用員工價買了自己公司的風扇，送給別人測試。'})],
+ ['改送官方貼紙',s=>({fx:{net:-2,mood:-1},m:'KOL 收到一包貼紙，回了一個「？」。'})],
+]},
+{id:'jeff_founder',who:'傑夫',cd:5,w:s=>s.boss==='jeff'?2:1,
+ t:s=>`午餐時，傑夫又開始講當年創業的故事。這是你第 ${ri(4,15)} 次聽。`,
+ ch:[
+ ['認真聽，還追問細節',s=>r(.25)?{fx:{favor:4,skill:2,net:1},m:'這次你聽到了一個新細節，而且真的有點用。'}:{fx:{favor:4,mood:-1,net:1},m:'傑夫講得很開心。你已經知道下次他會從哪裡開始講。'}],
+ ['假裝接電話離席',s=>({fx:{mood:2,favor:-2},m:'你在樓梯間對著沒有人的電話說了五分鐘「好、好、了解」。'})],
+ ['「那時候真的很辛苦吧」',s=>({fx:{favor:2},m:'傑夫說：「辛苦啊，而且我的薪水到現在都沒漲。」'})],
+]},
+{id:'jeff_robin',who:'傑夫',cd:8,w:s=>1,
+ t:s=>'傑夫看完你的企劃：「還行啦，至少比羅賓那份好。」',
+ ch:[
+ ['收下這句誇獎',s=>({fx:{mood:3},m:'在大妃，「比羅賓好」就算是誇獎了。'})],
+ ['問他好在哪裡',s=>({fx:{skill:1,mood:-1},m:'傑夫說：「好在你有寫目標。」你決定以後每份企劃都寫目標。'})],
+]},
+{id:'jinliang',who:'傑夫',cd:9,w:s=>['tw_promo','tw_design','gz_intl','gz_us'].includes(s.dept)?2:.5,
+ t:s=>'新品要拍介紹影片，你提議找景良來拍。',
+ ch:[
+ ['據理力爭',s=>r(.2)?{fx:{skill:4,mood:6,favor:-2},m:'傑夫居然答應了。影片很好看，傑夫看完請款單後沉默了一整個下午。'}:{fx:{mood:-3},m:'傑夫說：「景良很貴，不要找。」'}],
+ ['自己用手機拍',s=>({fx:{skill:3,hp:-3},m:'你在會議室用檯燈和一張白紙拍完了。觀看數還不錯。'})],
+]},
+{id:'kat',who:'Kat',cd:8,w:s=>1,
+ t:s=>'有份文件需要 Kat 簽名。',
+ ch:[
+ ['等她進公司',s=>r(.12)?{fx:{mood:6},m:'Kat 今天進公司了！你和她都有點驚訝。'}:{fx:{mood:-3},m:'你等了兩週。傑夫經過時說：「她都不進公司的。」'}],
+ ['改用電子簽',s=>({fx:{skill:1},m:'你發了電子簽名連結。三天後她簽了，沒有人看到她出現。'})],
+]},
+{id:'promo_kol',who:'KOL',cd:5,ok:s=>s.dept==='tw_promo',w:s=>3,
+ t:s=>'你私訊一位 KOL 談合作，署名寫得很有禮貌。對方回：「請問預算多少？」',
+ ch:[
+ ['給公版報價',s=>r(.35+s.net/250)?{fx:{net:4,skill:2,favor:3},m:'對方接受了。開箱影片的留言區有人問：「這機殼可以裝我的冰箱嗎？」'}:{fx:{mood:-2},m:'對方已讀了。三週過去，還是已讀。'}],
+ ['提議以產品交換',s=>r(.5)?{fx:{net:3,skill:1},m:'對方答應了，但你要去倉庫拿產品。傑夫在倉庫門口等你。'}:{fx:{mood:-2,net:-1},m:'對方說：「我們不接產品交換喔。」'}],
+]},
+{id:'promo_seo',who:'部落格',cd:7,ok:s=>s.dept==='tw_promo',w:s=>2,
+ t:s=>'你寫的硬體部落格文章衝上 Google 搜尋第一頁了。',
+ ch:[
+ ['截圖給主管',s=>({fx:{favor:5,mood:3},m:s.boss==='chen'?'陳總回：「很好，最近身體還好嗎？」':'傑夫回：「轉換率是多少？」'})],
+ ['低調繼續寫下一篇',s=>({fx:{skill:3,mood:2},m:'你寫完了下一篇。它掉到第三頁，你也不太在意。'})],
+]},
+{id:'promo_collab',who:'聯名',cd:12,ok:s=>['tw_promo','tw_pm','tw_sales','tw_cs','gz_intl','gz_us'].includes(s.dept),w:s=>1.2,
+ t:s=>'三麗鷗聯名機殼開賣，官網頁面觀看數暴衝，私訊全都在問有沒有現貨。',
+ ch:[
+ ['加開預購',s=>({fx:{skill:3,hp:-4,favor:4},m:'預購一晚就滿了。你回了兩百則私訊，夢裡都是酷洛米。'})],
+ ['先公告缺貨，安撫大家',s=>({fx:{mood:-2,net:-2,skill:1},m:'留言區開始有人問「是不是在飢餓行銷」。'})],
+]},
+{id:'sales_discount',who:'經銷商',cd:5,ok:s=>s.dept==='tw_sales',w:s=>3,
+ t:s=>'經銷商下單前一天說：「再砍 5%，不然我們先不下了。」',
+ ch:[
+ ['答應',s=>({fx:{net:3,favor:-4},m:'單子下來了。傑夫看了毛利說：「這單的意義是什麼？」'})],
+ ['堅持價格',s=>r(.5)?{fx:{favor:5,skill:2},m:'對方隔天還是下單了。原來 5% 只是試試看。'}:{fx:{favor:-3,mood:-3,net:-2},m:'對方真的沒下。你這個月的獎金也是。'}],
+ ['請陳總裁示',s=>r(.6)?{fx:{mood:-4,net:-2},m:'陳總兩天後才回：「你判斷就好。」客戶已經去下別家了。'}:{fx:{mood:1},m:'陳總很快就回了：「可以。」你截圖存證。'}],
+]},
+{id:'sales_eta',who:'客戶',cd:5,ok:s=>s.dept==='tw_sales',w:s=>2.5,
+ t:s=>'大客戶要你保證新品下週到貨。工廠那邊說「應該可以」。',
+ ch:[
+ ['拍胸脯保證',s=>r(.45)?{fx:{net:5,favor:3},m:'貨真的到了。你開始相信「應該可以」。'}:{fx:{net:-5,mood:-4},m:'貨沒到。「應該可以」的重點原來是「應該」。'}],
+ ['說「會盡力」',s=>({fx:{net:-1,skill:1},m:'客戶說：「盡力是多力？」你沒有回答。'})],
+]},
+{id:'wh_count',who:'倉庫',cd:6,ok:s=>s.dept==='tw_repair',w:s=>3,
+ t:s=>'月底盤點，帳上和實際差了 12 顆風扇。',
+ ch:[
+ ['全部重盤一次',s=>r(.6)?{fx:{hp:-5,skill:3,favor:3},m:'在最底層的箱子後面找到了。12 顆，一顆不少。'}:{fx:{hp:-5,mood:-3},m:'重盤之後，差了 13 顆。'}],
+ ['回報「應該是被拿去當公關品」',s=>({fx:{favor:-3,mood:1},m:'傑夫說：「公關品也是要錢的。」從此每顆都要附領用單。'})],
+]},
+{id:'wh_container',who:'倉庫',cd:5,ok:s=>s.dept==='tw_repair',w:s=>2.5,
+ t:s=>'貨櫃下午三點到，堆高機剛好壞了。',
+ ch:[
+ ['號召大家一起人工搬',s=>({fx:{hp:-8,net:6,favor:3},m:'推廣部、業務、客服都來幫忙。那天大家的晚餐都特別好吃。'})],
+ ['等師傅來修',s=>({fx:{favor:-4,hp:1},m:'師傅七點才到。司機在門口抽完了一包菸。'})],
+]},
+{id:'pm_sample',who:'工廠',cd:5,ok:s=>s.dept==='tw_pm',w:s=>3,
+ t:s=>'工廠通知：新機殼打樣要再延兩週，上市日已經對外公布了。',
+ ch:[
+ ['飛去工廠盯',s=>({fx:{hp:-7,skill:4,favor:4,money:-2000},m:'你在工廠待了五天。打樣提早三天完成，你學會了五句當地方言。'})],
+ ['跟業務說要延後上市',s=>({fx:{net:-4,mood:-2},m:'業務沒有回你，直接去找上面了。'})],
+]},
+{id:'cs_toast',who:'客人',cd:6,ok:s=>['tw_cs','tw_repair'].includes(s.dept),w:s=>3,
+ t:s=>'客人寄回一顆壞掉的電源供應器，附了一張紙條：「我只是用它烤了一下吐司。」',
+ ch:[
+ ['依保固規定婉拒',s=>({fx:{skill:2,mood:-1},m:'客人留了一星負評：「客服很不通人情。」'})],
+ ['先換新再說',s=>({fx:{net:3,favor:-3},m:'客人留了五星好評。傑夫問：「換新的這顆誰付錢？」'})],
+ ['拍照分享到公司群組',s=>r(.2)?{fx:{mood:2,favor:-3},m:'陳總在群組回：「這樣不太專業喔。」然後她也轉傳了。'}:{fx:{mood:5,net:3},m:'公司群組笑了一整個下午。那張紙條被貼在客服部牆上。'}],
+]},
+{id:'design_size',who:'設計',cd:5,ok:s=>s.dept==='tw_design',w:s=>3,
+ t:s=>'主視覺送審。陳總說：「Logo 再大一點。」傑夫說：「Logo 再小一點。」',
+ ch:[
+ ['做兩個版本',s=>({fx:{hp:-4,skill:2},m:'兩個人各自選了對方要的那一版。'})],
+ ['做一個剛好中間的',s=>r(.5)?{fx:{mood:4,favor:3},m:'兩個人都說：「對，就是這樣。」'}:{fx:{mood:-4},m:'兩個人都說：「感覺還差一點。」'}],
+ ['原圖不動，再送一次',s=>r(.4)?{fx:{mood:6,skill:1},m:'兩個人都說：「這版好多了。」'}:{fx:{favor:-4},m:'傑夫問：「這跟上一版差在哪？」'}],
+]},
+{id:'intl_timezone',who:'美國客戶',cd:5,ok:s=>['gz_us','gz_intl'].includes(s.dept),w:s=>3,
+ t:s=>'美國客戶約下午三點開會。對方的下午三點，是台灣的凌晨三點。',
+ ch:[
+ ['設鬧鐘爬起來開',s=>({fx:{hp:-6,net:5,favor:3},m:'你上半身穿襯衫、下半身穿睡褲開完了會。對方說：「You look tired.」'})],
+ ['請對方改時間',s=>r(.5)?{fx:{mood:2,skill:1},m:'對方改到台灣時間早上九點。你第一次覺得時差站在你這邊。'}:{fx:{net:-3},m:'對方說他們行程很滿，下個月再說。'}],
+]},
+{id:'intl_expense',who:'傑夫',cd:6,ok:s=>['gz_us','gz_intl'].includes(s.dept),w:s=>2.5,
+ t:s=>'你在美國參展的報帳單送回台灣。傑夫一條一條看：「這頓 180 美金的晚餐，意義是什麼？」',
+ ch:[
+ ['解釋那是請經銷商吃的',s=>r(.5)?{fx:{favor:1,question:1},m:'傑夫說：「那下次請他們吃漢堡就好。」'}:{fx:{favor:-4,question:1},m:'傑夫問：「經銷商後來有下單嗎？」你沒有答案。'}],
+ ['自己吸收',s=>({fx:{money:-5600,mood:-4,favor:2},m:'你用自己的薪水請了經銷商一頓晚餐。起薪 8 萬突然沒那麼多了。'})],
+]},
+{id:'eng_promise',who:'業務',cd:5,ok:s=>['gz_fe','gz_be'].includes(s.dept),w:s=>3,
+ t:s=>'業務答應客戶：機殼的 ARGB 燈效可以跟著音樂同步，下週要。這個功能目前不存在。',
+ ch:[
+ ['連續加班寫出來',s=>({fx:{hp:-8,skill:4,favor:4},m:'你寫出來了。客戶問：「那可以跟心跳同步嗎？」'})],
+ ['跟業務說做不到',s=>r(.5)?{fx:{net:-3,mood:2},m:'業務說：「那你自己去跟客戶講。」'}:{fx:{net:-2,favor:-3},m:'業務沒有回你，直接去找上面了。'}],
+]},
+{id:'eng_salary',who:'同事',cd:12,ok:s=>['gz_fe','gz_be'].includes(s.dept),w:s=>1.5,
+ t:s=>'茶水間有人小聲說：「聽說工程部月薪十萬起跳。」大家一起看向你。',
+ ch:[
+ ['笑一笑，不說話',s=>({fx:{net:-1,mood:1},m:'那一週，你收到三杯別人幫你點的飲料，帳單都是你的。'})],
+ ['請整層樓喝飲料',s=>({fx:{money:-800,net:5},m:'大家都很開心。傑夫問收據上為什麼也有他那一杯。'})],
+]},
+{id:'chen_104',who:'陳總',cd:12,ok:s=>s.src==='c104'&&s.month>=4,w:s=>1.6,
+ t:s=>'你不小心看到廣州那邊傑夫找進來的同事的薪資單，數字比你多了一大截。陳總說：「當初 104 上開的就是這個價喔。」',
+ ch:[
+ ['去找陳總談',s=>r(.3+s.favor/250)?{fx:{salaryPct:.06,raise:1,favor:-2},m:'陳總說會幫你爭取。三個月後，真的調了 6%。'}:{fx:{mood:-5,body:1},m:'陳總說：「我先問問看，身體要顧好喔。」之後她沒有再提起。'}],
+ ['當作沒看到',s=>({fx:{mood:-6},m:'你把薪資單放回去。之後每次經過那個座位，你都會想起那個數字。'})],
+]},
+{id:'jeff_shares',who:'傑夫',cd:5,ok:s=>s.unit==='tw',w:s=>2.2,
+ t:s=>'傑夫來台灣開會，看到你手上的飲料：「這杯我也有付錢喔。我有 5% 的股份，所以你們喝的飲料，我都有付錢。」',
+ ch:[
+ ['「謝謝傑夫請客！」',s=>({fx:{favor:4,mood:-1,shares:1},m:'傑夫很滿意，說下次可以點大杯，反正他有付。'})],
+ ['「那這杯您付了 3 塊 2 毛 5。」',s=>r(.5)?{fx:{mood:5,net:3,favor:-3,shares:1},m:'傑夫想了一下：「對，所以你欠我 3 塊 2 毛 5 的謝謝。」'}:{fx:{favor:-6,shares:1},m:'傑夫說：「你這種態度，當年在我公司待不過三個月。」'}],
+ ['把收據收好',s=>({fx:{mood:1,shares:1},m:'你把收據拍照存檔，開始好奇另外 95% 是誰付的。'})],
+]},
+{id:'acct_chen',who:'陳總',cd:6,ok:s=>s.dept==='tw_acct',w:s=>3,
+ t:s=>'月底結帳，陳總的報帳單已經三個月沒交了。她說：「我早就給你了啊。」',
+ ch:[
+ ['再跟她要一次',s=>r(.5)?{fx:{mood:-3,favor:-1},m:'陳總說：「應該在我抽屜，等我看完醫生再找。」'}:{fx:{skill:1},m:'陳總從包包裡拿出一疊皺皺的發票，最早一張是去年的。'}],
+ ['自己先墊著做帳',s=>({fx:{hp:-3,skill:2,favor:3},m:'帳平了。你在備註欄寫了一行很小的字：「陳總補件中」。'})],
+]},
+{id:'acct_jeff',who:'傑夫',cd:6,ok:s=>s.dept==='tw_acct',w:s=>3,
+ t:s=>'傑夫從廣州打來：「上個月台灣的飲料費為什麼這麼高？我有 5%，我要知道每一杯的意義。」',
+ ch:[
+ ['做一張逐杯明細表',s=>({fx:{skill:3,hp:-3,favor:5,shares:1},m:'你做出一張 214 杯的明細。傑夫看完說：「業務喝最多。」'})],
+ ['回他「都是業務請客戶的」',s=>({fx:{favor:-2,net:-2,shares:1},m:'業務知道後，跳過你直接找上面解釋了。'})],
+]},
+{id:'uiux_btn',who:'傑夫',cd:5,ok:s=>s.dept==='gz_uiux',w:s=>3,
+ t:s=>'傑夫看著新官網的原型：「這個按鈕的意義是什麼？為什麼是藍色？目標是什麼？」',
+ ch:[
+ ['拿出使用者測試數據',s=>r(.3+s.skill/160)?{fx:{skill:3,favor:5,question:1},m:'傑夫看完數據：「嗯，可以。但改成紅色。」'}:{fx:{favor:-3,question:1},m:'傑夫說：「數據是數據，我問的是意義。」'}],
+ ['直接改成紅色',s=>({fx:{mood:-3,favor:3},m:'傑夫很滿意。兩週後，他問為什麼按鈕是紅色的。'})],
+]},
+{id:'gm_romance',who:GM,cd:6,ok:s=>s.unit==='tw'&&s.gender==='m'&&!s.romance&&!s.romanceDone&&s.month>=5,w:s=>1.3,
+ t:s=>`最近${GM}常約你一起吃午餐，問你身體還好嗎的語氣，跟問別人的不太一樣。今天下班前，她傳來：「週末有空嗎？」`,
+ ch:[
+ ['「有空。」',s=>({fx:{romance:1,mood:8,favor:20,body:1},m:'週末你們去看了一場電影。她全程問了你三次冷不冷。'})],
+ ['「週末要陪家人。」',s=>({fx:{favor:-4},m:'她回了一個「好喔」。句號用得很重。'})],
+ ['裝作沒看到',s=>r(.5)?{fx:{favor:-8,mood:-2},m:'週一她經過你的座位，沒有問你身體還好嗎。這是第一次。'}:{fx:{mood:1},m:'她之後沒再提。你鬆了一口氣，又有點好奇。'}],
+]},
+{id:'gm_promote',who:GM,cd:6,ok:s=>s.romance&&!s.romanceDone&&s.month-s.romanceStart>=2,w:s=>4,
+ t:s=>`晚餐時${GM}說：「業務那邊有個位子，我覺得你比較適合。」隔天早上，有一位業務被叫進了小會議室。`,
+ ch:[
+ ['接受這個位子',s=>{
+   const cands=s.org.tw.filter(x=>x.role==='業務'&&!x.you&&!x.fired);
+   const f=pick(cands); const old=s.org.tw.find(x=>x.you);
+   if(old){old.you=false;old.vacant=true}
+   f.fired=true; f.you=true; s.dept='tw_sales'; s.romanceDone=true;
+   const ns=Math.max(Math.round(s.salary*1.2/500)*500,(f.senior?ri(62,75):ri(46,52))*1000);
+   return {fx:{setSal:ns,title:1,promo:1,net:-8,mood:4,favor:6},m:`${f.who}被開除了。隔天你坐進了他的位子，${f.senior?'連他手上的大客戶也一起接了過來。':'名片上的職稱換成了業務。'}整間辦公室安靜了一個禮拜。`};
+ }],
+ ['婉拒：「我想靠自己」',s=>({fx:{favor:-5,mood:2,skill:1},m:`${GM}說：「好，我尊重你。」那一週，她的急件特別多。`})],
+]},
+{id:'gm_breakup',who:GM,cd:8,ok:s=>s.romance&&s.month-s.romanceStart>=6,w:s=>.8,
+ t:s=>`${GM}約你到會議室，桌上放著兩杯飲料：「我覺得我們還是當同事比較好。」`,
+ ch:[
+ ['「我懂。」',s=>({fx:{romance:0,mood:-12,favor:-15},m:'你們喝完了飲料。傑夫經過時提醒你，這兩杯他也有付 5%。'})],
+ ['「可以再想想嗎？」',s=>r(.4)?{fx:{mood:6},m:'她想了三天，最後說：「好吧，再試試看。」'}:{fx:{romance:0,mood:-15,favor:-20},m:'她說：「我已經想好了。要注意身體喔。」'}],
+]},
+{id:'intern',who:'人資',cd:24,ok:s=>s.month>=12,w:s=>1,
+ t:s=>'部門來了一位實習生，主管說：「你帶。」',
+ ch:[
+ ['認真帶',s=>({fx:{net:5,hp:-3,skill:1},m:'實習結束前，他送了你一張卡片：「謝謝你沒讓我去整理冰箱。」'})],
+ ['讓他先去整理冰箱',s=>({fx:{favor:3,net:-1,fridge:1},m:'傑夫很滿意。實習生的限時動態寫著：「原來職場是這樣。」'})],
+]},
+{id:'one_on_one',who:'陳總',cd:10,w:s=>s.boss==='chen'?1.5:.6,
+ t:s=>'陳總約你一對一：「你覺得自己今年最大的成長是什麼？」你剛開口，她的手機響了。',
+ ch:[
+ ['在旁邊等她講完',s=>({fx:{hp:-2,favor:3,body:1},m:'她講了四十分鐘。掛掉後說：「好，那我們今天就先這樣，要注意身體。」'})],
+ ['先回座位做事',s=>({fx:{favor:-3,skill:1},m:'下午陳總傳訊：「你剛剛怎麼不見了？」'})],
+]},
+{id:'late_line',who:'群組',cd:4,w:s=>1.4,
+ t:s=>'晚上十一點，公司 LINE 群組跳出：「明天早上八點前可以給我嗎？」',
+ ch:[
+ ['回「收到」',s=>({fx:{favor:3,hp:-4,mood:-3},m:'你在半夜一點按下傳送，對方在七點五十九分已讀。'})],
+ ['明天早上再看',s=>({fx:{favor:-3,mood:2},m:'早上你看到另外四個人都回了「收到」。'})],
+ ['開勿擾模式',s=>r(.3)?{fx:{favor:-6,mood:2},m:'隔天被問：「昨天怎麼沒回？」'}:{fx:{mood:4,hp:2},m:'你睡得很好。原來那件事也沒有那麼急。'}],
+]},
+{id:'drinks',who:'同事',cd:4,w:s=>1,
+ t:s=>'同事揪團訂飲料，有人小聲問：「要不要幫傑夫點一杯？」',
+ ch:[
+ ['幫傑夫點一杯',s=>r(.4)?{fx:{money:-65,favor:1},m:'傑夫看了收據：「一杯飲料六十五？」'}:{fx:{money:-65,favor:3,net:1},m:'傑夫說謝謝，然後說他當年創業的時候都喝白開水。'}],
+ ['不要問，問了就要點',s=>({fx:{net:1},m:'大家默默把揪團單關掉了。'})],
+]},
+];
+
+const SEASON=[
+{id:'weiya',m:1,who:'尾牙',cd:11,t:s=>'尾牙到了。主持人說還缺一個上台表演的部門。',
+ ch:[
+ ['上台表演',s=>r(.55)?{fx:{net:7,mood:5,favor:3,body:1},m:'你模仿了陳總的「身體還好嗎」，全場笑翻，陳總也笑了。應該是笑了。'}:{fx:{net:3,mood:-3},m:'表演很冷。只有傑夫在第三排認真鼓掌，說比羅賓去年好。'}],
+ ['低調吃飯等抽獎',s=>{const p=pick([['陳總加碼的「身體健康」紅包',{money:3600,mood:4,body:1}],['全聯禮券五百元',{money:500,mood:2}],['一顆自家的機殼',{mood:3}],['什麼都沒抽到',{mood:-2}]]);return {fx:p[1],m:`你抽到了：${p[0]}。`}}],
+]},
+{id:'computex',m:6,who:'展覽',cd:11,t:s=>'Computex 要在南港佈展，需要人去顧攤三天。',
+ ch:[
+ ['自願去顧攤',s=>({fx:{hp:-8,net:8,skill:3,favor:3},m:'你在攤位講了三百次「這款機殼支援背插主機板」，腳底起了兩個水泡。'})],
+ ['推給新人',s=>({fx:{favor:-2,net:-2,mood:2},m:'新人去了三天，回來的時候眼神不一樣了。'})],
+]},
+{id:'jeff_salary',m:7,who:'傑夫',cd:11,ok:s=>s.month>=6,t:s=>'年中調薪時間。你鼓起勇氣想談加薪，傑夫先嘆了口氣：「我自己的薪水都好幾年沒漲了。」',
+ ch:[
+ ['拿出績效據理力爭',s=>r(.15+(s.skill+s.favor)/250)?{fx:{salaryPct:.08,mood:6,raise:1,favor:-1},m:'傑夫看完你的資料，沉默了很久：「好，加 8%。不要跟別人說。」'}:{fx:{mood:-6,favor:-3},m:'傑夫說：「你知道公司今年的狀況嗎？」接著講了二十分鐘當年創業的事。'}],
+ ['改談多放兩天假',s=>r(.5)?{fx:{hp:5,mood:4},m:'傑夫答應了。假比錢便宜，這點他很清楚。'}:{fx:{mood:-2},m:'傑夫問：「多放假的意義是什麼？」'}],
+ ['默默收回',s=>({fx:{mood:-5},m:'你說：「沒事，我只是來問您要不要喝飲料。」'})],
+]},
+{id:'bahamut',m:10,who:'活動',cd:11,ok:s=>['tw_promo','tw_sales','tw_pm'].includes(s.dept),t:s=>'巴哈站聚要不要贊助？你還在評估報價，聽說業務已經先口頭答應對方了。',
+ ch:[
+ ['照單全收，把活動辦好',s=>({fx:{hp:-5,net:5,skill:2},m:'活動辦得很成功。業務在慶功宴上說這是他談下來的。'})],
+ ['重新談條件',s=>r(.5)?{fx:{skill:4,favor:4,net:-2},m:'你把硬體出借條件談了回來，省下一筆預算。'}:{fx:{net:-4,mood:-3},m:'對方說：「可是你們業務已經答應了耶。」'}],
+]},
+{id:'double11',m:11,who:'雙11',cd:11,t:s=>'雙 11 訂單爆量，官網結帳頁卡住了。',
+ ch:[
+ ['熬夜處理',s=>({fx:{hp:-8,skill:3,favor:5,body:1},m:'凌晨三點系統恢復。陳總早上傳來：「辛苦了，要注意身體喔。」'})],
+ ['交給工程師，準時下班',s=>({fx:{favor:-4,mood:3,hp:2},m:'隔天群組有 214 則訊息。你決定從最後一則開始讀。'})],
+]},
+];
+
+const SPECIAL={
+lowHp:{id:'lowHp',who:'身體',cd:4,t:s=>'你已經連續一個月睡不到六小時，爬樓梯到二樓就開始喘。',
+ ch:[
+ ['請幾天特休',s=>r(.3)?{fx:{hp:12,favor:-3,mood:-1,body:1},m:'休假第二天，陳總打電話來：「身體還好嗎？對了，那個檔案在哪？」'}:{fx:{hp:15,mood:4,favor:-3},m:'你睡了整整三天。回來的時候，冰箱又滿了。'}],
+ ['去看醫生',s=>({fx:{hp:10,money:-800,mood:1},m:'醫生說：「少熬夜、多運動、壓力不要太大。」你笑了出來。'})],
+ ['撐下去',s=>({fx:{hp:-3,skill:1,mood:-2},m:'你又買了一罐提神飲料。'})],
+]},
+lowMood:{id:'lowMood',who:'心情',cd:4,t:s=>'某個週一早上，你在公司樓下站了五分鐘，不太想進去。',
+ ch:[
+ ['上樓，遞辭呈',s=>({fx:{},end:'quit',m:'你上樓，把辭呈放在主管桌上。'})],
+ ['請一天假去海邊',s=>({fx:{mood:14,hp:3,favor:-2},m:'海風很大。你在沙灘上想了很多，最後只記得想吃滷味。'})],
+ ['還是進去吧',s=>({fx:{mood:2,hp:-1},m:'你進去了。電梯裡有人問你早餐吃什麼，你突然覺得好一點了。'})],
+]},
+poach:{id:'poach',who:'獵頭',cd:8,t:s=>'有獵頭私訊你：「某電競大廠在找人，薪水多三成，有興趣聊聊嗎？」',
+ ch:[
+ ['去面試看看',s=>r(.45+(s.skill-50)/150)?{fx:{},end:'poached',m:'對方當場給了 offer。'}:{fx:{mood:-3},m:'對方說會再通知你。到現在還沒通知。'}],
+ ['拿 offer 去談加薪',s=>r(.5)?{fx:{salaryPct:.12,favor:-6,raise:1},m:'傑夫看著你：「好，加 12%。但你要知道，我的薪水都沒漲。」'}:{fx:{},end:'poached',m:'傑夫說：「那你去吧。」語氣意外地平靜。'}],
+ ['婉拒',s=>({fx:{mood:1,favor:1},m:'你回：「謝謝，目前沒有考慮。」然後把對話釘選起來。'})],
+]},
+reorg:{id:'reorg',who:'公司',cd:24,t:s=>`公司宣布組織調整，${UNITS[s.unit]}要調整人力配置，你的位子要跟另一個職位合併。`,
+ ch:[
+ ['主動爭取新的位子',s=>r(.45+(s.favor+s.skill-100)/200)?{fx:{title:1,salaryPct:.1,promo:1,hp:-3},m:'你拿到了合併後的位子。陳總說：「恭喜，要注意身體。」'}:{fx:{},end:'layoff',m:'人資約你到小會議室。桌上有一盒面紙。'}],
+ ['低調觀望',s=>r(.2)?{fx:{},end:'layoff',m:'人資約你到小會議室。桌上有一盒面紙。'}:{fx:{mood:-3},m:'你留下來了。新部門的冰箱更大。'}],
+]},
+};
+
+const PASSIVE=[
+ {t:'陳總今天問了你兩次身體還好嗎。',fx:{body:2}},
+ {t:'陳總經過時說：「要多喝水喔。」然後交代了一件事。',fx:{body:1}},
+ {t:'傑夫把冰箱裡的優酪乳拿起來，對著燈光看了很久。'},
+ {t:'有人問 Kat 今天會不會進公司。沒有人回答。'},
+ {t:'有人提議找景良拍影片。傑夫說：「他很貴，不要找。」'},
+ {t:'陳總說那份報價她簽好了。你在她桌上找到它，空白的。',ok:s=>s.unit==='tw'},
+ {t:'倉庫的公關品又少了一箱，沒有人知道去了哪裡。'},
+ {t:'傑夫在走廊上說，他當年一個人扛起整間公司。'},
+ {t:'公司 LINE 群組有 47 則未讀，其中 32 則是貼圖。'},
+ {t:'冷氣又被調到 26 度。'},
+ {t:'今天準時下班。主管看了你一眼。',fx:{mood:1}},
+ {t:'樓下便當店漲了 5 元。',fx:{mood:-1}},
+ {t:'會議室白板上還留著上個月寫的「目標：？」。'},
+ {t:'陳總臨時說下午要去看醫生，會議改期了。'},
+ {t:'有人在群組問：「這個要找誰簽？」三個人同時回：「陳總。」然後大家都沉默了。'},
+ {t:'傑夫說：「這個月還行，至少比羅賓帶的時候好。」'},
+ {t:'新品機殼的 ARGB 燈效在辦公室閃了一整天。'},
+ {t:'業務又跳過你，直接去找上面談了。',ok:s=>['tw_promo','tw_pm','tw_design'].includes(s.dept),fx:{mood:-2}},
+ {t:'冰箱被傑夫點名了，這次是你的布丁。',ok:s=>s.seat==='fridge',fx:{fridge:1,mood:-1}},
+ {t:'陳總在你座位旁邊講了一通很長的電話，內容是她的膝蓋。',ok:s=>s.seat==='door',fx:{body:1}},
+ {t:'窗外下雨了，你看了五分鐘的雨。',ok:s=>s.seat==='window',fx:{mood:1}},
+ {t:'同事生日，大家合買了一個蛋糕。傑夫問蛋糕多少錢。',fx:{net:1}},
+ {t:'客戶送來一盒鳳梨酥，放在冰箱上，三天後只剩盒子。',fx:{mood:1}},
+ {t:'你在電梯裡遇到陳總，她問你最近身體還好嗎。電梯還沒到二樓。',ok:s=>s.unit==='tw',fx:{body:1}},
+ {t:'傑夫打開冰箱拿了一瓶養樂多：「這個我也有付錢，我有 5%。」',ok:s=>s.unit==='tw',fx:{shares:1}},
+ {t:'影印機卡紙了。傑夫說：「這台我也有出 5%，小心點用。」',ok:s=>s.unit==='tw',fx:{shares:1}},
+ {t:'傑夫在群組說：「中秋快樂，大家的月餅我也有付錢喔。」',fx:{shares:1}},
+ {t:'陳總今天問你身體還好嗎，問了五次。',ok:s=>s.romance,fx:{body:5}},
+ {t:'茶水間的同事看到你走進來，突然換了話題。',ok:s=>s.romance,fx:{net:-1}},
+ {t:'陳總今天的急件沒有給你，給了業務。',ok:s=>s.romance,fx:{mood:1}},
+ {t:'台灣開會的聲音從視訊會議室傳過來，有人在問「身體還好嗎」。',ok:s=>s.unit==='gz'},
+ {t:'廣州下雨了。傑夫說他當年創業，也是這種天氣。',ok:s=>s.unit==='gz'},
+];
+const REFLECT={
+ 3:'試用期過了。如果是真實的你，這三個月最想跟誰說聲謝謝？',
+ 12:'滿一年了。這一年裡，你最常在心裡說的一句話是什麼？',
+ 36:'三年了。報到那天的你，會怎麼看現在的你？',
+ 60:'五年了。如果明天就離職，你最捨不得的是什麼？',
+ 96:'八年了。你還記得第一次被問「身體還好嗎」是什麼時候嗎？',
+};
+const ALL={};[...EV,...SEASON,...Object.values(SPECIAL)].forEach(e=>ALL[e.id]=e);
+
+/* ---------- 狀態 ---------- */
+let S=null, cfg={start:'now',len:5000,dept:'',gender:'m'};
+let speed=1, turbo=false, userPaused=false, running=false, modalOpen=false, autoMode=false, logLimit=30;
+let lastTs=0, acc=0, queue=[];
+
+function hazard(t,cal){let b=t<3?.03:t<12?.016:.011;const m=calM(cal);if(m===2||m===3)b*=1.8;return b}
+function newGame(name){
+ const now=2026*12+9;
+ const startOpt=cfg.start==='any'?pick(['now','spring','launch']):cfg.start;
+ const startCal=startOpt==='now'?now:startOpt==='spring'?2027*12+2:2027*12+4;
+ const dept=cfg.dept||pick(Object.keys(DEPTS));
+ const unit=DEPTS[dept].u;
+ const boss=unit==='tw'?'chen':'jeff';
+ const seat=pick(Object.keys(SEATS).filter(k=>SEATS[k].u===unit));
+ let src,sal,senior=false;
+ if(unit==='gz'){ if(dept==='gz_fe'||dept==='gz_be'){src='eng';sal=ri(100,120)*1000}else{src='jeff';sal=ri(80,92)*1000} }
+ else{
+  src=r(.55)?'c104':'hr';
+  if(dept==='tw_pm') sal=ri(58,70)*1000;
+  else if(dept==='tw_sales'&&r(1/3)){senior=true;sal=ri(62,75)*1000}
+  else sal=(src==='c104'?ri(38,41):ri(42,48))*1000;
+  if(src==='c104'&&(dept==='tw_pm'||senior)) sal=Math.round(sal*.9/500)*500;
+ }
+ const org={
+  tw:[{role:'總經理',who:GM},{role:'業務',who:'業務甲',senior:1},{role:'業務',who:'業務乙'},{role:'業務',who:'業務丙'},{role:'推廣'},{role:'美術設計'},{role:'客服'},{role:'售後維修'},{role:'產品經理'},{role:'會計'}],
+  gz:[{role:'行銷總監',who:'傑夫'},{role:'UI/UX 設計'},{role:'前端工程師'},{role:'後端工程師'},{role:'國際推廣'},{role:'美國推廣'}]};
+ const slot=dept==='tw_sales'?(senior?org.tw[1]:pick([org.tw[2],org.tw[3]])):org[unit].find(x=>x.role===DEPTS[dept].n);
+ slot.you=true;
+ const ret=[1];let sv=1;for(let t=1;t<=120;t++){sv*=1-hazard(t,startCal+t);ret.push(sv)}
+ const names=[...NPC_NAMES].sort(()=>Math.random()-.5).slice(0,4);
+ S={name:name||'新人',gender:cfg.gender,src,unit,senior,org,romance:0,romanceStart:null,romanceDone:false,dept,boss,seat,month:0,startCal,cal:startCal,
+  hp:rand(62,85),mood:rand(58,76),skill:rand(20,42),net:rand(15,34),favor:rand(45,60),
+  money:ri(3,9)*10000,salary:sal,expense:ri(21,27)*1000,title:0,focus:'work',
+  log:[],c:{body:0,fridge:0,question:0,blame:0,raise:0,promo:0,shares:0},cd:{},
+  npcs:names.map(n=>({n,co:pick(NPC_COS),left:null,reason:''})),
+  map:[],dec:[],refl:[],ret,treated:false,leaveDays:7,leaveYear:Math.floor(startCal/12),ended:false,id:Date.now().toString(36)};
+}
+function addLog(text,kind='p'){S.log.unshift({id:Math.random().toString(36).slice(2,8),mo:S.month,cal:S.cal,text,kind,star:false,fresh:true})}
+function apply(fx){
+ for(const [k,v] of Object.entries(fx||{})){
+  if(k in STATN) S[k]=clamp(S[k]+v);
+  else if(k==='money') S.money+=v;
+  else if(k==='salaryPct') S.salary=Math.round(S.salary*(1+v)/100)*100;
+  else if(k==='romance'){S.romance=v;if(v)S.romanceStart=S.month}
+  else if(k==='setSal') S.salary=v;
+  else if(k==='title') S.title=Math.min(TITLES.length-1,S.title+v);
+  else if(k in S.c) S.c[k]+=v;
+ }
+}
+function cdOk(id){const l=S.cd[id];if(l==null)return true;return S.month-l>=(ALL[id]?.cd??6)}
+
+/* ---------- 每月 ---------- */
+function tick(){
+ if(S.ended)return;
+ S.month++;S.cal++;
+ const m=calM(S.cal);
+ S.treated=false;
+ if(Math.floor(S.cal/12)!==S.leaveYear){S.leaveYear=Math.floor(S.cal/12);S.leaveDays=7}
+ if(autoMode && r(.25)) S.focus = S.hp<35?pick(['slack','home']):S.mood<30?pick(['home','slack','net']):pick(Object.keys(FOCUS));
+ apply(FOCUS[S.focus].fx);
+ S.hp=clamp(S.hp-.35);S.mood=clamp(S.mood-.3);S.favor=clamp(S.favor+(50-S.favor)*.02);
+ const bonus=S.dept==='tw_sales'?Math.round(Math.random()*S.salary*.3*(S.net/60)/100)*100:0;
+ S.money+=S.salary+bonus-S.expense;
+ if(S.money<0)S.mood=clamp(S.mood-2);
+ // 同梯
+ for(const p of S.npcs){ if(!p.left && r(hazard(S.month,S.cal)*1.15)){ p.left=S.month; p.reason=(m===2||m===3)&&r(.5)?'在年終入帳後遞了辭呈':pick(NPC_LEAVE); addLog(`大學同學${p.n}離職了：${p.reason}。`,'p'); S.mood=clamp(S.mood-1.5);} }
+ // 年終
+ if(m===2 && S.month>=3){
+  let mo=Math.max(.5,Math.min(3,Math.round((S.favor+S.skill)/55*2)/2));
+  if(S.month<12) mo=Math.max(.5,Math.round(mo*S.month/12*2)/2);
+  S.money+=S.salary*mo;
+  addLog(`年終入帳：${mo} 個月，${fmt(S.salary*mo)}。`+(mo<=1?'傑夫說：「我們當年創業哪有年終。」':''),'ms');
+  if(mo<=1)S.mood=clamp(S.mood-4);else S.mood=clamp(S.mood+3);
+ }
+ S.map.push(S.mood);
+ if(S.hp<=0){render();return endGame('burnout')}
+ if(S.mood<=0){render();return endGame('quit')}
+ // 考績
+ if(S.month%12===0){
+  const sc=S.skill*.45+S.favor*.3+S.net*.25+rand(-8,8);
+  if(S.title<TITLES.length-1 && sc>=42+S.title*6) queue.push({type:'ev',ev:promoEvent()});
+  else { const up=r(.5)?.02:0; if(up){S.salary=Math.round(S.salary*1.02/100)*100} addLog(`年度考績：普通。${up?'薪水調了 2%。':'傑夫說：「明年再看看。」'}`,'ms'); }
+  addLog(`滿 ${S.month/12} 年了。`,'ms');
+ }
+ const ev=pickDecision();
+ if(ev) queue.unshift({type:'ev',ev});
+ else if(r(.5)){const pool=PASSIVE.filter(p=>!p.ok||p.ok(S));const p=pick(pool);apply(p.fx);addLog(p.t,'p')}
+ if(REFLECT[S.month]) queue.push({type:'refl',q:REFLECT[S.month]});
+ if(S.month>=120) queue.push({type:'end',key:'decade'});
+ render();
+ if(queue.length) nextQueue();
+}
+function pickDecision(){
+ const m=calM(S.cal);
+ if(S.hp<22 && cdOk('lowHp')) return SPECIAL.lowHp;
+ if(S.mood<20 && cdOk('lowMood')) return SPECIAL.lowMood;
+ if(S.month>=2) for(const e of SEASON){ if(e.m===m && cdOk(e.id) && (!e.ok||e.ok(S))) return e; }
+ if(S.month>=6 && cdOk('poach') && r(Math.max(0,S.skill+S.net-105)/700)) return SPECIAL.poach;
+ if(S.month>=24 && cdOk('reorg') && r(.012)) return SPECIAL.reorg;
+ if(!r(S.month<2?.6:.36)) return null;
+ const pool=EV.filter(e=>cdOk(e.id)&&(!e.ok||e.ok(S))).map(e=>[e,e.w(S)*(e.who==='陳總'&&S.unit==='gz'?.3:1)]).filter(x=>x[1]>0);
+ if(!pool.length) return null;
+ let tot=pool.reduce((a,x)=>a+x[1],0),x=Math.random()*tot;
+ for(const [e,w] of pool){x-=w;if(x<=0)return e}
+ return pool[0][0];
+}
+function promoEvent(){
+ const next=TITLES[S.title+1];
+ return {id:'promo_review',who:'考績',cd:0,t:s=>`年度考績出爐，你被找去談話：「我們想讓你升${next}。工作會多一點，薪水也會多一點。」`,
+  ch:[['接受升遷',s=>{const top=s.title+1===TITLES.length-1;return {fx:{title:1,salaryPct:.15,promo:1,hp:-3,mood:3},end:top?'ceo':null,m:top?'你坐上了總經理的位子。辦公室比較大，冰箱也歸你管了。':`你升上了${next}。名片多印了一盒。`}}],
+      ['婉拒，維持現狀',s=>({fx:{mood:3,favor:-2},m:'主管有點意外。你說：「我現在這樣剛剛好。」'})]]};
+}
+
+/* ---------- 迴圈 ---------- */
+function loop(ts){
+ if(!running)return;
+ const dt=lastTs?Math.min(250,ts-lastTs):0;lastTs=ts;
+ acc+=dt*(turbo?48:speed);
+ while(acc>=cfg.len && running){acc-=cfg.len;tick()}
+ $('#prog').style.width=(Math.min(1,acc/cfg.len)*100)+'%';
+ requestAnimationFrame(loop);
+}
+function play(){ if(!S||S.ended||modalOpen||userPaused||running)return; running=true;lastTs=0;requestAnimationFrame(loop) }
+function halt(){ running=false }
+
+/* ---------- 彈出 ---------- */
+function openModal(html){ modalOpen=true; halt(); turbo=false; $('#sheet').innerHTML=html; $('#modal').hidden=false; const f=$('#sheet').querySelector('button,textarea'); if(f) f.focus({preventScroll:true}); }
+function closeModal(){ modalOpen=false; $('#modal').hidden=true; }
+function nextQueue(){
+ const it=queue.shift();
+ if(!it){ closeModal(); render(); play(); return }
+ if(it.type==='ev') showEvent(it.ev);
+ else if(it.type==='refl') showReflect(it.q);
+ else if(it.type==='end'){ closeModal(); endGame(it.key) }
+}
+function meta(who){return `<div class="meta"><span>${calStr(S.cal)}</span><span>年資 ${tenWords(S.month)}</span>${who?`<span class="who">${esc(who)}</span>`:''}</div>`}
+function showEvent(ev){
+ if(ev.id!=='promo_review') S.cd[ev.id]=S.month;
+ S.dec.push(S.month);
+ const text=ev.t(S);
+ openModal(`${meta(ev.who)}<p class="txt">${esc(text)}</p><div class="choices">${ev.ch.map((c,i)=>`<button type="button" data-i="${i}">${esc(c[0])}</button>`).join('')}</div>`);
+ const choose=i=>{
+  const res=ev.ch[i][1](S)||{};
+  const before={hp:S.hp,mood:S.mood,skill:S.skill,net:S.net,favor:S.favor,money:S.money,salary:S.salary,title:S.title};
+  apply(res.fx);
+  addLog(`${text}　→　${ev.ch[i][0]}。${res.m||''}`,'d');
+  const chips=[];
+  for(const k of Object.keys(STATN)){const d=Math.round(S[k]-before[k]);if(d)chips.push([`${STATN[k]} ${d>0?'+':''}${d}`,d>0])}
+  if(S.money!==before.money){const d=S.money-before.money;chips.push([`存款 ${d>0?'+':'−'}${Math.abs(d).toLocaleString('en-US')}`,d>0])}
+  if(S.salary!==before.salary)chips.push([`月薪 → ${fmt(S.salary)}`,true]);
+  if(S.title!==before.title)chips.push([`職稱 → ${TITLES[S.title]}`,true]);
+  render();
+  const endKey=res.end;
+  $('#sheet').innerHTML=`${meta(ev.who)}<p class="muted small">你選擇了：${esc(ev.ch[i][0])}</p><p class="result">${esc(res.m||'')}</p>${chips.length?`<div class="deltas">${chips.map(c=>`<span class="dl ${c[1]?'up':'dn'}">${esc(c[0])}</span>`).join('')}</div>`:''}<div class="row-btns"><button type="button" class="btn-primary" id="bCont" style="font-size:15px;padding:9px 22px">${endKey?'辦理離職':'繼續'}</button></div>`;
+  const go=()=>{ if(endKey){ queue=[]; closeModal(); endGame(endKey) } else nextQueue() };
+  $('#bCont').onclick=go; $('#bCont').focus({preventScroll:true});
+  if(autoMode) setTimeout(()=>{ if(modalOpen && $('#bCont')) go() }, endKey?2400:1500);
+ };
+ $('#sheet').querySelectorAll('.choices button').forEach(b=>b.onclick=()=>choose(+b.dataset.i));
+ if(autoMode) setTimeout(()=>{ if(modalOpen && $('#sheet .choices')) choose(Math.floor(Math.random()*ev.ch.length)) },1100);
+}
+function showReflect(q,free){
+ openModal(`${meta(free?'寫下想法':'暫停片刻')}<p class="q">${esc(q)}</p><label class="hint" for="reflTxt">願意的話，留下一行字。只會存在這個瀏覽器裡。</label><textarea id="reflTxt" maxlength="120"></textarea><div class="row-btns"><button type="button" class="btn" id="rSkip">略過</button><button type="button" class="btn-primary" id="rOk" style="font-size:15px;padding:9px 22px">寫下並繼續</button></div>`);
+ $('#rSkip').onclick=()=>nextQueue();
+ $('#rOk').onclick=()=>{const v=$('#reflTxt').value.trim(); if(v){S.refl.push({q,a:v,mo:S.month}); addLog(`「${v}」`,'note')} nextQueue()};
+ if(autoMode) setTimeout(()=>{ if(modalOpen && $('#rSkip')) nextQueue() },1800);
+}
+
+/* ---------- 畫面 ---------- */
+function show(id){['landing','assign','game','ending'].forEach(x=>$('#'+x).hidden=x!==id); window.scrollTo(0,0)}
+function render(){
+ if(!S)return;
+ $('#gTen').textContent=tenStr(S.month);
+ $('#gCal').textContent=`${calStr(S.cal)} · ${calStr(S.startCal)} 報到`;
+ $('#gName').textContent=S.name;$('#gDept').textContent=dn(S.dept);$('#gTitle').textContent=TITLES[S.title];$('#gBoss').textContent=`${BOSSES[S.boss].n}（${BOSSES[S.boss].t}）`;
+ $('#gOrg').innerHTML=orgHtml(S.org);
+ $('#gStats').innerHTML=Object.keys(STATN).map(k=>{const v=Math.round(S[k]);return `<div class="stat${v<25?' low':''}"><div class="top"><span>${STATN[k]}</span><b>${v}</b></div><div class="track"><div class="fill" style="width:${v}%"></div></div></div>`}).join('');
+ $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span><span>每月開銷 <b>${fmt(S.expense)}</b></span><span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span>`;
+ $('#gFocus').innerHTML=Object.entries(FOCUS).map(([k,f])=>`<button type="button" data-f="${k}" aria-pressed="${S.focus===k}">${f.n}<small>${f.d}</small></button>`).join('');
+ $('#aTreat').disabled=S.treated||S.ended; $('#aLeave').disabled=S.leaveDays<=0||S.ended;
+ const items=S.log.slice(0,logLimit);
+ $('#gLog').innerHTML=items.length?items.map(l=>`<button type="button" class="log-item${l.star?' on':''}${l.kind==='ms'?' ms':''}${l.fresh?' new':''}" data-id="${l.id}"><span class="when">${calStr(l.cal)}</span><span>${l.kind==='d'?'<span class="tag">抉擇</span>':l.kind==='ms'?'<span class="tag">里程碑</span>':l.kind==='note'?'<span class="tag">想法</span>':''}${esc(l.text)}</span><span class="star">${l.star?'★':'☆'}</span></button>`).join(''):`<p class="empty">第一天。你找到了自己的座位，電腦還沒裝好。</p>`;
+ S.log.forEach(l=>l.fresh=false);
+ $('#bMore').hidden=S.log.length<=logLimit;
+ $('#gNpc').innerHTML=S.npcs.map(p=>`<div class="npc${p.left?' gone':''}"><span class="nm">${esc(p.n)}<span class="muted small">　${esc(p.co||'')}</span></span><span class="st">${p.left?`${tenWords(p.left)}離職`:`還在撐（${tenWords(S.month)}）`}</span></div>`).join('');
+ $('#gCurve').innerHTML=curveSvg(S.ret,S.month);
+ const beat=Math.round((1-S.ret[Math.min(120,S.month)])*100);
+ $('#gCurveHint').textContent=S.month?`你已經撐過了 ${beat}% 的同期新人（模擬）。`:'同期報到的人當中，仍留在大妃的比例（模擬）';
+ $('#gMap').innerHTML=mapHtml(S.map,S.dec,S.month,!S.ended);
+}
+function orgHtml(org){return ['tw','gz'].map(u=>`<div class="org"><h3>${UNITS[u]}</h3>${org[u].map(x=>`<div class="org-row${x.you?' me':''}${x.fired&&!x.you?' gone':''}"><span>${esc(x.role)}${x.senior?'<small class="muted">　資深</small>':''}</span><span class="wh">${x.fired?`<s>${esc(x.who)}</s>　${x.you?'→ 你':'被開除'}`:x.you?'你':x.vacant?'（空缺）':esc(x.who||'同事')}</span></div>`).join('')}</div>`).join('')}
+function cellColor(v){const p=Math.round(12+v*.78);return `color-mix(in srgb, var(--accent) ${p}%, var(--surface))`}
+function mapHtml(map,dec,month,live){
+ let h='';for(let y=0;y<10;y++){h+=`<span class="yl">${y+1}年</span>`;for(let mm=0;mm<12;mm++){const i=y*12+mm;const v=map[i];const has=v!=null;h+=`<span class="cell${dec.includes(i+1)&&has?' dec':''}${live&&i===month?' now':''}" ${has?`style="background:${cellColor(v)};border-color:transparent"`:''}></span>`}}return h;
+}
+function curveSvg(ret,month){
+ const W=320,H=150,L=34,R=10,T=10,B=24,iw=W-L-R,ih=H-T-B;
+ const X=t=>L+t/120*iw, Y=v=>T+(1-v)*ih;
+ let d=`M${X(0)},${Y(1)}`;for(let t=1;t<=120;t++)d+=` L${X(t).toFixed(1)},${Y(ret[t]).toFixed(1)}`;
+ const area=d+` L${X(120)},${Y(0)} L${X(0)},${Y(0)} Z`;
+ let g='';[0,.5,1].forEach(v=>{g+=`<line class="ax" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-6}" y="${Y(v)+3}" text-anchor="end">${v*100}%</text>`});
+ [0,24,48,72,96,120].forEach(t=>{g+=`<text x="${X(t)}" y="${H-6}" text-anchor="middle">${t/12}年</text>`});
+ const mt=Math.min(120,month),mv=ret[mt];
+ const lx=X(mt)>W-70?X(mt)-8:X(mt)+8, anc=X(mt)>W-70?'end':'start';
+ return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="同期新人留任曲線">${g}<path class="ar" d="${area}"/><path class="ln" d="${d}"/><circle class="me" cx="${X(mt)}" cy="${Y(mv)}" r="4"/><text class="mel" x="${lx}" y="${Y(mv)-8}" text-anchor="${anc}">你</text></svg>`;
+}
+
+/* ---------- 結束 ---------- */
+function endGame(key){
+ if(S.ended)return;
+ S.ended=true;S.ending=key;halt();closeModal();queue=[];
+ const rec={id:S.id,name:S.name,gender:S.gender,src:S.src,dept:S.dept,boss:S.boss,seat:S.seat,title:S.title,startCal:S.startCal,endCal:S.cal,months:S.month,ending:key,
+  stats:{hp:Math.round(S.hp),mood:Math.round(S.mood),skill:Math.round(S.skill),net:Math.round(S.net),favor:Math.round(S.favor)},
+  money:S.money,salary:S.salary,c:{...S.c},stars:S.log.filter(l=>l.star).slice(0,6).map(l=>({cal:l.cal,text:l.text})),
+  refl:S.refl,words:'',npcs:S.npcs.map(p=>({n:p.n,co:p.co,left:p.left,reason:p.reason})),org:S.org,rm:S.romance?'與總經理交往中':S.romanceDone?'曾與總經理交往，後接任業務':'',map:S.map,dec:S.dec,ret:S.ret};
+ saveHist(rec);
+ renderEnding(rec,true);
+ show('ending');
+}
+function shareText(rec){
+ const E=ENDINGS[rec.ending];
+ return `【大妃職場模擬器】\n我在大妃${dn(rec.dept)}待了${tenWords(rec.months)}，做到${TITLES[rec.title]}。\n離職原因：${E.t}。\n期間被陳總問了 ${rec.c.body} 次身體還好嗎、整理了 ${rec.c.fridge} 次冰箱、被連環質問 ${rec.c.question} 次、被甩鍋 ${rec.c.blame} 次，聽傑夫說他有 5% 股份 ${rec.c.shares||0} 次。`+(rec.words?`\n我想對大妃說：「${rec.words}」`:'');
+}
+function renderEnding(rec,live){
+ const E=ENDINGS[rec.ending];
+ const fake={...rec,boss:rec.boss};
+ const stillHere=rec.npcs.filter(p=>!p.left).length;
+ $('#endWrap').innerHTML=`
+ <div class="hero"><p class="eyebrow">${live?'這份工作結束了':'前一份工作'}</p><h1 class="end-title" style="font-size:clamp(30px,7vw,46px)">${esc(E.t)}</h1></div>
+ <div class="cert">
+  <h2>離職證明書</h2>
+  <p class="no">大妃人字第 ${rec.startCal}${String(rec.months).padStart(3,'0')} 號</p>
+  <dl>
+   <dt>姓名</dt><dd>${esc(rec.name)}</dd>
+   <dt>職位</dt><dd>${dn(rec.dept)}</dd>
+   ${rec.src?`<dt>入職管道</dt><dd>${SRC[rec.src].n}</dd>`:''}
+   ${rec.rm?`<dt>備註</dt><dd>${esc(rec.rm)}</dd>`:''}
+   <dt>最後職稱</dt><dd>${TITLES[rec.title]}</dd>
+   <dt>到職日</dt><dd>${calStr(rec.startCal)}</dd>
+   <dt>離職日</dt><dd>${calStr(rec.endCal)}</dd>
+   <dt>年資</dt><dd>${tenWords(rec.months)}</dd>
+   <dt>離職原因</dt><dd>${esc(E.reason)}</dd>
+  </dl>
+  <p class="story">${esc(E.story(fake))}</p>
+  <p class="muted small">茲證明上述人員確曾任職本公司，服務期間${rec.c.body>20?'身體經常受到關心':'表現尚可'}，特此證明。</p>
+  <div class="stamp">大妃<br>人資部<br>核</div>
+ </div>
+ <div class="tally">
+  <div><b>${rec.c.body}</b><span>被問「身體還好嗎」</span></div>
+  <div><b>${rec.c.fridge}</b><span>整理冰箱</span></div>
+  <div><b>${rec.c.question}</b><span>被連環質問</span></div>
+  <div><b>${rec.c.blame}</b><span>被甩鍋</span></div>
+  <div><b>${rec.c.raise}／${rec.c.promo}</b><span>加薪／升遷</span></div>
+  <div><b>${rec.c.shares||0}</b><span>聽傑夫說他有 5%</span></div>
+  <div><b style="font-size:17px">${fmt(rec.salary)}</b><span>離職時月薪</span></div>
+  <div><b style="font-size:17px">${fmt(rec.money)}</b><span>離職時存款</span></div>
+ </div>
+ ${rec.org?`<div class="section"><h2>公司架構</h2><div class="orgs">${orgHtml(rec.org)}</div></div>`:''}
+ <div class="section"><h2>同梯朋友</h2><p class="hint">${stillHere?`你離開的時候，還有 ${stillHere} 個大學同學在原本的公司撐著。`:'你是同梯最後一個離開第一份工作的。'}</p>
+  <div class="npcs">${rec.npcs.map(p=>`<div class="npc${p.left?' gone':''}"><span class="nm">${esc(p.n)}<span class="muted small">　${esc(p.co||'')}</span></span><span class="st">${p.left?`${tenWords(p.left)}：${esc(p.reason)}`:'還在大妃'}</span></div>`).join('')}</div></div>
+ <div class="section"><h2>職涯地圖</h2><div class="map">${mapHtml(rec.map,rec.dec,rec.months,false)}</div></div>
+ ${rec.stars.length||rec.refl.length?`<div class="section"><h2>你留下的</h2><div class="quotes">${rec.stars.map(s=>`<blockquote>${esc(s.text)}<small>☆ ${calStr(s.cal)}</small></blockquote>`).join('')}${rec.refl.map(x=>`<blockquote>${esc(x.a)}<small>${esc(x.q)}</small></blockquote>`).join('')}</div></div>`:''}
+ <div class="section"><h2>最後，你想對大妃說一句話嗎？</h2>
+  <textarea id="finalWords" maxlength="80" placeholder="例如：冰箱我整理好了。">${esc(rec.words)}</textarea>
+  <div class="cta"><button type="button" class="btn" id="bWords">寫下</button></div></div>
+ <div class="section"><h2>分享</h2><div class="share" id="shareBox">${esc(shareText(rec))}</div>
+  <div class="cta"><button type="button" class="btn" id="bCopy">複製分享文字</button><button type="button" class="btn-primary" id="bAgain">再入職一次</button><button type="button" class="btn-text" id="bHome">回到首頁</button></div></div>
+ <p class="foot">人物言行皆為誇張演出，如有雷同，大概不是巧合。</p>`;
+ $('#bWords').onclick=()=>{rec.words=$('#finalWords').value.trim();saveHist(rec);$('#shareBox').textContent=shareText(rec);toast('寫下了')};
+ $('#bCopy').onclick=()=>{const t=shareText(rec);const fb=()=>{const sel=window.getSelection(),rg=document.createRange();rg.selectNodeContents($('#shareBox'));sel.removeAllRanges();sel.addRange(rg);toast('已選取文字，請手動複製')};try{navigator.clipboard.writeText(t).then(()=>toast('已複製'),fb)}catch(e){fb()}};
+ $('#bAgain').onclick=()=>{S=null;show('landing');renderHist()};
+ $('#bHome').onclick=()=>{S=null;show('landing');renderHist()};
+}
+
+/* ---------- 紀錄 ---------- */
+const HK='dafei-sim-history';
+function loadHist(){try{return JSON.parse(localStorage.getItem(HK)||'[]').filter(x=>DEPTS[x.dept])}catch(e){return []}}
+function saveHist(rec){try{let h=loadHist().filter(x=>x.id!==rec.id);h.unshift(rec);localStorage.setItem(HK,JSON.stringify(h.slice(0,10)))}catch(e){}}
+function renderHist(){
+ const h=loadHist();
+ $('#hist').innerHTML=h.length?h.map(x=>`<div class="hist-item"><span class="who"><b>${esc(x.name)}</b>　${dn(x.dept)}・${TITLES[x.title]}<span class="muted small">　${tenWords(x.months)}・${ENDINGS[x.ending].t}</span></span><button type="button" class="btn-text" data-h="${x.id}">再看一次</button></div>`).join(''):`<p class="empty">還沒有離職紀錄。第一份工作總是最難忘的。</p>`;
+ $('#hist').querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const rec=loadHist().find(x=>x.id===b.dataset.h);if(rec){renderEnding(rec,false);show('ending')}});
+}
+function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,1800)}
+
+/* ---------- 分發動畫 ---------- */
+function spin(el,dEl,opts,final,ms){return new Promise(res=>{const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduce){el.textContent=final.n;dEl.textContent=final.d;return res()}const iv=setInterval(()=>{el.textContent=pick(opts)},70);setTimeout(()=>{clearInterval(iv);el.textContent=final.n;dEl.textContent=final.d;res()},ms)})}
+async function doAssign(){
+ show('assign');$('#btnBegin').disabled=true;$('#asEyebrow').textContent='正在分發';
+ ['#sDept','#sBoss','#sSrc','#sSeat','#sSal'].forEach(s=>$(s).textContent='—');['#sDeptD','#sBossD','#sSrcD','#sSeatD','#sSalD'].forEach(s=>$(s).innerHTML='&nbsp;');
+ await spin($('#sDept'),$('#sDeptD'),Object.keys(DEPTS).map(dn),{n:dn(S.dept),d:DEPTS[S.dept].d},1000);
+ await spin($('#sBoss'),$('#sBossD'),['陳總（總經理）','傑夫（行銷總監）'],{n:`${BOSSES[S.boss].n}（${BOSSES[S.boss].t}）`,d:BOSSES[S.boss].d},700);
+ await spin($('#sSrc'),$('#sSrcD'),Object.values(SRC).map(d=>d.n),SRC[S.src],600);
+ await spin($('#sSeat'),$('#sSeatD'),Object.values(SEATS).map(d=>d.n),SEATS[S.seat],700);
+ await spin($('#sSal'),$('#sSalD'),['NT$29,500','NT$38,500','NT$86,000','NT$112,000'],{n:fmt(S.salary),d:`每月開銷約 ${fmt(S.expense)}，存款 ${fmt(S.money)}。`},500);
+ $('#asEyebrow').textContent=`${calStr(S.startCal)} 報到`;
+ $('#btnBegin').disabled=false;$('#btnBegin').focus();
+}
+
+/* ---------- 綁定 ---------- */
+Object.entries(UNITS).forEach(([u,un])=>{const g=document.createElement('optgroup');g.label=un;Object.entries(DEPTS).filter(([k,d])=>d.u===u).forEach(([k,d])=>{const o=document.createElement('option');o.value=k;o.textContent=d.n;g.appendChild(o)});$('#inDept').appendChild(g)});
+function seg(id,key,num){$(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{$(id).querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');cfg[key]=num?+b.dataset.v:b.dataset.v})}
+seg('#segStart','start');seg('#segGender','gender');seg('#segLen','len',true);
+$('#inDept').onchange=e=>cfg.dept=e.target.value;
+$('#btnStart').onclick=()=>{newGame($('#inName').value.trim());doAssign()};
+$('#btnBegin').onclick=()=>{
+ show('game');logLimit=30;speed=1;userPaused=false;turbo=false;
+ document.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.sp==='1'));$('#bPause').setAttribute('aria-pressed','false');$('#bPause').textContent='❚❚';
+ addLog(`${S.name}到${dn(S.dept)}報到。座位在${SEATS[S.seat].n}，直屬主管是${BOSSES[S.boss].t}${BOSSES[S.boss].n}。`,'ms');
+ render();play();
+};
+document.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{speed=+b.dataset.sp;document.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',x===b));if(userPaused){userPaused=false;$('#bPause').setAttribute('aria-pressed','false');$('#bPause').textContent='❚❚'}play()});
+$('#bPause').onclick=()=>{userPaused=!userPaused;$('#bPause').setAttribute('aria-pressed',userPaused);$('#bPause').textContent=userPaused?'▶':'❚❚';if(userPaused)halt();else play()};
+$('#bSkip').onclick=()=>{turbo=true;if(userPaused){userPaused=false;$('#bPause').setAttribute('aria-pressed','false');$('#bPause').textContent='❚❚'}play()};
+$('#bMenu').onclick=e=>{e.stopPropagation();const m=$('#menu');m.hidden=!m.hidden;$('#bMenu').setAttribute('aria-expanded',!m.hidden)};
+document.addEventListener('click',e=>{if(!$('#menu').hidden&&!$('#menu').contains(e.target)){$('#menu').hidden=true;$('#bMenu').setAttribute('aria-expanded','false')}});
+$('#mAuto').onclick=()=>{autoMode=!autoMode;$('#mAuto').setAttribute('aria-pressed',autoMode);toast(autoMode?'自動抉擇：開':'自動抉擇：關')};
+$('#mNote').onclick=()=>{$('#menu').hidden=true;if(!S||S.ended)return;queue.unshift({type:'refl',q:'現在在想什麼？'});halt();nextQueue()};
+$('#mLeave').onclick=()=>{$('#menu').hidden=true;if(!S||S.ended)return;openModal(`${meta('離開')}<p class="q">確定要離開這份工作嗎？</p><p class="muted">這段職涯會以「提早離開」結束，並留下離職證明。</p><div class="row-btns"><button type="button" class="btn" id="lNo">再待一下</button><button type="button" class="btn-primary" id="lYes" style="font-size:15px;padding:9px 22px">離開</button></div>`);$('#lNo').onclick=()=>{closeModal();play()};$('#lYes').onclick=()=>endGame('left')};
+$('#gFocus').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;S.focus=b.dataset.f;render()});
+$('#gLog').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;const l=S.log.find(x=>x.id===b.dataset.id);if(l){l.star=!l.star;render()}});
+$('#bMore').onclick=()=>{logLimit+=40;render()};
+$('#aTreat').onclick=()=>{if(S.treated)return;S.treated=true;S.money-=3000;S.mood=clamp(S.mood+6);addLog(pick(['你去吃了一頓燒肉。','你買了一顆自家的風扇，用員工價。','你訂了一間溫泉旅館的週末。','你買了一杯很貴的手沖咖啡，喝的時候沒看手機。']),'p');render()};
+$('#aLeave').onclick=()=>{if(S.leaveDays<=0)return;S.leaveDays--;S.hp=clamp(S.hp+4);S.mood=clamp(S.mood+2);S.favor=clamp(S.favor-1.5);if(r(.2)){S.c.body++;S.mood=clamp(S.mood-2);addLog('你請了一天特休。下午陳總打電話來：「身體還好嗎？對了，有件事想問你。」','p')}else addLog('你請了一天特休，睡到自然醒。','p');render()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#menu').hidden){$('#menu').hidden=true}});
+
+/* 首頁計數器 */
+let cB=0,cF=0;(function bump(){if(!$('#landing').hidden){if(r(.6))cB+=1;if(r(.18))cF+=1;$('#cBody').textContent=cB;$('#cFridge').textContent=cF}setTimeout(bump,ri(900,2600))})();
+
+/* 熱更新保留進度 */
+function boot(data){
+ renderHist();
+ if(data&&data.S&&data.S.org){S=data.S;cfg=data.cfg||cfg;if(S.ended){S=null;return}show('game');userPaused=true;$('#bPause').setAttribute('aria-pressed','true');$('#bPause').textContent='▶';render()}
+}
+try{window.claude?.hot?.snapshot?.(()=>({S,cfg}))}catch(e){}
+window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
+</script>
+
+</body>
+</html>
