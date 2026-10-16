@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="大妃版職涯模擬：隨機分發職位、主管與座位，撐過陳總和傑夫，拿到你的離職證明。">
-<title>大妃職場模擬器</title>
+<meta name="description" content="社畜人生模擬：隨機分發職位、主管與座位，撐過陳總和傑夫，拿到你的離職證明。">
+<title>社畜人生模擬器</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -205,6 +205,26 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
 .share{background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:12px 14px;font-size:14px;white-space:pre-wrap;word-break:break-word}
 .toast{position:fixed;left:50%;bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 16px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:8px 16px;border-radius:999px;font-size:14px;z-index:30}
 
+/* 電腦版 */
+.land-a,.land-b,.g-a,.g-c{display:flex;flex-direction:column;gap:28px;min-width:0}
+.g-b{min-width:0}
+@media (min-width:1080px){
+  .wrap.wide{max-width:1240px}
+  .bar-in{max-width:1240px}
+  .land{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:start}
+  .land-b{position:sticky;top:24px}
+  .game-grid{display:grid;grid-template-columns:minmax(380px,440px) minmax(0,1fr);grid-template-areas:"a b" "c b";grid-template-rows:auto 1fr;gap:28px 48px;align-items:start}
+  .g-a{grid-area:a}
+  .g-c{grid-area:c}
+  .g-b{grid-area:b;position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
+  .g-b .log{max-height:calc(100vh - 190px);overflow-y:auto;overscroll-behavior:contain;padding-right:6px}
+  .g-a .idcard{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g-a .idcard div:nth-child(3){border-left:0}
+  .g-a .idcard div:nth-child(n+3){border-top:1px solid var(--line)}
+  .g-c .grid2{grid-template-columns:1fr}
+  .log-item{grid-template-columns:5em minmax(0,1fr) 1.6em;padding:12px 4px}
+  .log-item > span:nth-child(2){font-size:15px}
+}
 @media (max-width:560px){
   .form .row,.slot{grid-template-columns:1fr}
   .form .lab,.slot .lab{border-right:0;padding-bottom:0}
@@ -225,10 +245,11 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
 <div id="app">
 <!-- 首頁 -->
 <section id="landing">
-  <div class="wrap">
+  <div class="wrap wide land">
+    <div class="land-a">
     <div class="hero">
       <p class="eyebrow">v0.1 測試版 · 免費職涯模擬 · 根據 0 份真實統計</p>
-      <h1><span class="frac">大妃員工之一</span>大妃職場模擬器</h1>
+      <h1><span class="frac">大妃員工之一</span>社畜人生模擬器</h1>
       <p class="lede">就在此刻，又有一位新人在大妃報到。你將成為其中一個，把這份工作做到最後。被分到哪個部門、遇到哪位主管、座位在不在冰箱旁邊，都無法選擇。就像你當初一樣。</p>
     </div>
     <div class="counters">
@@ -272,7 +293,8 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
       <button class="btn-primary" id="btnStart" type="button">報到</button>
       <span class="hint">設定不用改，直接報到也沒關係。<br>甩鍋、拖延、連環質問等沉重情節，會依照（不存在的）真實統計出現。</span>
     </div>
-
+    </div>
+    <div class="land-b">
     <div class="section">
       <h2>前幾份工作</h2>
       <p class="muted small">最近的10份工作。按「再看一次」就能重新打開離職證明。紀錄只會留在這個瀏覽器裡。</p>
@@ -318,7 +340,8 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
         <p>沒有。人物言行皆為誇張演出，如有雷同，大概不是巧合。</p>
       </div></details>
     </div>
-    <p class="foot">大妃職場模擬器是內部娛樂作品，不代表任何人的真實工作表現。靈感來自「80億分之1」人生模擬。</p>
+    <p class="foot">社畜人生模擬器是內部娛樂作品，不代表任何人的真實工作表現。靈感來自「80億分之1」人生模擬。</p>
+    </div>
   </div>
 </section>
 
@@ -362,7 +385,8 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
     </div>
     <div class="prog" id="prog"></div>
   </div></div>
-  <div class="wrap" style="padding-top:20px">
+  <div class="wrap wide game-grid" style="padding-top:20px">
+    <div class="g-a">
     <div class="idcard">
       <div><small>姓名</small><b id="gName">新人</b></div>
       <div><small>職位</small><b id="gDept">—</b></div>
@@ -382,11 +406,13 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
         <button type="button" class="btn" id="aPromo">主動提升遷</button>
       </div>
     </div>
-    <div class="section">
+    </div>
+    <div class="section g-b">
       <div class="focus-head"><h2>職場紀錄</h2><span class="hint">最新的在前 · 點一行可以加☆</span></div>
       <div class="log" id="gLog"></div>
       <div><button type="button" class="btn-text" id="bMore" hidden>查看更早的紀錄</button></div>
     </div>
+    <div class="g-c">
     <div class="section">
       <h2>公司架構</h2>
       <div class="orgs" id="gOrg"></div>
@@ -407,6 +433,7 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
       <h2>職涯地圖</h2>
       <p class="hint">一格＝一個月。顏色越深，那個月心情越好；白點是做過抉擇的月份。</p>
       <div class="map" id="gMap"></div>
+    </div>
     </div>
   </div>
 </section>
@@ -1224,6 +1251,20 @@ const EV=[
  ['解釋原因',s=>r(.35)?{fx:{favor:1,mood:1,question:1},m:'傑夫說：「好，那下次注意。」你不知道要注意什麼。'}:{fx:{favor:-3,pua:1,jeffq:1},m:'傑夫說：「我是為你好才講。總經理不會講，你要自己有想法。」'}],
  ['「好，謝謝傑夫。」然後什麼都不改',s=>({fx:{mood:1},m:'傑夫走了。三天後他又來問同一件事。'})],
 ]},
+{id:'jeff_eng',who:'傑夫',cd:2,gap:2,max:10,sticky:1,engOk:1,ok:s=>['gz_fe','gz_be'].includes(s.dept),w:s=>3,
+ t:s=>[
+  '傑夫走過來，語氣很客氣：「你們辛苦了。官網那個新功能，大概什麼時候可以好？不急，你們慢慢來。」',
+  '傑夫拿著手機過來：「你幫我看一下，這個股票 App 為什麼一直登出？」',
+  '傑夫坐在你旁邊聊天：「我以前上一間公司的 IT 部門，三個人撐整間公司。你們兩個比他們強多了。」',
+  '傑夫放了一杯飲料在你桌上：「這杯我全部付，不是 5%。」',
+  '傑夫來問：「台灣那邊是不是又來煩你們？跟我說，我去講。」',
+  '傑夫心情不太好，走過來看了你的螢幕五秒：「嗯，你們這邊很好。」然後去台灣那一邊了。',
+ ][((s.uses?.jeff_eng||1)-1)%6],
+ ch:[
+ ['跟他聊兩句',s=>({fx:{favor:2,mood:1,jeffq:1},m:'傑夫聊了十分鐘他以前的經驗，然後說：「你們繼續忙，有事跟我說。」'})],
+ ['簡單回報進度',s=>({fx:{favor:3,skill:1},m:'傑夫點點頭：「很好，有需要什麼資源跟我講。」他對台灣那一邊從來不會這樣說。'})],
+ ['戴著耳機點頭',s=>({fx:{mood:2},m:'傑夫拍拍你的肩膀就走了。隔壁的 UI/UX 看著你，眼神很複雜。'})],
+]},
 {id:'intern',who:'人資',cd:24,ok:s=>s.month>=12,w:s=>1,
  t:s=>'部門來了一位實習生，主管說：「你帶。」',
  ch:[
@@ -1766,6 +1807,9 @@ function tick(){
   S.jeffDays=days; S.c.jeffDays=(S.c.jeffDays||0)+days;
   S.mood=clamp(S.mood-days*.12); S.hp=clamp(S.hp-days*.04);
   if(S.jeffMood==='bad'&&r(.5)) addLog(pick([`傑夫這個月心情不好，一週有四天都來找你，總共 ${days} 天。`,`傑夫這個月心情很差。你數了一下，他找你講工作 ${days} 天，剩下的日子他在找別人。`,`這個月傑夫幾乎每天都來。你開始能從腳步聲分辨他今天心情好不好。`]),'p');
+ } else if(S.dept==='gz_fe'||S.dept==='gz_be'){
+  const days=S.jeffMood==='bad'?ri(6,8):ri(4,6);
+  S.jeffDays=days; S.c.jeffDays=(S.c.jeffDays||0)+days; S.mood=clamp(S.mood-days*.04);
  } else S.jeffDays=0;
  if(r(.8)){ S.jUsed=S.jUsed||[]; let jp=JEFF_LINES.filter(x=>(!x.ok||x.ok(S))&&!S.jUsed.includes(x.t)); if(!jp.length){S.jUsed=[];jp=JEFF_LINES.filter(x=>!x.ok||x.ok(S))} const x=pick(jp); S.jUsed.push(x.t); if(x.fx)apply(x.fx); addLog(x.t,'p'); }
  if(REFLECT[S.month] && !noRefl) queue.push({type:'refl',q:REFLECT[S.month]});
@@ -1834,6 +1878,7 @@ function pickDecision(){
  }
  { const l=S.cd.chen_overorder, u=(S.uses||{}).chen_overorder||0;
    if(S.month>=4 && u<2 && (l==null||S.month-l>=18) && r(u?.03:.06)) return CHEN_ORDER; }
+ if(['gz_fe','gz_be'].includes(S.dept)&&S.month>=1){ const je=EV.find(e=>e.id==='jeff_eng'), l=S.cd.jeff_eng, u=(S.uses||{}).jeff_eng||0; if(u<je.max&&(l==null||S.month-l>=je.gap)&&r(.3)) return je; }
  if(!['gz_fe','gz_be'].includes(S.dept)&&S.month>=1){
   const U3=S.uses||{}, canJ=e=>{const l=S.cd[e.id];return (U3[e.id]||0)<(e.max||1)&&(l==null||S.month-l>=Math.max(e.cd||4,e.gap||4))&&(!e.ok||e.ok(S))};
   const chat=EV.find(e=>e.id==='jeff_chat');
@@ -1991,7 +2036,7 @@ function render(){
  $('#gOrg').innerHTML=orgHtml(S.org);
  $('#gStats').innerHTML=Object.keys(STATN).map(k=>{const v=Math.round(S[k]);return `<div class="stat${v<25?' low':''}"><div class="top"><span>${STATN[k]}</span><b>${v}</b></div><div class="track"><div class="fill" style="width:${v}%"></div></div></div>`}).join('');
  { const w=$('#gWarn'); const n=S.unit==='tw'?(S.lowFav||0):0; const o=S.unit==='tw'?(S.c.offend||0):0; const msg=[]; if(n) msg.push(`陳總對你不滿已經 ${n} 個月了，連續 6 個月就會被開除。`); if(o) msg.push(`你已經得罪陳總 ${o} 次，滿 6 次就會被開除。`); w.hidden=!msg.length; w.textContent=msg.join(' '); }
- $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span>${S.rent?`<span>房租 <b>${fmt(S.rent)}</b></span>`:`<span>孝親費 <b>${fmt(S.family)}</b></span>`}<span>每月開銷 <b>${fmt(S.expense||S.rent+S.family+S.living)}</b></span>${S.dept==='tw_sales'?`<span>市場 <b>${S.market==='good'?'景氣好':S.market==='bad'?'很冷':'普通'}</b></span><span>上季 KPI <b>${S.kpi?S.kpi+'%':'—'}</b></span>`:''}<span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span><span>英文 <b>${Math.round(S.eng||0)}</b></span>${S.unit==='tw'&&S.dept!=='tw_sales'?`<span>傑夫本月找你 <b>${S.jeffDays||0} 天</b>${S.jeffMood==='bad'?'（心情不好）':''}</span>`:''}${S.unit==='tw'?`<span>陳總最近 <b>${['tw_sales','tw_pm'].includes(S.dept)?(S.dept==='tw_pm'?'一直找你開會':'很常找你'):S.cphase==='ignore'?'不太理台灣部門':S.cphase==='active'?'突然很積極':'正常'}</b></span>`:''}${(S.unit==='tw'&&S.gender==='m')||S.romance||S.romanceDone?`<span>陳總對你 <b>${crushLabel(S)}</b></span>`:''}`;
+ $('#gMoney').innerHTML=`<span>月薪 <b>${fmt(S.salary)}</b></span>${S.rent?`<span>房租 <b>${fmt(S.rent)}</b></span>`:`<span>孝親費 <b>${fmt(S.family)}</b></span>`}<span>每月開銷 <b>${fmt(S.expense||S.rent+S.family+S.living)}</b></span>${S.dept==='tw_sales'?`<span>市場 <b>${S.market==='good'?'景氣好':S.market==='bad'?'很冷':'普通'}</b></span><span>上季 KPI <b>${S.kpi?S.kpi+'%':'—'}</b></span>`:''}<span>存款 <b style="color:${S.money<0?'var(--bad)':'inherit'}">${fmt(S.money)}</b></span><span>特休剩 <b>${S.leaveDays}</b> 天</span><span>英文 <b>${Math.round(S.eng||0)}</b></span>${(S.unit==='tw'&&S.dept!=='tw_sales')||S.dept==='gz_fe'||S.dept==='gz_be'?`<span>傑夫本月找你 <b>${S.jeffDays||0} 天</b>${S.jeffMood==='bad'?'（心情不好）':''}</span>`:''}${S.unit==='tw'?`<span>陳總最近 <b>${['tw_sales','tw_pm'].includes(S.dept)?(S.dept==='tw_pm'?'一直找你開會':'很常找你'):S.cphase==='ignore'?'不太理台灣部門':S.cphase==='active'?'突然很積極':'正常'}</b></span>`:''}${(S.unit==='tw'&&S.gender==='m')||S.romance||S.romanceDone?`<span>陳總對你 <b>${crushLabel(S)}</b></span>`:''}`;
  $('#gFocus').innerHTML=Object.entries(FOCUS).map(([k,f])=>`<button type="button" data-f="${k}" aria-pressed="${S.focus===k}">${f.n}<small>${f.d}</small></button>`).join('');
  { const b=$('#aPromo'); const wait=S.lastAsk!=null?12-(S.month-S.lastAsk):0; const top=S.title>=TITLES.length-1; b.disabled=S.ended||top||wait>0; b.textContent=top?'已經升到頂了':wait>0?`主動提升遷（${wait} 個月後可再提）`:'主動提升遷'; }
  $('#aTreat').disabled=S.treated||S.ended; $('#aLeave').disabled=S.leaveDays<=0||S.ended; $('#aTrip').disabled=S.leaveDays<3||S.ended;
@@ -2044,7 +2089,7 @@ function endGame(key){
 }
 function shareText(rec){
  const E=ENDINGS[rec.ending];
- return `【大妃職場模擬器】\n我在大妃${dn(rec.dept)}待了${tenWords(rec.months)}，做到${TITLES[rec.title]}。\n離職原因：${E.t}。\n期間被陳總問了 ${rec.c.body} 次身體還好嗎、整理了 ${rec.c.fridge} 次冰箱、被連環質問 ${rec.c.question} 次、被甩鍋 ${rec.c.blame} 次，聽傑夫說他有 5% 股份 ${rec.c.shares||0} 次。`+(rec.words?`\n我想對大妃說：「${rec.words}」`:'');
+ return `【社畜人生模擬器】\n我在大妃${dn(rec.dept)}待了${tenWords(rec.months)}，做到${TITLES[rec.title]}。\n離職原因：${E.t}。\n期間被陳總問了 ${rec.c.body} 次身體還好嗎、整理了 ${rec.c.fridge} 次冰箱、被連環質問 ${rec.c.question} 次、被甩鍋 ${rec.c.blame} 次，聽傑夫說他有 5% 股份 ${rec.c.shares||0} 次。`+(rec.words?`\n我想對大妃說：「${rec.words}」`:'');
 }
 function renderEnding(rec,live){
  const E=ENDINGS[rec.ending];
