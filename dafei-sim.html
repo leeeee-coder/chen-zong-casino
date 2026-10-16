@@ -203,6 +203,12 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
 .quotes blockquote{margin:0;padding:0 0 0 14px;border-left:2px solid var(--line);font-family:var(--f-hand);font-size:17px}
 .quotes blockquote small{display:block;font-family:var(--f-body);font-size:12px;color:var(--muted)}
 .share{background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:12px 14px;font-size:14px;white-space:pre-wrap;word-break:break-word}
+.sheet-wrap{position:relative;max-width:540px;width:100%;max-height:100%;display:flex}
+.sheet-wrap .sheet{max-width:none}
+.sheet-min{position:absolute;top:12px;right:12px;z-index:2;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:999px;padding:3px 12px;font-size:12px}
+.sheet-min:hover{color:var(--ink);border-color:var(--ink)}
+.sheet .meta{padding-right:76px}
+.pending{position:fixed;left:50%;transform:translateX(-50%);bottom:max(20px,calc(env(safe-area-inset-bottom,0px) + 14px));z-index:25;background:var(--accent);color:var(--on-accent);border:0;border-radius:999px;padding:11px 22px;font-size:15px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:rise .25s ease;max-width:calc(100vw - 32px);white-space:nowrap}
 .toast{position:fixed;left:50%;bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 16px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:8px 16px;border-radius:999px;font-size:14px;z-index:30}
 
 /* 電腦版 */
@@ -444,7 +450,8 @@ textarea{font-family:var(--f-hand);font-size:17px;color:var(--accent);background
 </section>
 </div>
 
-<div class="modal" id="modal" hidden><div class="sheet" role="dialog" aria-modal="true" id="sheet"></div></div>
+<div class="modal" id="modal" hidden><div class="sheet-wrap"><button type="button" class="sheet-min" id="mMin" aria-label="收起視窗">收起 ▾</button><div class="sheet" role="dialog" aria-modal="true" id="sheet"></div></div></div>
+<button type="button" class="pending" id="pending" hidden>有一個抉擇正在等你 ▴</button>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -1973,8 +1980,10 @@ function play(){ if(!S||S.ended||modalOpen||userPaused||running)return; running=
 function halt(){ running=false }
 
 /* ---------- 彈出 ---------- */
-function openModal(html){ modalOpen=true; halt(); turbo=false; $('#sheet').innerHTML=html; $('#modal').hidden=false; const f=$('#sheet').querySelector('button,textarea'); if(f) f.focus({preventScroll:true}); }
-function closeModal(){ modalOpen=false; $('#modal').hidden=true; }
+function openModal(html){ modalOpen=true; halt(); turbo=false; $('#sheet').innerHTML=html; $('#modal').hidden=false; $('#pending').hidden=true; const f=$('#sheet').querySelector('button,textarea'); if(f) f.focus({preventScroll:true}); }
+function closeModal(){ modalOpen=false; $('#modal').hidden=true; $('#pending').hidden=true; }
+function minModal(){ if(!modalOpen) return; $('#modal').hidden=true; $('#pending').hidden=false; }
+function restoreModal(){ if(!modalOpen) return; $('#pending').hidden=true; $('#modal').hidden=false; const f=$('#sheet').querySelector('button,textarea'); if(f) f.focus({preventScroll:true}); }
 function nextQueue(){
  const it=queue.shift();
  if(!it){ closeModal(); render(); play(); return }
@@ -2209,7 +2218,10 @@ $('#aTrip').onclick=()=>{if(!S||S.ended||S.leaveDays<3)return;
  S.leaveDays-=3;S.money-=40000;S.mood=clamp(S.mood+18);S.hp=clamp(S.hp+10);S.favor=clamp(S.favor-2);S.c.trips=(S.c.trips||0)+1;
  addLog(pick(['你請了三天特休去大阪，吃了五碗拉麵。回來時桌上有五件急件。','你請了三天特休去首爾，買了一整個行李箱的保養品。回來第一天，陳總問你身體還好嗎。','你請了三天特休去曼谷，按摩按到睡著。回來時群組有 214 則未讀。','你請了三天特休去沖繩，關掉了所有通知。回來發現傑夫在你位子上留了一張便利貼：「意義？」']),'p');render()};
 $('#aLeave').onclick=()=>{if(S.leaveDays<=0)return;if(r(.3)){addLog(S.boss==='chen'?'你想請一天特休。陳總說：「守則第 7.3 條，特休要主管批准。這次先不要喔，身體要顧好。」':'你想請一天特休。傑夫說：「守則第 7.3 條，特休要主管批准。你請假的意義是什麼？」','p');S.mood=clamp(S.mood-2);render();return}S.leaveDays--;S.hp=clamp(S.hp+4);S.mood=clamp(S.mood+2);S.favor=clamp(S.favor-1.5);if(r(.2)){S.c.body++;S.mood=clamp(S.mood-2);addLog('你請了一天特休。下午陳總打電話來：「身體還好嗎？對了，有件事想問你。」','p')}else addLog('你請了一天特休，睡到自然醒。','p');render()};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#menu').hidden){$('#menu').hidden=true}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){ if(!$('#menu').hidden){$('#menu').hidden=true} else if(modalOpen&&!$('#modal').hidden){minModal()} }});
+$('#mMin').onclick=minModal;
+$('#pending').onclick=restoreModal;
+$('#modal').addEventListener('click',e=>{ if(e.target===$('#modal')) minModal(); });
 
 /* 首頁計數器 */
 let cB=0,cF=0;(function bump(){if(!$('#landing').hidden){if(r(.6))cB+=1;if(r(.18))cF+=1;$('#cBody').textContent=cB;$('#cFridge').textContent=cF}setTimeout(bump,ri(900,2600))})();
