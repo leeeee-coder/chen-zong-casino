@@ -35,6 +35,8 @@ p,h1,h2,ol{margin:0;padding:0}
 .stat{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15px}
 .stat.kai{font-family:var(--kai)}
 #chops{list-style:none;display:flex;gap:3px;flex:1;min-width:0}
+#brand{display:none}
+#chops .nm{display:none}
 #chops li{flex:1;min-width:0;overflow:hidden;aspect-ratio:1;max-width:30px;border:1px solid var(--rule);background:var(--desk-deep);color:var(--rule);display:grid;place-items:center;font-size:12px;font-family:var(--mono)}
 #chops li.now{border-color:var(--paper);color:var(--paper)}
 #chops li.ok{background:var(--paper);border-color:var(--paper);color:var(--red);font-family:var(--disp);font-weight:900;font-size:14px}
@@ -56,7 +58,11 @@ h2{font-family:var(--disp);font-weight:900;font-size:25px;line-height:1.25;text-
 #say p{min-width:0;font-size:16px}
 #say b{display:block;font-size:13px;color:var(--soft);line-height:1.3}
 .chop{flex:none;width:36px;height:36px;display:grid;place-items:center;border:2px solid var(--red);color:var(--red);font-family:var(--disp);font-weight:900;font-size:21px;border-radius:3px;background:var(--paper)}
+.body{flex:1;display:flex;flex-direction:column;gap:10px}
+.brief{display:flex;flex-direction:column;gap:10px;min-width:0}
 #play{position:relative;flex:1;min-height:250px;display:flex;flex-direction:column;gap:10px}
+kbd,.kbdnote,.fineonly{display:none}
+kbd{font-family:var(--mono);font-size:12px;line-height:1.4;border:1px solid currentColor;border-radius:2px;padding:0 5px;margin-right:6px;opacity:.75}
 
 .btn{background:var(--paper);border:2px solid var(--ink);min-height:48px;padding:6px 14px;font-size:17px;text-align:left;border-radius:2px;touch-action:manipulation}
 .btn:active{background:var(--bar)}
@@ -161,10 +167,13 @@ h2{font-family:var(--disp);font-weight:900;font-size:25px;line-height:1.25;text-
 .cover h1{font-family:var(--disp);font-weight:900;font-size:clamp(46px,14vw,74px);line-height:1.08;letter-spacing:.02em}
 .cover{flex:1;display:flex;flex-direction:column;gap:12px;justify-content:center;position:relative}
 .seal{display:inline-block;border:4px double var(--red);color:var(--red);font-family:var(--disp);font-weight:900;padding:2px 12px;transform:rotate(-8deg);mix-blend-mode:multiply;font-size:26px;width:max-content}
-.cover .seal{position:absolute;right:0;top:calc(50% - 126px);background:transparent}
+.chead{position:relative}
+.cside{display:flex;flex-direction:column;gap:12px}
+.cover .seal{position:absolute;right:8px;bottom:12px;background:transparent}
 .fine{font-size:14px;color:var(--soft)}
 .cert{display:flex;flex-direction:column;gap:10px;position:relative}
 .cert h2{text-align:center;font-size:29px;letter-spacing:.2em}
+.certbody,.certl{display:flex;flex-direction:column;gap:10px}
 .stampzone{position:relative}
 .cert .seal{position:absolute;right:8px;top:34px;font-size:24px}
 #certName{font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);width:7.5em;max-width:60%;text-align:center;padding:0 2px}
@@ -184,6 +193,59 @@ h2{font-family:var(--disp);font-weight:900;font-size:25px;line-height:1.25;text-
 
 @media (max-width:420px){.tool{padding:0 7px;font-size:14px}.barrow{gap:8px}#chops{gap:2px}#chops li{font-size:11px}#chops li.ok{font-size:12px}}
 @media (max-height:640px){#stage{padding-top:8px}h2{font-size:21px}#play{min-height:220px}.door{height:70px}.door .chop{width:30px;height:30px;font-size:17px}}
+@media (hover:hover) and (pointer:fine){
+  kbd{display:inline-block}
+  .fineonly{display:inline}
+  .coarseonly{display:none}
+  .kbdnote{display:block;text-align:center;font-size:14px;color:var(--soft)}
+  .btn:hover:not(:disabled),.door:hover,.tick:hover{background:var(--bar);border-color:var(--ink)}
+  .btn.main:hover{background:var(--desk-deep)}
+  .door:hover{background:var(--paper)}
+  .tool:hover{background:var(--desk-deep)}
+  #jack:hover{border-color:var(--red)}
+}
+@media (min-width:900px){
+  body{font-size:18px}
+  #app{max-width:1360px;display:grid;grid-template-columns:232px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:22px;padding-block:16px}
+  #bar{min-height:0;overflow-y:auto;gap:14px}
+  #brand{display:block;font-family:var(--disp);font-weight:900;font-size:27px;line-height:1.2}
+  .barrow.top{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;align-items:baseline}
+  #lvLabel{grid-column:1/-1;color:var(--rule);font-weight:400;font-size:15px}
+  #clock{font-size:23px}
+  .barrow.low{display:grid;grid-template-columns:1fr 1fr;gap:12px 6px}
+  #chops{grid-column:1/-1;flex-direction:column;gap:2px}
+  #chops .nm{display:inline;min-width:0}
+  #chops li,#chops li.ok,#chops li.now{display:flex;align-items:center;gap:8px;aspect-ratio:auto;max-width:none;flex:none;overflow:visible;background:transparent;border:0;color:var(--rule);font-family:var(--kai);font-size:15px;font-weight:400;padding:2px 0}
+  #chops .n{flex:none;width:23px;height:23px;display:grid;place-items:center;box-sizing:border-box;border:1px solid var(--rule);background:var(--desk-deep);font-family:var(--mono);font-size:12px}
+  #chops li.ok{color:var(--paper)}
+  #chops li.ok .n{background:var(--paper);border-color:var(--paper);color:var(--red);font-family:var(--disp);font-weight:900;font-size:14px}
+  #chops li.now{color:var(--paper);font-weight:700}
+  #chops li.now .n{border-color:var(--paper);color:var(--paper)}
+  #stage{padding:20px 54px 24px;gap:14px}
+  .body{flex-direction:row;gap:40px}
+  .brief{flex:none;width:272px;gap:14px}
+  h2{font-size:32px}
+  #play{min-width:0;justify-content:center;min-height:300px}
+  :where(#play)>*{width:100%;max-width:620px;align-self:center}
+  .phone{max-width:340px}
+  #play.l1{justify-content:flex-start}
+  .door{height:104px;font-size:15px}
+  .cover{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:44px;align-items:center;align-content:center}
+  .cover h1{font-size:clamp(84px,8.6vw,118px)}
+  .cover .seal{font-size:32px;right:24px;bottom:20px}
+  .cert{flex:1;justify-content:center;gap:18px}
+  .cert h2{font-size:38px}
+  .certbody{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:36px;align-items:start}
+  .certl{gap:14px}
+}
+@media (min-width:1200px) and (min-height:820px){
+  body{font-size:20px}
+  .btn{min-height:54px;font-size:19px}
+  .brief{width:310px}
+  h2{font-size:36px}
+  .dlg p{font-size:23px}
+  .tag b{font-size:25px}
+}
 @media (prefers-reduced-motion:reduce){#stamp.slam,#stage.jolt,.head.warn,.door .chop{animation:none!important}#run{transition:none}}
 </style>
 </head>
@@ -191,14 +253,15 @@ h2{font-family:var(--disp);font-weight:900;font-size:25px;line-height:1.25;text-
 
 <div id="app">
   <header id="bar">
-    <div class="barrow">
+    <div id="brand">想辦法離職</div>
+    <div class="barrow top">
       <span id="lvLabel" class="grow">尚未送件</span>
       <span id="clock" class="stat">00:00</span>
       <span class="stat kai">被慰留 <b id="cnt">0</b> 次</span>
     </div>
-    <div class="barrow">
+    <div class="barrow low">
       <ol id="chops" aria-label="簽核進度"></ol>
-      <button id="hintBtn" class="tool" type="button">看小抄</button>
+      <button id="hintBtn" class="tool" type="button"><kbd>H</kbd>看小抄</button>
       <button id="muteBtn" class="tool" type="button" aria-label="切換音效">音效開</button>
     </div>
   </header>
@@ -210,6 +273,7 @@ h2{font-family:var(--disp);font-weight:900;font-size:25px;line-height:1.25;text-
     <div id="stamp">核准</div>
     <div class="vline"><span id="vdChop" class="chop">系</span><p><b id="vdWho">系統</b><span id="vdText"></span></p></div>
     <button id="vdBtn" class="btn main" type="button">下一張單</button>
+    <p class="kbdnote">按 Enter 繼續</p>
   </div>
 </div>
 <div id="toast" hidden><span id="toastText"></span></div>
@@ -243,15 +307,16 @@ const sfxTick=()=>tone(880,.04,'square',.02);
 
 /* 頂部 */
 const chops=$('#chops');
-for(let i=0;i<10;i++){const li=document.createElement('li');li.textContent=i+1;chops.appendChild(li)}
+for(let i=0;i<10;i++){const li=document.createElement('li');li.innerHTML='<span class="n"></span><span class="nm"></span>';chops.appendChild(li)}
 function drawBar(){
-  [...chops.children].forEach((li,i)=>{li.className=i<S.lv||S.lv>=10?'ok':i===S.lv?'now':'';li.textContent=(i<S.lv||S.lv>=10)?'准':i+1});
+  [...chops.children].forEach((li,i)=>{const ok=i<S.lv||S.lv>=10;li.className=ok?'ok':i===S.lv?'now':'';$('.n',li).textContent=ok?'准':i+1;$('.nm',li).textContent=i<=S.lv?LV[i].title:'待簽核'});
   $('#lvLabel').textContent=S.lv<0?'尚未送件':S.lv>=10?'已離職':'第 '+(S.lv+1)+' 張，共 10 張';
   $('#cnt').textContent=S.fails;
   $('#clock').textContent=fmt(S.ms);
 }
 setInterval(()=>{if(S.running&&vd.hidden){S.ms+=1000;$('#clock').textContent=fmt(S.ms)}},1000);
 
+const cap=(b,k,label)=>{b.dataset.k=k;const c=document.createElement('kbd');c.textContent=label||k;b.prepend(c)};
 function say(who,text){
   if(!sayEl)return;
   sayEl.dataset.on='1';
@@ -288,7 +353,7 @@ function timer(el,ms,onEnd){
 function go(i){
   teardown();S.lv=i;S.running=true;drawBar();save();
   const L=LV[i];
-  stage.innerHTML='<div class="fhead"><span>表單編號 HR-115-'+String(i+1).padStart(4,'0')+'</span><span>'+L.copy+'</span></div><h2></h2><p class="ask"></p><div id="say" data-on="0" data-talk="'+(L.talk?1:0)+'" aria-live="polite"></div><div id="play"></div>';
+  stage.innerHTML='<div class="fhead"><span>表單編號 HR-115-'+String(i+1).padStart(4,'0')+'</span><span>'+L.copy+'</span></div><div class="body"><div class="brief"><h2></h2><p class="ask"></p><div id="say" data-on="0" data-talk="'+(L.talk?1:0)+'" aria-live="polite"></div></div><div id="play"></div></div>';
   $('h2',stage).textContent=L.title;$('.ask',stage).textContent=L.ask;
   sayEl=$('#say');stage.scrollTop=0;
   L.run($('#play'));
@@ -299,6 +364,7 @@ const LV=[
 {title:'離職申請單',copy:'第一聯：人事',ask:'資料都幫你填好了。按下送出就可以。',
  hint:'按鈕也是會累的，多追幾次。',
  run(p){
+  p.classList.add('l1');
   p.innerHTML='<div class="rows"><span class="k">申請人</span><span class="v kai">你</span><span class="k">最後工作日</span><span class="v kai">越快越好</span><span class="k">主管意見</span><span class="v kai">尚未開始已讀</span></div><button id="run" class="btn main" type="button">送出申請</button>';
   const b=$('#run'),lines=['再想想？','真的嗎','案子呢','尾牙快到了','聽說要調薪','陳總會難過','傑夫會念'];
   let n=0;
@@ -307,7 +373,8 @@ const LV=[
     b.textContent=lines[n++];sfxTick();
     const W=Math.max(0,p.clientWidth-b.offsetWidth),H=Math.max(0,p.clientHeight-b.offsetHeight);
     const x0=b.offsetLeft,y0=b.offsetTop;let x,y,g=0;
-    do{x=rand(0,W);y=rand(0,H);g++}while(Math.hypot(x-x0,y-y0)<130&&g<30);
+    const far=Math.max(130,Math.hypot(W,H)*.35);
+    do{x=rand(0,W);y=rand(0,H);g++}while(Math.hypot(x-x0,y-y0)<far&&g<30);
     b.style.left=x+'px';b.style.top=y+'px';
     if(n>=lines.length)b.textContent='（喘）送出';
     return true;
@@ -322,13 +389,13 @@ const LV=[
   const opts=[['家庭因素','chen','家庭很重要。那你週一請假就好，我都這樣。'],['薪水太低','jeff','我的薪水也好幾年沒漲，你看我有走嗎？'],['想休息一陣子','chen','最近是不是手上沒什麼案子？'],['有更好的發展','jeff','重點是你想把這個帶到什麼高度？']];
   p.innerHTML='<div class="opts"></div>';
   const box=$('.opts',p);let left=opts.length;
-  shuffle(opts).forEach(([t,w,l])=>{
+  shuffle(opts).forEach(([t,w,l],k)=>{
     const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='□ '+t;
-    b.onclick=()=>{b.disabled=true;strike(w,l);if(--left===0)later(unlock,500)};box.appendChild(b);
+    b.onclick=()=>{b.disabled=true;strike(w,l);if(--left===0)later(unlock,500)};cap(b,String(k+1));box.appendChild(b);
   });
   function unlock(){
     const b=document.createElement('button');b.type='button';b.className='btn scrawl';b.textContent='□ 我不想再喝傑夫出錢的飲料了';
-    b.onclick=()=>pass('jeff','……你知道我有 5% 股份吧。');box.appendChild(b);
+    b.onclick=()=>pass('jeff','……你知道我有 5% 股份吧。');cap(b,'5');box.appendChild(b);
     say('sys','表單背面好像有人手寫了一個選項。');
   }
  }},
@@ -349,9 +416,9 @@ const LV=[
   function next(){
     if(i>=qs.length){pass('jeff','不錯，你終於有想法了。那你幹嘛要走？');return}
     const [t,o,r]=qs[i];q.textContent=(i+1)+'／5　'+t;box.innerHTML='';
-    shuffle(o.map((x,k)=>[x,k===r])).forEach(([x,ok])=>{
+    shuffle(o.map((x,k)=>[x,k===r])).forEach(([x,ok],k)=>{
       const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=x;
-      b.onclick=()=>{stop&&stop();if(ok){i++;sfxTick();next()}else fail('jeff',wrong)};box.appendChild(b);
+      b.onclick=()=>{stop&&stop();if(ok){i++;sfxTick();next()}else fail('jeff',wrong)};cap(b,String(k+1));box.appendChild(b);
     });
     stop=timer(bar,5000,()=>fail('jeff','沉默也是一種態度。'+wrong));
   }
@@ -393,7 +460,7 @@ const LV=[
     if(items[i][2]!==d){fail('jeff',d?'還能賣的你拿去報廢，你是來賠錢的嗎？':'過期的你也賣，客訴你接嗎？');return}
     sfxTick();if(++i>=items.length){pass('jeff','整理得不錯。拿公司東西要收費喔，下一張給你。');return}draw();
   };
-  $('#sell').onclick=()=>act(0);$('#dump').onclick=()=>act(1);
+  $('#sell').onclick=()=>act(0);$('#dump').onclick=()=>act(1);cap($('#sell'),'ArrowLeft','←');cap($('#dump'),'ArrowRight','→');
   draw();timer($('.timer i',p),30000,()=>fail('jeff','這麼慢，重點是你想把倉庫帶到什麼高度？'));
  }},
 {title:'飲料費結算單',copy:'第七聯：會計',ask:'傑夫說他有 5% 股份，所以你喝的每杯飲料他都有出錢。請算出他實際請了你多少。',
@@ -403,7 +470,7 @@ const LV=[
   const pad=$('.pad',p),rd=$('#read',p);let v='';
   const show=()=>{rd.textContent=v||'0'};
   ['1','2','3','4','5','6','7','8','9','清除','0','確定'].forEach(k=>{
-    const b=document.createElement('button');b.type='button';b.className='btn'+(k.length>1?' w':'')+(k==='確定'?' main':'');b.textContent=k;
+    const b=document.createElement('button');b.type='button';b.className='btn'+(k.length>1?' w':'')+(k==='確定'?' main':'');b.textContent=k;b.dataset.k=k==='清除'?'Backspace':k==='確定'?'Enter':k;
     b.onclick=()=>{
       if(k==='清除'){v='';show()}
       else if(k==='確定'){if(v==='500')pass('jeff','……那你還我 500。');else{strike('jeff','帳不對不能走。我當年創業的時候，帳都是自己算的。');v='';show()}}
@@ -420,9 +487,9 @@ const LV=[
     const [t,y,n]=qs[i];
     p.innerHTML='<div class="dlg"><header><span>大妃人資系統</span><span>'+(i+1)+'／5</span></header><p></p><div class="two"></div></div>';
     $('p',p).textContent=t;const box=$('.two',p);
-    shuffle([[y,true],[n,false]]).forEach(([l,ok])=>{
+    shuffle([[y,true],[n,false]]).forEach(([l,ok],k)=>{
       const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=l;
-      b.onclick=()=>{if(!ok){fail('sys','您已成功取消離職。歡迎回來！今天的週報記得交。','回到第一題')}else{sfxTick();if(++i>=qs.length)pass('sys','意願確認完成。您可以下班打卡了。');else draw()}};box.appendChild(b);
+      b.onclick=()=>{if(!ok){fail('sys','您已成功取消離職。歡迎回來！今天的週報記得交。','回到第一題')}else{sfxTick();if(++i>=qs.length)pass('sys','意願確認完成。您可以下班打卡了。');else draw()}};cap(b,String(k+1));box.appendChild(b);
     });
   }
   draw();
@@ -430,7 +497,7 @@ const LV=[
 {title:'下班打卡',copy:'第九聯：打卡機',ask:'抱著紙箱走到打卡機。他們回頭的時候不能動。',
  hint:'看到頭開始抖就放手，等轉回去再走。',
  run(p){
-  p.innerHTML='<div class="hall"><div class="bosses"><div class="boss"><i class="head" id="hChen"></i><span>陳總</span></div><div class="boss"><i class="head" id="hJeff"></i><span>傑夫</span></div></div><div class="track"><div id="me"><i></i><u></u></div><div class="punch">打卡</div></div></div><button id="walk" class="btn main" type="button">按住往前走</button>';
+  p.innerHTML='<div class="hall"><div class="bosses"><div class="boss"><i class="head" id="hChen"></i><span>陳總</span></div><div class="boss"><i class="head" id="hJeff"></i><span>傑夫</span></div></div><div class="track"><div id="me"><i></i><u></u></div><div class="punch">打卡</div></div></div><button id="walk" class="btn main" type="button"><span class="coarseonly">按住往前走</span><span class="fineonly">按住空白鍵或滑鼠往前走</span></button>';
   const me=$('#me'),track=$('.track',p),walk=$('#walk');
   const hs={chen:$('#hChen'),jeff:$('#hJeff')};
   let x=0,hold=false,st='back',who='jeff',until=performance.now()+rand(1200,2200),lastT=performance.now(),alive=true,faceAt=0;
@@ -440,7 +507,10 @@ const LV=[
   const up=()=>{hold=false;walk.classList.remove('down')};
   walk.addEventListener('pointerdown',down);walk.addEventListener('pointerup',up);walk.addEventListener('pointercancel',up);
   walk.addEventListener('contextmenu',e=>e.preventDefault());
-  walk.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')down(e)});walk.addEventListener('keyup',up);walk.addEventListener('blur',up);
+  const kd=e=>{if(e.key===' '&&vd.hidden){e.preventDefault();if(!e.repeat){hold=true;walk.classList.add('down')}}};
+  const ku=e=>{if(e.key===' ')up()};
+  window.addEventListener('keydown',kd);window.addEventListener('keyup',ku);window.addEventListener('blur',up);
+  cleanup.push(()=>{window.removeEventListener('keydown',kd);window.removeEventListener('keyup',ku);window.removeEventListener('blur',up)});
   const loop=()=>{
     if(!alive)return;
     const t=performance.now(),dt=(t-lastT)/1000;lastT=t;
@@ -472,7 +542,9 @@ const LV=[
     while(box.children.length>4)box.lastChild.remove();
   },900+i*1200));
   const touch=()=>fail('jeff','很好，明天的會你主持。你的離職已自動撤銷。','再逃一次');
-  stage.addEventListener('pointerdown',touch);cleanup.push(()=>stage.removeEventListener('pointerdown',touch));
+  const anyKey=e=>{if(e.repeat||e.metaKey||e.ctrlKey||e.altKey||['Shift','Tab','Control','Meta','Alt','h','H'].includes(e.key))return;touch()};
+  stage.addEventListener('pointerdown',touch);window.addEventListener('keydown',anyKey);
+  cleanup.push(()=>{stage.removeEventListener('pointerdown',touch);window.removeEventListener('keydown',anyKey)});
   later(()=>{box.innerHTML='';ph.classList.add('dead');$('.lock b',ph).textContent='';$('.lock span',ph).textContent='電量 0%'},900+seq.length*1200+900);
   later(()=>pass('sys','手機沒電了。你終於自由了。'),900+seq.length*1200+2300);
  }}
@@ -482,7 +554,7 @@ function whack(p){
   const spots=['A 會議室','B 會議室','茶水間','她的座位','電梯口','機車格'];
   p.innerHTML='<div class="signs"><div>主管欄<span class="chop">陳</span></div><div>部門欄<span class="chop">陳</span></div><div>總經理欄<span class="chop">陳</span></div></div><div class="doors"></div>';
   say('sys','週二了。陳總出現時點她，她都跟勞倫斯在開會，別點錯人。');
-  const box=$('.doors',p),cells=spots.map(t=>{const b=document.createElement('button');b.type='button';b.className='door';b.innerHTML='<span></span><span class="chop"></span>';b.firstChild.textContent=t;box.appendChild(b);return b});
+  const box=$('.doors',p),cells=spots.map((t,i)=>{const b=document.createElement('button');b.type='button';b.className='door';b.dataset.k=i+1;b.innerHTML='<span><kbd></kbd><span></span></span><span class="chop"></span>';$('kbd',b).textContent=i+1;$('span span',b).textContent=t;box.appendChild(b);return b});
   const signs=[...p.querySelectorAll('.signs .chop')];
   let hits=0,cur=null;
   const clear=()=>{if(cur){cur.dataset.who='';cur=null}};
@@ -493,14 +565,18 @@ function whack(p){
     cur=c;c.dataset.who=who;$('.chop',c).textContent=WHO[who][0];
     later(()=>{clear();later(popUp,260)},[1000,800,640][hits]);
   }
-  cells.forEach(c=>c.addEventListener('pointerdown',e=>{
-    e.preventDefault();const who=c.dataset.who;if(!who)return;
+  const hit=c=>{
+    const who=c.dataset.who;if(!who)return;
     c.dataset.who='';cur=null;
     if(who==='law'){strike('law','她等下要跟我開會，下一場也是。');return}
     signs[hits].classList.add('on');hits++;tone(120,.1,'triangle',.2);
     if(hits>=3){pass('chen','好啦我簽。你最近是不是手上沒什麼案子？')}
     else say('chen',hits===1?'我有空會看。':'這個明天再說好不好？');
-  }));
+  };
+  cells.forEach(c=>{
+    c.addEventListener('pointerdown',e=>{e.preventDefault();hit(c)});
+    c.addEventListener('click',e=>{if(e.detail===0)hit(c)});
+  });
   later(popUp,700);
 }
 
@@ -513,11 +589,11 @@ function finish(){
   const prev=store(KEY+'-best');const best=!prev||S.fails<prev.fails||(S.fails===prev.fails&&S.ms<prev.ms);
   if(best)store(KEY+'-best',{fails:S.fails,ms:S.ms});
   const t=title();
-  stage.innerHTML='<div class="cert"><div class="fhead"><span>大妃人字第 1150107 號</span><span>正本</span></div><h2>離職證明書</h2>'
+  stage.innerHTML='<div class="cert"><div class="fhead"><span>大妃人字第 1150107 號</span><span>正本</span></div><h2>離職證明書</h2><div class="certbody"><div class="certl">'
   +'<p>茲證明 <input id="certName" maxlength="10" placeholder="請填姓名" aria-label="你的名字"> 已成功離開本公司，再也不必自己找事做。</p>'
-  +'<div class="stampzone"><span class="seal">已離職</span><div class="rows"><span class="k">稱號</span><span class="v kai">'+t+'</span><span class="k">離職耗時</span><span class="v">'+fmt(S.ms)+'</span><span class="k">被慰留</span><span class="v">'+S.fails+' 次</span><span class="k">偷看小抄</span><span class="v">'+S.hints+' 次</span><span class="k">個人紀錄</span><span class="v kai">'+(best?'這次最好':'最少被慰留 '+prev.fails+' 次')+'</span></div></div>'
   +'<p id="share"></p><div class="two"><button id="copy" class="btn main" type="button">複製戰績</button><button id="again" class="btn" type="button">再離職一次</button></div>'
-  +'<p class="fine">本公司保留隨時請你回來支援的權利。</p></div>';
+  +'<p class="fine">本公司保留隨時請你回來支援的權利。</p></div>'
+  +'<div class="stampzone"><span class="seal">已離職</span><div class="rows"><span class="k">稱號</span><span class="v kai">'+t+'</span><span class="k">離職耗時</span><span class="v">'+fmt(S.ms)+'</span><span class="k">被慰留</span><span class="v">'+S.fails+' 次</span><span class="k">偷看小抄</span><span class="v">'+S.hints+' 次</span><span class="k">個人紀錄</span><span class="v kai">'+(best?'這次最好':'最少被慰留 '+prev.fails+' 次')+'</span></div></div></div></div>';
   const line=()=>{const n=$('#certName').value.trim();$('#share').textContent=(n||'我')+' 花了 '+fmt(S.ms)+'、被慰留 '+S.fails+' 次才成功離職，稱號「'+t+'」。你走得掉嗎？'};
   line();$('#certName').addEventListener('input',line);
   $('#copy').onclick=()=>{
@@ -532,9 +608,9 @@ function finish(){
 function cover(){
   teardown();drawBar();
   const sv=store(KEY);const hasSave=sv&&typeof sv.lv==='number'&&sv.lv>=0&&sv.lv<10;
-  stage.innerHTML='<div class="fhead"><span>表單編號 HR-115-0000</span><span>大妃股份有限公司</span></div><div class="cover"><span class="seal">駁回</span><h1>想辦法<br>離職</h1><p>十張單，一扇門。每張單都有一個走得掉的方法，你要自己找出來。</p>'
+  stage.innerHTML='<div class="fhead"><span>表單編號 HR-115-0000</span><span>大妃股份有限公司</span></div><div class="cover"><div class="chead"><span class="seal">駁回</span><h1>想辦法<br>離職</h1></div><div class="cside"><p>十張單，一扇門。每張單都有一個走得掉的方法，你要自己找出來。</p>'
   +(hasSave?'<button id="cont" class="btn main" type="button">繼續第 '+(sv.lv+1)+' 張單</button><button id="fresh" class="btn" type="button">重新申請</button>':'<button id="fresh" class="btn main" type="button">開始申請離職</button>')
-  +'<p class="fine">純屬虛構。如有雷同，你也該想想辦法了。卡關時可以看小抄。</p></div>';
+  +'<p class="fine">純屬虛構。如有雷同，你也該想想辦法了。卡關時可以看小抄。</p></div></div>';
   $('#fresh').onclick=()=>{Object.assign(S,{fails:0,hints:0,ms:0});seen={};go(0)};
   if(hasSave)$('#cont').onclick=()=>{Object.assign(S,{fails:sv.fails||0,hints:sv.hints||0,ms:sv.ms||0});go(sv.lv)};
 }
@@ -548,6 +624,15 @@ $('#hintBtn').onclick=()=>{
   if(L&&S.running&&!seen[S.lv]){seen[S.lv]=1;S.hints++;save()}
 };
 $('#muteBtn').onclick=e=>{S.mute=!S.mute;e.currentTarget.textContent=S.mute?'音效關':'音效開'};
+
+window.addEventListener('keydown',e=>{if(e.repeat&&!vd.hidden)e.preventDefault()},true);
+document.addEventListener('keydown',e=>{
+  if(e.target&&e.target.tagName==='INPUT')return;
+  if(e.metaKey||e.ctrlKey||e.altKey||e.repeat||!vd.hidden)return;
+  if(e.key==='h'||e.key==='H'){$('#hintBtn').click();return}
+  const b=document.querySelector('#play [data-k="'+CSS.escape(e.key)+'"]');
+  if(b){e.preventDefault();b.click()}
+});
 
 cover();
 })();
