@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="十張單，一扇門。你走得掉嗎？">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>想辦法離職</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+TC:wght@900&display=swap">
+<style>
+/* Layout: 一疊中一刀連續報表紙攤在綠色桌墊上，每一關就是一張待簽的單據，過關時朱紅印章蓋下去 */
+:root{
+  color-scheme:light;
+  --desk:#2E5E52; --desk-deep:#234A40; --paper:#FBFBF3; --bar:#E5F0E2; --rule:#A7BFA8;
+  --ink:#1C2B52; --soft:#55645C; --red:#C2261C; --red-wash:#F7E2DC; --skin:#EFC8A4; --hair:#2A2A33;
+  --kai:"LXGW WenKai TC","DFKai-SB","BiauKai","Kaiti TC","Noto Serif CJK TC",serif;
+  --disp:"Noto Serif TC","Noto Serif CJK TC","Songti TC",serif;
+  --mono:"Courier Prime","Courier New",monospace;
+}
+html,body{height:100%}
+body{background:var(--desk);color:var(--ink);font-family:var(--kai);font-size:17px;line-height:1.55;overflow:hidden;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+p,h1,h2,ol{margin:0;padding:0}
+
+#app{height:100%;max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:8px;box-sizing:border-box;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* 頂部：簽核進度 */
+#bar{color:var(--paper);display:flex;flex-direction:column;gap:6px;flex:none}
+.barrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.barrow .grow{flex:1;min-width:0}
+#lvLabel{font-weight:700}
+.stat{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15px}
+.stat.kai{font-family:var(--kai)}
+#chops{list-style:none;display:flex;gap:3px;flex:1;min-width:0}
+#chops li{flex:1;min-width:0;overflow:hidden;aspect-ratio:1;max-width:30px;border:1px solid var(--rule);background:var(--desk-deep);color:var(--rule);display:grid;place-items:center;font-size:12px;font-family:var(--mono)}
+#chops li.now{border-color:var(--paper);color:var(--paper)}
+#chops li.ok{background:var(--paper);border-color:var(--paper);color:var(--red);font-family:var(--disp);font-weight:900;font-size:14px}
+.tool{background:transparent;border:1px solid var(--rule);color:var(--paper);min-height:40px;padding:0 10px;font-size:15px;white-space:nowrap}
+
+/* 報表紙 */
+#stage{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:14px 32px 18px;display:flex;flex-direction:column;gap:10px;position:relative;
+  background-color:var(--paper);background-attachment:local;
+  background-image:radial-gradient(circle at 50% 50%,var(--desk) 0 4.5px,transparent 5px),radial-gradient(circle at 50% 50%,var(--desk) 0 4.5px,transparent 5px),repeating-linear-gradient(180deg,var(--bar) 0 28px,transparent 28px 56px);
+  background-size:20px 26px,20px 26px,100% 100%;background-position:left 1px top 6px,right 1px top 6px,0 0;background-repeat:repeat-y,repeat-y,no-repeat}
+#stage.jolt{animation:jolt .18s linear}
+@keyframes jolt{25%{transform:translateY(3px)}60%{transform:translateY(-1px)}}
+.fhead{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:13px;color:var(--soft);border-bottom:1px solid var(--rule);padding-bottom:4px}
+h2{font-family:var(--disp);font-weight:900;font-size:25px;line-height:1.25;text-wrap:balance}
+.ask{color:var(--soft)}
+#say{display:flex;gap:10px;align-items:flex-start;min-height:54px;background:var(--paper);border:1px dashed var(--rule);padding:6px 8px}
+#say[data-on="0"]{visibility:hidden}
+#say[data-talk="0"]{display:none}
+#say p{min-width:0;font-size:16px}
+#say b{display:block;font-size:13px;color:var(--soft);line-height:1.3}
+.chop{flex:none;width:36px;height:36px;display:grid;place-items:center;border:2px solid var(--red);color:var(--red);font-family:var(--disp);font-weight:900;font-size:21px;border-radius:3px;background:var(--paper)}
+#play{position:relative;flex:1;min-height:250px;display:flex;flex-direction:column;gap:10px}
+
+.btn{background:var(--paper);border:2px solid var(--ink);min-height:48px;padding:6px 14px;font-size:17px;text-align:left;border-radius:2px;touch-action:manipulation}
+.btn:active{background:var(--bar)}
+.btn.main{background:var(--ink);color:var(--paper);text-align:center;font-weight:700}
+.btn.main:active{background:var(--desk-deep)}
+.btn:disabled{border-color:var(--rule);color:var(--soft);text-decoration:line-through;cursor:default;background:transparent}
+
+/* 表格列 */
+.rows{display:grid;grid-template-columns:auto 1fr;border-top:1px solid var(--ink);border-left:1px solid var(--ink);background:var(--paper)}
+.rows>*{border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:4px 8px;min-width:0}
+.rows>.k{background:var(--bar);color:var(--soft);white-space:nowrap}
+.rows .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700}
+.rows .v.kai{font-family:var(--kai);font-weight:400}
+
+/* 第 1 關 */
+#run{position:absolute;left:calc(50% - 74px);top:170px;width:148px;z-index:2;transition:left .16s ease-out,top .16s ease-out;touch-action:none;text-align:center;padding:6px 4px}
+
+/* 第 2 關 */
+.opts{display:flex;flex-direction:column;gap:8px}
+.btn.scrawl{border-style:dashed;border-color:var(--red);color:var(--red);font-weight:700}
+
+/* 第 3 關 */
+.cal{align-self:center;width:176px;background:var(--paper);border:2px solid var(--ink);border-top:12px solid var(--red);padding:6px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:0;box-shadow:3px 3px 0 var(--rule),6px 6px 0 var(--bar)}
+.cal small{font-size:14px;color:var(--soft)}
+.cal b{font-family:var(--mono);font-size:64px;line-height:1.05;color:var(--red)}
+.signs{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--ink);background:var(--paper);text-align:center;font-size:14px}
+.signs div{border-right:1px solid var(--ink);padding:4px 2px;min-height:58px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.signs div:last-child{border-right:0}
+.signs .chop{width:30px;height:30px;font-size:17px;visibility:hidden}
+.signs .chop.on{visibility:visible}
+.doors{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.door{height:88px;background:var(--bar);border:1px solid var(--ink);padding:3px 2px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;font-size:13px;touch-action:none;min-width:0}
+.door .chop{visibility:hidden}
+.door[data-who="chen"] .chop,.door[data-who="law"] .chop{visibility:visible;animation:pop .1s ease-out}
+.door[data-who="law"] .chop{border-color:var(--ink);color:var(--ink)}
+@keyframes pop{from{transform:translateY(12px)}}
+
+/* 計時條 */
+.timer{height:8px;border:1px solid var(--ink);background:var(--paper)}
+.timer i{display:block;height:100%;width:100%;background:var(--red)}
+.jq{font-size:21px;font-weight:700;min-height:64px}
+
+/* 第 5 關 */
+.monitor{border:6px solid var(--ink);background:var(--paper);padding:6px;display:flex;flex-direction:column;gap:6px}
+.mhead{display:flex;align-items:baseline;gap:6px}
+.mhead b{font-family:var(--mono);font-size:32px;color:var(--red);font-variant-numeric:tabular-nums;line-height:1}
+#tix{display:flex;flex-direction:column;gap:4px;height:206px;overflow:hidden}
+.tick{background:var(--bar);border:1px solid var(--rule);min-height:38px;padding:2px 8px;text-align:left;font-size:15px;touch-action:none}
+.wall{display:flex;align-items:center;justify-content:flex-end;gap:0;height:50px}
+.wire{flex:1;height:4px;background:var(--hair);transform-origin:right center;transition:transform .35s ease-in}
+#jack{width:46px;height:46px;background:var(--paper);border:2px solid var(--ink);font-family:var(--mono);font-size:12px;padding:0;color:var(--soft);touch-action:manipulation}
+.wall.pulled .wire{transform:rotate(-9deg) scaleX(.72)}
+
+/* 第 6 關 */
+.today{font-family:var(--mono);font-size:15px;color:var(--soft);display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+.tag{background:var(--paper);border:2px solid var(--ink);padding:14px 12px;display:flex;flex-direction:column;gap:4px;min-height:112px;justify-content:center}
+.tag b{font-size:22px}
+.tag span{font-family:var(--mono);font-size:21px;color:var(--red);font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.two .btn{text-align:center}
+
+/* 第 7 關 */
+#read{font-family:var(--mono);font-size:30px;text-align:right;background:var(--paper);border:2px solid var(--ink);padding:0 10px;min-height:48px;font-variant-numeric:tabular-nums}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pad .btn{text-align:center;font-family:var(--mono);font-size:20px}
+.pad .btn.w{font-family:var(--kai);font-size:17px}
+
+/* 第 8 關 */
+.dlg{border:2px solid var(--ink);background:var(--paper);box-shadow:4px 4px 0 var(--rule);align-self:stretch}
+.dlg header{background:var(--ink);color:var(--paper);padding:3px 8px;font-size:14px;display:flex;justify-content:space-between}
+.dlg p{padding:18px 14px;font-size:20px;min-height:104px;box-sizing:border-box}
+.dlg .two{padding:0 10px 10px}
+
+/* 第 9 關 */
+.hall{background:var(--bar);border:2px solid var(--ink);padding:10px;display:flex;flex-direction:column;gap:16px}
+.bosses{display:flex;justify-content:space-around}
+.boss{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:14px}
+.head{display:block;width:58px;height:58px;border-radius:50%;background:var(--hair);position:relative}
+.head.warn{animation:shake .09s linear infinite}
+.head.face{background:var(--skin)}
+.head.face::before{content:"";position:absolute;left:14px;top:22px;width:8px;height:8px;border-radius:50%;background:var(--ink);box-shadow:22px 0 0 var(--ink)}
+@keyframes shake{50%{transform:translateX(3px)}}
+.track{position:relative;height:66px;border-bottom:4px solid var(--ink);margin-right:58px}
+#me{position:absolute;bottom:0;left:0;width:34px;display:flex;flex-direction:column;align-items:center}
+#me i{width:18px;height:18px;border-radius:50%;background:var(--hair)}
+#me u{width:30px;height:24px;background:var(--paper);border:2px solid var(--ink);text-decoration:none;box-sizing:border-box}
+.punch{position:absolute;right:-58px;bottom:0;width:54px;height:62px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:14px;text-align:center;line-height:1.2}
+#walk{min-height:76px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#walk.down{background:var(--desk-deep)}
+
+/* 第 10 關 */
+.phone{flex:1;background:var(--ink);color:var(--paper);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:6px;min-height:330px;overflow:hidden;transition:background .8s}
+.phone.dead{background:#0D121F}
+.lock{text-align:center;font-family:var(--mono);line-height:1.15}
+.lock b{display:block;font-size:40px}
+#msgs{display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.msg{background:var(--paper);color:var(--ink);padding:5px 8px;display:flex;gap:8px;align-items:center;border-radius:6px;font-size:15px}
+.msg p{flex:1;min-width:0}
+.msg .btn{min-height:36px;padding:0 8px;font-size:14px;flex:none;border-width:1px}
+
+/* 封面與證明 */
+.cover h1{font-family:var(--disp);font-weight:900;font-size:clamp(46px,14vw,74px);line-height:1.08;letter-spacing:.02em}
+.cover{flex:1;display:flex;flex-direction:column;gap:12px;justify-content:center;position:relative}
+.seal{display:inline-block;border:4px double var(--red);color:var(--red);font-family:var(--disp);font-weight:900;padding:2px 12px;transform:rotate(-8deg);mix-blend-mode:multiply;font-size:26px;width:max-content}
+.cover .seal{position:absolute;right:0;top:calc(50% - 126px);background:transparent}
+.fine{font-size:14px;color:var(--soft)}
+.cert{display:flex;flex-direction:column;gap:10px;position:relative}
+.cert h2{text-align:center;font-size:29px;letter-spacing:.2em}
+.stampzone{position:relative}
+.cert .seal{position:absolute;right:8px;top:34px;font-size:24px}
+#certName{font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);width:7.5em;max-width:60%;text-align:center;padding:0 2px}
+#share{background:var(--paper);border:1px dashed var(--rule);padding:6px 8px;font-size:15px;user-select:text;-webkit-user-select:text}
+
+/* 判決 */
+#vd{position:fixed;inset:0;z-index:20;background:rgba(20,40,34,.62);display:grid;place-items:center;box-sizing:border-box;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.vcard{background:var(--paper);width:100%;max-width:420px;padding:30px 18px 18px;display:flex;flex-direction:column;gap:26px;box-sizing:border-box;max-height:100%;overflow:auto}
+#stamp{align-self:center;border:6px double var(--red);color:var(--red);font-family:var(--disp);font-weight:900;font-size:44px;line-height:1.1;padding:2px 16px;transform:rotate(-7deg);letter-spacing:.1em}
+#stamp.slam{animation:slam .17s cubic-bezier(.2,.9,.3,1)}
+@keyframes slam{from{transform:rotate(-16deg) scale(2.8);opacity:.2}to{transform:rotate(-7deg) scale(1);opacity:1}}
+.vline{display:flex;gap:10px;align-items:flex-start}
+.vline p{min-width:0}
+.vline b{display:block;font-size:13px;color:var(--soft)}
+#toast{position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;justify-content:center;pointer-events:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#toast span{background:var(--red);color:var(--paper);padding:8px 12px;max-width:420px}
+
+@media (max-width:420px){.tool{padding:0 7px;font-size:14px}.barrow{gap:8px}#chops{gap:2px}#chops li{font-size:11px}#chops li.ok{font-size:12px}}
+@media (max-height:640px){#stage{padding-top:8px}h2{font-size:21px}#play{min-height:220px}.door{height:70px}.door .chop{width:30px;height:30px;font-size:17px}}
+@media (prefers-reduced-motion:reduce){#stamp.slam,#stage.jolt,.head.warn,.door .chop{animation:none!important}#run{transition:none}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header id="bar">
+    <div class="barrow">
+      <span id="lvLabel" class="grow">尚未送件</span>
+      <span id="clock" class="stat">00:00</span>
+      <span class="stat kai">被慰留 <b id="cnt">0</b> 次</span>
+    </div>
+    <div class="barrow">
+      <ol id="chops" aria-label="簽核進度"></ol>
+      <button id="hintBtn" class="tool" type="button">看小抄</button>
+      <button id="muteBtn" class="tool" type="button" aria-label="切換音效">音效開</button>
+    </div>
+  </header>
+  <main id="stage"></main>
+</div>
+
+<div id="vd" hidden>
+  <div class="vcard" role="dialog" aria-modal="true">
+    <div id="stamp">核准</div>
+    <div class="vline"><span id="vdChop" class="chop">系</span><p><b id="vdWho">系統</b><span id="vdText"></span></p></div>
+    <button id="vdBtn" class="btn main" type="button">下一張單</button>
+  </div>
+</div>
+<div id="toast" hidden><span id="toastText"></span></div>
+
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const rand=(a,b)=>a+Math.random()*(b-a);
+const WHO={chen:['陳','陳總'],jeff:['傑','傑夫'],law:['勞','勞倫斯'],sys:['系','人資系統'],it:['資','IT']};
+const KEY='quit-game-v1';
+const stage=$('#stage'),vd=$('#vd');
+const S={lv:-1,fails:0,hints:0,ms:0,running:false,mute:false};
+let seen={},cleanup=[],sayEl=null;
+
+/* 工具 */
+function later(fn,ms){const id=setTimeout(fn,ms);cleanup.push(()=>clearTimeout(id));return id}
+function every(fn,ms){const id=setInterval(fn,ms);cleanup.push(()=>clearInterval(id));return id}
+function teardown(){cleanup.forEach(f=>f());cleanup=[]}
+function store(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function save(){store(KEY,{lv:S.lv,fails:S.fails,hints:S.hints,ms:S.ms})}
+function fmt(ms){const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+
+let ac=null;
+function tone(f,d,type,g){if(S.mute)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),v=ac.createGain();o.type=type||'square';o.frequency.value=f;v.gain.setValueAtTime(g||.04,ac.currentTime);v.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(v).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+const sfxOk=()=>{tone(90,.16,'triangle',.25);setTimeout(()=>tone(660,.1),90)};
+const sfxNo=()=>{tone(90,.16,'triangle',.25);setTimeout(()=>tone(130,.24,'sawtooth'),70)};
+const sfxTick=()=>tone(880,.04,'square',.02);
+
+/* 頂部 */
+const chops=$('#chops');
+for(let i=0;i<10;i++){const li=document.createElement('li');li.textContent=i+1;chops.appendChild(li)}
+function drawBar(){
+  [...chops.children].forEach((li,i)=>{li.className=i<S.lv||S.lv>=10?'ok':i===S.lv?'now':'';li.textContent=(i<S.lv||S.lv>=10)?'准':i+1});
+  $('#lvLabel').textContent=S.lv<0?'尚未送件':S.lv>=10?'已離職':'第 '+(S.lv+1)+' 張，共 10 張';
+  $('#cnt').textContent=S.fails;
+  $('#clock').textContent=fmt(S.ms);
+}
+setInterval(()=>{if(S.running&&vd.hidden){S.ms+=1000;$('#clock').textContent=fmt(S.ms)}},1000);
+
+function say(who,text){
+  if(!sayEl)return;
+  sayEl.dataset.on='1';
+  sayEl.innerHTML='<span class="chop"></span><p><b></b><span></span></p>';
+  $('.chop',sayEl).textContent=WHO[who][0];$('b',sayEl).textContent=WHO[who][1];$('p span',sayEl).textContent=text;
+}
+function strike(who,text){S.fails++;drawBar();save();sfxNo();say(who,text)}
+
+function verdict(kind,who,text,label,next){
+  vd.hidden=false;
+  const st=$('#stamp');st.textContent=kind==='ok'?'核准':'駁回';
+  st.classList.remove('slam');void st.offsetWidth;st.classList.add('slam');
+  $('#vdChop').textContent=WHO[who][0];$('#vdWho').textContent=WHO[who][1];$('#vdText').textContent=text;
+  const b=$('#vdBtn');b.textContent=label;b.onclick=()=>{vd.hidden=true;next()};b.focus();
+  stage.classList.remove('jolt');void stage.offsetWidth;stage.classList.add('jolt');
+}
+function pass(who,text){
+  teardown();sfxOk();
+  const i=S.lv,last=i===LV.length-1;
+  S.lv=i+1;drawBar();save();
+  verdict('ok',who,text,last?'領離職證明':'下一張單',()=>last?finish():go(i+1));
+}
+function fail(who,text,label){
+  teardown();S.fails++;drawBar();save();sfxNo();
+  verdict('no',who,text,label||'整張重來',()=>go(S.lv));
+}
+function timer(el,ms,onEnd){
+  const t0=performance.now();let alive=true;
+  const f=()=>{if(!alive)return;const r=Math.max(0,1-(performance.now()-t0)/ms);el.style.width=(r*100)+'%';if(r<=0){alive=false;onEnd();return}requestAnimationFrame(f)};
+  requestAnimationFrame(f);
+  const stop=()=>{alive=false};cleanup.push(stop);return stop;
+}
+
+function go(i){
+  teardown();S.lv=i;S.running=true;drawBar();save();
+  const L=LV[i];
+  stage.innerHTML='<div class="fhead"><span>表單編號 HR-115-'+String(i+1).padStart(4,'0')+'</span><span>'+L.copy+'</span></div><h2></h2><p class="ask"></p><div id="say" data-on="0" data-talk="'+(L.talk?1:0)+'" aria-live="polite"></div><div id="play"></div>';
+  $('h2',stage).textContent=L.title;$('.ask',stage).textContent=L.ask;
+  sayEl=$('#say');stage.scrollTop=0;
+  L.run($('#play'));
+}
+
+/* 十張單 */
+const LV=[
+{title:'離職申請單',copy:'第一聯：人事',ask:'資料都幫你填好了。按下送出就可以。',
+ hint:'按鈕也是會累的，多追幾次。',
+ run(p){
+  p.innerHTML='<div class="rows"><span class="k">申請人</span><span class="v kai">你</span><span class="k">最後工作日</span><span class="v kai">越快越好</span><span class="k">主管意見</span><span class="v kai">尚未開始已讀</span></div><button id="run" class="btn main" type="button">送出申請</button>';
+  const b=$('#run'),lines=['再想想？','真的嗎','案子呢','尾牙快到了','聽說要調薪','陳總會難過','傑夫會念'];
+  let n=0;
+  const dodge=()=>{
+    if(n>=lines.length)return false;
+    b.textContent=lines[n++];sfxTick();
+    const W=Math.max(0,p.clientWidth-b.offsetWidth),H=Math.max(0,p.clientHeight-b.offsetHeight);
+    const x0=b.offsetLeft,y0=b.offsetTop;let x,y,g=0;
+    do{x=rand(0,W);y=rand(0,H);g++}while(Math.hypot(x-x0,y-y0)<130&&g<30);
+    b.style.left=x+'px';b.style.top=y+'px';
+    if(n>=lines.length)b.textContent='（喘）送出';
+    return true;
+  };
+  b.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')dodge()});
+  b.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'&&dodge())e.preventDefault()});
+  b.addEventListener('click',()=>{if(n>=lines.length)pass('sys','申請已送出。接下來才是真的開始。');else dodge()});
+ }},
+{title:'離職原因調查表',copy:'第二聯：主管',ask:'請勾選公司無法反駁的離職原因。',
+ talk:true,hint:'把列出來的原因全部試一遍。',
+ run(p){
+  const opts=[['家庭因素','chen','家庭很重要。那你週一請假就好，我都這樣。'],['薪水太低','jeff','我的薪水也好幾年沒漲，你看我有走嗎？'],['想休息一陣子','chen','最近是不是手上沒什麼案子？'],['有更好的發展','jeff','重點是你想把這個帶到什麼高度？']];
+  p.innerHTML='<div class="opts"></div>';
+  const box=$('.opts',p);let left=opts.length;
+  shuffle(opts).forEach(([t,w,l])=>{
+    const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='□ '+t;
+    b.onclick=()=>{b.disabled=true;strike(w,l);if(--left===0)later(unlock,500)};box.appendChild(b);
+  });
+  function unlock(){
+    const b=document.createElement('button');b.type='button';b.className='btn scrawl';b.textContent='□ 我不想再喝傑夫出錢的飲料了';
+    b.onclick=()=>pass('jeff','……你知道我有 5% 股份吧。');box.appendChild(b);
+    say('sys','表單背面好像有人手寫了一個選項。');
+  }
+ }},
+{title:'主管簽核單',copy:'第三聯：總經理',ask:'主管欄、部門欄、總經理欄，三欄都要陳總本人簽。',
+ talk:true,hint:'今天星期一，陳總不會進公司。翻一下桌上的日曆。',
+ run(p){
+  p.innerHTML='<button id="cal" class="cal" type="button"><small>115 年 11 月</small><b>2</b><span>星期一</span></button><button id="call" class="btn main" type="button">呼叫陳總</button>';
+  $('#call').onclick=()=>strike('sys','陳總今日請假。');
+  $('#cal').onclick=()=>{tone(300,.08,'sawtooth');whack(p)};
+ }},
+{title:'離職前訪談紀錄',copy:'第四聯：傑夫',ask:'傑夫想跟你聊一下。每題 5 秒。',
+ hint:'答案要聽起來很厲害，但沒有任何內容。',
+ run(p){
+  const qs=[['這個案子的問題點是什麼？',['預算不夠','我還沒看','我們要先對齊底層邏輯'],2],['做這件事的意義是什麼？',['公司要求的','我也不知道','為長期價值打下基礎'],2],['進度到哪了？','完成六成|還沒開始|目前在滾動式調整'.split('|'),2],['目標是什麼？',['下個月賣 100 台','準時下班','把它帶到一個新的高度'],2],['所以你的想法呢？',['我覺得都可以','沒有想法','總經理沒想法，我要有想法'],2]];
+  p.innerHTML='<div class="timer"><i></i></div><p class="jq"></p><div class="opts"></div>';
+  const bar=$('.timer i',p),q=$('.jq',p),box=$('.opts',p);let i=0,stop=null;
+  const wrong='哇，你這樣做事真的死無葬身之地。';
+  function next(){
+    if(i>=qs.length){pass('jeff','不錯，你終於有想法了。那你幹嘛要走？');return}
+    const [t,o,r]=qs[i];q.textContent=(i+1)+'／5　'+t;box.innerHTML='';
+    shuffle(o.map((x,k)=>[x,k===r])).forEach(([x,ok])=>{
+      const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=x;
+      b.onclick=()=>{stop&&stop();if(ok){i++;sfxTick();next()}else fail('jeff',wrong)};box.appendChild(b);
+    });
+    stop=timer(bar,5000,()=>fail('jeff','沉默也是一種態度。'+wrong));
+  }
+  next();
+ }},
+{title:'工作交接清單',copy:'第五聯：交接人',ask:'待辦清到 0 件才能交接。',
+ talk:true,hint:'待辦是從網路來的。看看螢幕下面那條線。',
+ run(p){
+  const src=['傑夫：不可能沒有事做','陳總：這個也順便看一下','業務：客戶急件','勞倫斯：規格又改了','傑夫：重點是高度','陳總：有空嗎','業務：今天要','勞倫斯：再開一次會','傑夫：你要自己找事做','業務：報價單呢'];
+  p.innerHTML='<div class="monitor"><div class="mhead"><span>待辦</span><b id="n">14</b><span>件</span></div><div id="tix"></div></div><div class="wall"><span class="wire"></span><button id="jack" type="button" aria-label="網路孔">LAN</button></div>';
+  const tix=$('#tix',p),num=$('#n',p),wall=$('.wall',p);
+  let n=14,on=true,list=[];for(let i=0;i<6;i++)list.push(pick(src));
+  const draw=()=>{num.textContent=n;tix.innerHTML='';list.slice(0,5).forEach(t=>{const b=document.createElement('button');b.type='button';b.className='tick';b.textContent=t;tix.appendChild(b)})};
+  const add=()=>{n++;list.push(pick(src));if(list.length>12)list=list.slice(-12)};
+  tix.addEventListener('pointerdown',e=>{
+    if(!on||!e.target.classList.contains('tick'))return;
+    e.preventDefault();sfxTick();n--;list.shift();if(list.length<6)list.push(pick(src));
+    if(Math.random()<.5){add();say(pick(['jeff','chen']),'已收到？那這個也順便。')}
+    if(n<=0){on=false;pass('jeff','你到底怎麼做到的？');return}
+    draw();
+  });
+  draw();
+  every(()=>{if(!on)return;add();draw();if(n>=99){on=false;fail('jeff','不可能沒有事做吧？你看，一定有的。')}},300);
+  $('#jack').onclick=()=>{
+    if(!on)return;on=false;wall.classList.add('pulled');tone(160,.12,'sawtooth');
+    say('it','網路斷了。待辦同步失敗，依規定視同沒有待辦。');
+    const step=Math.max(1,Math.ceil(n/18));
+    every(()=>{n=Math.max(0,n-step);list.shift();draw();if(n===0)pass('it','系統顯示：待辦 0 件。恭喜交接完成。')},60);
+  };
+ }},
+{title:'倉庫與冰箱盤點單',copy:'第六聯：倉管',ask:'傑夫要你走之前整理完。還沒過期的賣掉，過期的報廢。',
+ hint:'今天是民國 115 年，也就是 2026 年。民國年加 1911 就是西元年。',
+ run(p){
+  const items=shuffle([['尾牙剩下的鳳梨酥','114/12/31',1],['傑夫的無糖綠茶','115/12/01',0],['業務的便當','115/11/01',1],['開會剩的礦泉水','116/03/15',0],['樣品散熱膏','2027/06/30',0],['去年中秋的月餅','2025/10/06',1],['茶水間的餅乾','115/10/30',1],['備用水冷液','117/01/20',0],['不知道誰的咖啡豆','2026/09/30',1],['冰箱深處的鮮奶','115/11/09',0]]).slice(0,8);
+  p.innerHTML='<div class="today"><span>今天 115/11/03</span><span id="left">1／8</span></div><div class="timer"><i></i></div><div class="tag"><b></b><span></span></div><div class="two"><button id="sell" class="btn" type="button">賣掉</button><button id="dump" class="btn" type="button">報廢</button></div>';
+  let i=0;
+  const draw=()=>{$('.tag b',p).textContent=items[i][0];$('.tag span',p).textContent='有效期限 '+items[i][1];$('#left').textContent=(i+1)+'／8'};
+  const act=d=>{
+    if(items[i][2]!==d){fail('jeff',d?'還能賣的你拿去報廢，你是來賠錢的嗎？':'過期的你也賣，客訴你接嗎？');return}
+    sfxTick();if(++i>=items.length){pass('jeff','整理得不錯。拿公司東西要收費喔，下一張給你。');return}draw();
+  };
+  $('#sell').onclick=()=>act(0);$('#dump').onclick=()=>act(1);
+  draw();timer($('.timer i',p),30000,()=>fail('jeff','這麼慢，重點是你想把倉庫帶到什麼高度？'));
+ }},
+{title:'飲料費結算單',copy:'第七聯：會計',ask:'傑夫說他有 5% 股份，所以你喝的每杯飲料他都有出錢。請算出他實際請了你多少。',
+ talk:true,hint:'200 杯乘 50 元，再乘 5%。',
+ run(p){
+  p.innerHTML='<div class="rows"><span class="k">今年喝掉</span><span class="v">200 杯</span><span class="k">每杯</span><span class="v">50 元</span><span class="k">傑夫持股</span><span class="v">5%</span></div><div id="read" aria-live="polite">0</div><div class="pad"></div>';
+  const pad=$('.pad',p),rd=$('#read',p);let v='';
+  const show=()=>{rd.textContent=v||'0'};
+  ['1','2','3','4','5','6','7','8','9','清除','0','確定'].forEach(k=>{
+    const b=document.createElement('button');b.type='button';b.className='btn'+(k.length>1?' w':'')+(k==='確定'?' main':'');b.textContent=k;
+    b.onclick=()=>{
+      if(k==='清除'){v='';show()}
+      else if(k==='確定'){if(v==='500')pass('jeff','……那你還我 500。');else{strike('jeff','帳不對不能走。我當年創業的時候，帳都是自己算的。');v='';show()}}
+      else if(v.length<6){v=(v+k).replace(/^0+/,'');sfxTick();show()}
+    };pad.appendChild(b);
+  });
+ }},
+{title:'人資系統最終確認',copy:'第八聯：系統',ask:'最後確認一下你的離職意願。按錯就視同你願意留下。',
+ hint:'每題都先想：怎麼按才是繼續離職。不要看字面的第一印象。',
+ run(p){
+  const qs=[['確定要離職嗎？','確定','取消'],['是否取消離職？','否','是'],['您確定不要取消離職嗎？','確定','取消'],['是否放棄不離職？','是','否'],['若不同意不放棄取消離職，請按「否」；否則請按「是」。','否','是']];
+  let i=0;
+  function draw(){
+    const [t,y,n]=qs[i];
+    p.innerHTML='<div class="dlg"><header><span>大妃人資系統</span><span>'+(i+1)+'／5</span></header><p></p><div class="two"></div></div>';
+    $('p',p).textContent=t;const box=$('.two',p);
+    shuffle([[y,true],[n,false]]).forEach(([l,ok])=>{
+      const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=l;
+      b.onclick=()=>{if(!ok){fail('sys','您已成功取消離職。歡迎回來！今天的週報記得交。','回到第一題')}else{sfxTick();if(++i>=qs.length)pass('sys','意願確認完成。您可以下班打卡了。');else draw()}};box.appendChild(b);
+    });
+  }
+  draw();
+ }},
+{title:'下班打卡',copy:'第九聯：打卡機',ask:'抱著紙箱走到打卡機。他們回頭的時候不能動。',
+ hint:'看到頭開始抖就放手，等轉回去再走。',
+ run(p){
+  p.innerHTML='<div class="hall"><div class="bosses"><div class="boss"><i class="head" id="hChen"></i><span>陳總</span></div><div class="boss"><i class="head" id="hJeff"></i><span>傑夫</span></div></div><div class="track"><div id="me"><i></i><u></u></div><div class="punch">打卡</div></div></div><button id="walk" class="btn main" type="button">按住往前走</button>';
+  const me=$('#me'),track=$('.track',p),walk=$('#walk');
+  const hs={chen:$('#hChen'),jeff:$('#hJeff')};
+  let x=0,hold=false,st='back',who='jeff',until=performance.now()+rand(1200,2200),lastT=performance.now(),alive=true,faceAt=0;
+  cleanup.push(()=>{alive=false});
+  const set=(c)=>{hs[who].className='head'+(c?' '+c:'')};
+  const down=e=>{e.preventDefault();hold=true;walk.classList.add('down');if(e.pointerId!==undefined){try{walk.setPointerCapture(e.pointerId)}catch(_){}}};
+  const up=()=>{hold=false;walk.classList.remove('down')};
+  walk.addEventListener('pointerdown',down);walk.addEventListener('pointerup',up);walk.addEventListener('pointercancel',up);
+  walk.addEventListener('contextmenu',e=>e.preventDefault());
+  walk.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')down(e)});walk.addEventListener('keyup',up);walk.addEventListener('blur',up);
+  const loop=()=>{
+    if(!alive)return;
+    const t=performance.now(),dt=(t-lastT)/1000;lastT=t;
+    if(t>=until){
+      if(st==='back'){st='warn';who=pick(['chen','jeff']);set('warn');until=t+480}
+      else if(st==='warn'){st='face';set('face');faceAt=t;until=t+rand(1100,1900)}
+      else{set('');st='back';until=t+rand(900,2200)}
+    }
+    if(st==='face'&&hold&&t-faceAt>110){
+      fail(who,who==='jeff'?'你要去哪？來，我們聊一下。':'最近是不是手上沒什麼案子？');return;
+    }
+    if(hold){x=Math.min(100,x+dt*15)}
+    me.style.left='calc('+x+'% - '+(x*.34)+'px)';
+    if(x>=100){pass('sys','打卡成功。18:02。你走出公司了。');return}
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+ }},
+{title:'離職後關懷',copy:'第十聯：你',ask:'你走出公司了。手機開始響。',
+ hint:'什麼都不要碰。',
+ run(p){
+  p.innerHTML='<div class="phone"><div class="lock"><b>18:03</b><span>星期二</span></div><div id="msgs"></div></div>';
+  const box=$('#msgs',p),ph=$('.phone',p);
+  const seq=[['jeff','人呢？'],['chen','最近是不是手上沒什麼案子？'],['law','那個檔案放哪？'],['jeff','不可能沒有事做，你要自己找事做。'],['chen','明天可以來一下嗎？只要五分鐘。'],['jeff','總經理沒想法，你要有想法。'],['law','陳總說你知道。'],['jeff','你這樣做事真的死無葬身之地。']];
+  seq.forEach(([w,t],i)=>later(()=>{
+    const m=document.createElement('div');m.className='msg';
+    m.innerHTML='<span class="chop"></span><p></p><button class="btn" type="button">回覆</button>';
+    $('.chop',m).textContent=WHO[w][0];$('p',m).textContent=t;box.prepend(m);sfxTick();
+    while(box.children.length>4)box.lastChild.remove();
+  },900+i*1200));
+  const touch=()=>fail('jeff','很好，明天的會你主持。你的離職已自動撤銷。','再逃一次');
+  stage.addEventListener('pointerdown',touch);cleanup.push(()=>stage.removeEventListener('pointerdown',touch));
+  later(()=>{box.innerHTML='';ph.classList.add('dead');$('.lock b',ph).textContent='';$('.lock span',ph).textContent='電量 0%'},900+seq.length*1200+900);
+  later(()=>pass('sys','手機沒電了。你終於自由了。'),900+seq.length*1200+2300);
+ }}
+];
+
+function whack(p){
+  const spots=['A 會議室','B 會議室','茶水間','她的座位','電梯口','機車格'];
+  p.innerHTML='<div class="signs"><div>主管欄<span class="chop">陳</span></div><div>部門欄<span class="chop">陳</span></div><div>總經理欄<span class="chop">陳</span></div></div><div class="doors"></div>';
+  say('sys','週二了。陳總出現時點她，她都跟勞倫斯在開會，別點錯人。');
+  const box=$('.doors',p),cells=spots.map(t=>{const b=document.createElement('button');b.type='button';b.className='door';b.innerHTML='<span></span><span class="chop"></span>';b.firstChild.textContent=t;box.appendChild(b);return b});
+  const signs=[...p.querySelectorAll('.signs .chop')];
+  let hits=0,cur=null;
+  const clear=()=>{if(cur){cur.dataset.who='';cur=null}};
+  function popUp(){
+    if(hits>=3)return;
+    let c;do{c=pick(cells)}while(c===cur&&cells.length>1);
+    clear();const who=Math.random()<.5?'chen':'law';
+    cur=c;c.dataset.who=who;$('.chop',c).textContent=WHO[who][0];
+    later(()=>{clear();later(popUp,260)},[1000,800,640][hits]);
+  }
+  cells.forEach(c=>c.addEventListener('pointerdown',e=>{
+    e.preventDefault();const who=c.dataset.who;if(!who)return;
+    c.dataset.who='';cur=null;
+    if(who==='law'){strike('law','她等下要跟我開會，下一場也是。');return}
+    signs[hits].classList.add('on');hits++;tone(120,.1,'triangle',.2);
+    if(hits>=3){pass('chen','好啦我簽。你最近是不是手上沒什麼案子？')}
+    else say('chen',hits===1?'我有空會看。':'這個明天再說好不好？');
+  }));
+  later(popUp,700);
+}
+
+function title(){
+  const f=S.fails;
+  if(f<=12)return'裸辭之神';if(f<=30)return'順利交接';if(f<=60)return'慰留常客';return'終身員工';
+}
+function finish(){
+  teardown();S.running=false;S.lv=10;drawBar();sayEl=null;store(KEY,null);
+  const prev=store(KEY+'-best');const best=!prev||S.fails<prev.fails||(S.fails===prev.fails&&S.ms<prev.ms);
+  if(best)store(KEY+'-best',{fails:S.fails,ms:S.ms});
+  const t=title();
+  stage.innerHTML='<div class="cert"><div class="fhead"><span>大妃人字第 1150107 號</span><span>正本</span></div><h2>離職證明書</h2>'
+  +'<p>茲證明 <input id="certName" maxlength="10" placeholder="請填姓名" aria-label="你的名字"> 已成功離開本公司，再也不必自己找事做。</p>'
+  +'<div class="stampzone"><span class="seal">已離職</span><div class="rows"><span class="k">稱號</span><span class="v kai">'+t+'</span><span class="k">離職耗時</span><span class="v">'+fmt(S.ms)+'</span><span class="k">被慰留</span><span class="v">'+S.fails+' 次</span><span class="k">偷看小抄</span><span class="v">'+S.hints+' 次</span><span class="k">個人紀錄</span><span class="v kai">'+(best?'這次最好':'最少被慰留 '+prev.fails+' 次')+'</span></div></div>'
+  +'<p id="share"></p><div class="two"><button id="copy" class="btn main" type="button">複製戰績</button><button id="again" class="btn" type="button">再離職一次</button></div>'
+  +'<p class="fine">本公司保留隨時請你回來支援的權利。</p></div>';
+  const line=()=>{const n=$('#certName').value.trim();$('#share').textContent=(n||'我')+' 花了 '+fmt(S.ms)+'、被慰留 '+S.fails+' 次才成功離職，稱號「'+t+'」。你走得掉嗎？'};
+  line();$('#certName').addEventListener('input',line);
+  $('#copy').onclick=()=>{
+    const txt=$('#share').textContent,b=$('#copy');
+    const sel=()=>{const r=document.createRange();r.selectNodeContents($('#share'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='已選取，請手動複製'};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>{b.textContent='已複製'},sel);else sel();
+  };
+  $('#again').onclick=()=>{Object.assign(S,{fails:0,hints:0,ms:0});seen={};go(0)};
+  stage.scrollTop=0;
+}
+
+function cover(){
+  teardown();drawBar();
+  const sv=store(KEY);const hasSave=sv&&typeof sv.lv==='number'&&sv.lv>=0&&sv.lv<10;
+  stage.innerHTML='<div class="fhead"><span>表單編號 HR-115-0000</span><span>大妃股份有限公司</span></div><div class="cover"><span class="seal">駁回</span><h1>想辦法<br>離職</h1><p>十張單，一扇門。每張單都有一個走得掉的方法，你要自己找出來。</p>'
+  +(hasSave?'<button id="cont" class="btn main" type="button">繼續第 '+(sv.lv+1)+' 張單</button><button id="fresh" class="btn" type="button">重新申請</button>':'<button id="fresh" class="btn main" type="button">開始申請離職</button>')
+  +'<p class="fine">純屬虛構。如有雷同，你也該想想辦法了。卡關時可以看小抄。</p></div>';
+  $('#fresh').onclick=()=>{Object.assign(S,{fails:0,hints:0,ms:0});seen={};go(0)};
+  if(hasSave)$('#cont').onclick=()=>{Object.assign(S,{fails:sv.fails||0,hints:sv.hints||0,ms:sv.ms||0});go(sv.lv)};
+}
+
+/* 小抄與音效 */
+let toastId=0;
+$('#hintBtn').onclick=()=>{
+  const L=LV[S.lv];const box=$('#toast');
+  $('#toastText').textContent=L&&S.running?L.hint:'先開始申請，才有小抄可以看。';
+  box.hidden=false;clearTimeout(toastId);toastId=setTimeout(()=>{box.hidden=true},5000);
+  if(L&&S.running&&!seen[S.lv]){seen[S.lv]=1;S.hints++;save()}
+};
+$('#muteBtn').onclick=e=>{S.mute=!S.mute;e.currentTarget.textContent=S.mute?'音效關':'音效開'};
+
+cover();
+})();
+</script>
+
+</body>
+</html>
